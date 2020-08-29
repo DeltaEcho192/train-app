@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() async {
   runApp(MyApp());
-  FirebaseApp.initializeApp(this);
 }
 
 class MyApp extends StatelessWidget {
@@ -95,7 +95,7 @@ class _ImageCaptureState extends State<ImageCapture> {
                 ),
               ],
             ),
-            Uploader(file: _imageFile)
+            Uploader(file: _imageFile),
           ]
         ],
       ),
