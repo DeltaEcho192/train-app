@@ -5,6 +5,7 @@ import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'model.dart';
 import 'result.dart';
+import 'database.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -119,7 +120,7 @@ class _TestFormState extends State<TestForm> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Result(model: this.model)));
+                          builder: (context) => DataAdder(model: this.model)));
                 }
               },
               child: Text(
@@ -240,35 +241,45 @@ class _UploaderState extends State<Uploader> {
                 ? event.bytesTransferred / event.totalByteCount
                 : 0;
 
-            return Column(
-              children: [
-                if (_uploadTask.isComplete) Text('🎉🎉🎉'),
+            return Scaffold(
+              body: Container(
+                child: Center(
+                    child: Column(
+                  children: [
+                    // TODO Change so that it brings back the main page
+                    if (_uploadTask.isComplete) Text('🎉🎉🎉'),
 
-                if (_uploadTask.isPaused)
-                  FlatButton(
-                    child: Icon(Icons.play_arrow),
-                    onPressed: _uploadTask.resume,
-                  ),
+                    if (_uploadTask.isPaused)
+                      FlatButton(
+                        child: Icon(Icons.play_arrow),
+                        onPressed: _uploadTask.resume,
+                      ),
 
-                if (_uploadTask.isInProgress)
-                  FlatButton(
-                    child: Icon(Icons.pause),
-                    onPressed: _uploadTask.pause,
-                  ),
+                    if (_uploadTask.isInProgress)
+                      FlatButton(
+                        child: Icon(Icons.pause),
+                        onPressed: _uploadTask.pause,
+                      ),
 
-                // Progress bar
-                LinearProgressIndicator(value: progressPercent),
-                Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
-              ],
+                    // Progress bar
+                    LinearProgressIndicator(value: progressPercent),
+                    Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
+                  ],
+                )),
+              ),
             );
           });
     } else {
       // Allows user to decide when to start the upload
-      return FlatButton.icon(
-        label: Text('Upload to Firebase'),
-        icon: Icon(Icons.cloud_upload),
-        onPressed: _startUpload,
-      );
+      return Scaffold(
+          body: Container(
+              child: Center(
+        child: FlatButton.icon(
+          label: Text('Upload to Image'),
+          icon: Icon(Icons.cloud_upload),
+          onPressed: _startUpload,
+        ),
+      )));
     }
   }
 }
