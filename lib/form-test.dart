@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -34,7 +34,17 @@ class TestForm extends StatefulWidget {
 class _TestFormState extends State<TestForm> {
   final _formKey = GlobalKey<FormState>();
   File _imageFile;
+  String locWorking;
   Model model = Model();
+
+  Future<void> _getLocation() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print(position.toString());
+    setState(() {
+      model.location = position.toString();
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
@@ -75,21 +85,14 @@ class _TestFormState extends State<TestForm> {
                     ),
                   ),
                   Container(
-                    alignment: Alignment.topCenter,
-                    width: halfMediaWidth,
-                    child: MyTextFormField(
-                      hintText: 'Place',
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Enter your Location';
-                        }
-                        return null;
-                      },
-                      onSaved: (String value) {
-                        model.lastName = value;
-                      },
-                    ),
-                  )
+                      alignment: Alignment.topCenter,
+                      width: halfMediaWidth,
+                      child: RaisedButton(
+                          color: Colors.blueAccent,
+                          onPressed: () {
+                            _getLocation();
+                          },
+                          child: Text("Get Location")))
                 ],
               ),
             ),
@@ -116,7 +119,13 @@ class _TestFormState extends State<TestForm> {
               color: Colors.blueAccent,
               onPressed: () {
                 if (_formKey.currentState.validate()) {
+                  print(locWorking);
                   _formKey.currentState.save();
+                  print(model.checkBox.toString() +
+                      model.email +
+                      model.firstName +
+                      model.picName +
+                      model.location);
                   Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -29,6 +29,7 @@ dependencies:
   validators: ^2.0.0+1
   image_cropper: 1.0.2
   image_picker: 0.6.0+17
+  geolocator: ^5.3.2+2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

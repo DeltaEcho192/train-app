@@ -4,6 +4,7 @@ import 'model.dart';
 class Result extends StatelessWidget {
   Model model;
   Result({this.model});
+
   @override
   Widget build(BuildContext context) {
     return (Scaffold(
@@ -14,10 +15,13 @@ class Result extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(model.firstName, style: TextStyle(fontSize: 22)),
-            Text(model.lastName, style: TextStyle(fontSize: 22)),
             Text(model.email, style: TextStyle(fontSize: 22)),
             Text(model.checkBox.toString(), style: TextStyle(fontSize: 22)),
-            Text(model.picName, style: TextStyle(fontSize: 22))
+            Text(model.picName, style: TextStyle(fontSize: 22)),
+            Text(
+              model.location,
+              style: TextStyle(fontSize: 22),
+            )
           ],
         ),
       ),

@@ -1,0 +1,7 @@
+Make Upload look better
+Give confirmation if data has been added to firestore
+How to add location to firestore
+Integrate photo Upload and data Upload use wait until completed
+Add location plugin for location using gps and parsing that.
+Null value check
+Formating
