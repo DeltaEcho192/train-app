@@ -131,6 +131,11 @@ class _TestFormState extends State<TestForm> {
                   _formKey.currentState.save();
                   if (model.location == null) {
                     print("No location");
+
+                    setState(() {
+                      model.dataCheck = false;
+                    });
+                    print(model.dataCheck);
                     showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -146,16 +151,12 @@ class _TestFormState extends State<TestForm> {
                               ],
                             ));
                   } else {
-                    print(model.checkBox.toString() +
-                        model.email +
-                        model.firstName +
-                        model.picName +
-                        model.location);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                DataAdder(model: this.model)));
+                    print("All checks passed...");
+                    setState(() {
+                      model.dataCheck = true;
+                    });
+
+                    print(model.dataCheck);
                   }
                 }
               },
@@ -185,12 +186,14 @@ class _TestFormState extends State<TestForm> {
                 ),
               ),
             ),
-            RaisedButton(onPressed: () {}),
             if (_imageFile != null) ...[
               Uploader(
                 file: _imageFile,
                 fileName: model.picName,
               ),
+            ],
+            if (model.dataCheck == true) ...[
+              DataAdder(model: this.model),
             ],
           ],
         ),
@@ -283,45 +286,35 @@ class _UploaderState extends State<Uploader> {
                 ? event.bytesTransferred / event.totalByteCount
                 : 0;
 
-            return Scaffold(
-              body: Container(
-                child: Center(
-                    child: Column(
-                  children: <Widget>[
-                    // TODO Change so that it brings back the main page
-                    if (_uploadTask.isComplete) Text("Upload Complete..."),
+            return Column(
+              children: [
+                if (_uploadTask.isComplete) Text('Upload Complete...'),
 
-                    if (_uploadTask.isPaused)
-                      FlatButton(
-                        child: Icon(Icons.play_arrow),
-                        onPressed: _uploadTask.resume,
-                      ),
+                if (_uploadTask.isPaused)
+                  FlatButton(
+                    child: Icon(Icons.play_arrow),
+                    onPressed: _uploadTask.resume,
+                  ),
 
-                    if (_uploadTask.isInProgress)
-                      FlatButton(
-                        child: Icon(Icons.pause),
-                        onPressed: _uploadTask.pause,
-                      ),
+                if (_uploadTask.isInProgress)
+                  FlatButton(
+                    child: Icon(Icons.pause),
+                    onPressed: _uploadTask.pause,
+                  ),
 
-                    // Progress bar
-                    LinearProgressIndicator(value: progressPercent),
-                    Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
-                  ],
-                )),
-              ),
+                // Progress bar
+                LinearProgressIndicator(value: progressPercent),
+                Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
+              ],
             );
           });
     } else {
       // Allows user to decide when to start the upload
-      return Scaffold(
-          body: Container(
-              child: Center(
-        child: FlatButton.icon(
-          label: Text('Upload to Image'),
-          icon: Icon(Icons.cloud_upload),
-          onPressed: _startUpload,
-        ),
-      )));
+      return FlatButton.icon(
+        label: Text('Upload to Firebase'),
+        icon: Icon(Icons.cloud_upload),
+        onPressed: _startUpload,
+      );
     }
   }
 }

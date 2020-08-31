@@ -3,14 +3,14 @@ import 'package:geolocator/geolocator.dart';
 
 class Model {
   String firstName;
-  String lastName;
+  bool dataCheck;
   String email;
   String location;
   bool checkBox;
   String picName;
   Model(
       {this.firstName,
-      this.lastName,
+      this.dataCheck,
       this.email,
       this.location,
       this.checkBox,
