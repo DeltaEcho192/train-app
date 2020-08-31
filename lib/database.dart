@@ -16,10 +16,24 @@ class _DataState extends State<DataAdder> {
   void _uploadData() {
     firestoreInstance.collection("issues").add({
       "check": widget.model.checkBox,
-      "location": widget.model.email,
+      "description": widget.model.email,
+      "location": widget.model.location,
       "name": widget.model.firstName,
       "photo_id": widget.model.picName
     }).then((value) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: new Text("Data Has Been added"),
+          actions: <Widget>[
+            new FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: new Text("Close"))
+          ],
+        ),
+      );
       print(value.documentID);
     });
   }

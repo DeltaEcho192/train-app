@@ -51,6 +51,8 @@ class _TestFormState extends State<TestForm> {
 
     setState(() {
       _imageFile = selected;
+      String fileName = 'images/${DateTime.now()}.png';
+      model.picName = fileName;
     });
   }
 
@@ -98,6 +100,12 @@ class _TestFormState extends State<TestForm> {
             ),
             MyTextFormField(
               hintText: 'Description',
+              validator: (String value) {
+                if (value.isEmpty) {
+                  return 'Please Enter Description';
+                }
+                return null;
+              },
               onSaved: (String value) {
                 model.email = value;
               },
@@ -121,15 +129,34 @@ class _TestFormState extends State<TestForm> {
                 if (_formKey.currentState.validate()) {
                   print(locWorking);
                   _formKey.currentState.save();
-                  print(model.checkBox.toString() +
-                      model.email +
-                      model.firstName +
-                      model.picName +
-                      model.location);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DataAdder(model: this.model)));
+                  if (model.location == null) {
+                    print("No location");
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: new Text("Error"),
+                              content:
+                                  new Text("No location has been picked up"),
+                              actions: <Widget>[
+                                new FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: new Text("Close"))
+                              ],
+                            ));
+                  } else {
+                    print(model.checkBox.toString() +
+                        model.email +
+                        model.firstName +
+                        model.picName +
+                        model.location);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                DataAdder(model: this.model)));
+                  }
                 }
               },
               child: Text(
@@ -144,13 +171,12 @@ class _TestFormState extends State<TestForm> {
               onPressed: () {
                 String fileName = 'images/${DateTime.now()}.png';
                 model.picName = fileName;
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Uploader(
-                              file: _imageFile,
-                              fileName: fileName,
-                            )));
+                showDialog(
+                    context: context,
+                    builder: (context) => Uploader(
+                          file: _imageFile,
+                          fileName: fileName,
+                        ));
               },
               child: Text(
                 'Upload_photo',
@@ -158,7 +184,14 @@ class _TestFormState extends State<TestForm> {
                   color: Colors.white,
                 ),
               ),
-            )
+            ),
+            RaisedButton(onPressed: () {}),
+            if (_imageFile != null) ...[
+              Uploader(
+                file: _imageFile,
+                fileName: model.picName,
+              ),
+            ],
           ],
         ),
       ),
@@ -254,9 +287,9 @@ class _UploaderState extends State<Uploader> {
               body: Container(
                 child: Center(
                     child: Column(
-                  children: [
+                  children: <Widget>[
                     // TODO Change so that it brings back the main page
-                    if (_uploadTask.isComplete) Text('🎉🎉🎉'),
+                    if (_uploadTask.isComplete) Text("Upload Complete..."),
 
                     if (_uploadTask.isPaused)
                       FlatButton(
