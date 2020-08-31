@@ -40,14 +40,10 @@ class _DataState extends State<DataAdder> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Container(
-            child: Center(
-      child: FlatButton.icon(
-        label: Text('Upload to Data To database'),
-        icon: Icon(Icons.cloud_upload),
-        onPressed: _uploadData,
-      ),
-    )));
+    return FlatButton.icon(
+      label: Text('Upload to Data To database'),
+      icon: Icon(Icons.cloud_upload),
+      onPressed: _uploadData,
+    );
   }
 }

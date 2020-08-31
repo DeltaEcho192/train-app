@@ -1,68 +1,203 @@
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
+import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'model.dart';
+import 'result.dart';
+import 'database.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() async {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ImageCapture(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Form Demo'),
+        ),
+        body: TestForm(),
+      ),
     );
   }
 }
 
-/// Widget to capture and crop the image
-class ImageCapture extends StatefulWidget {
-  createState() => _ImageCaptureState();
+class TestForm extends StatefulWidget {
+  @override
+  _TestFormState createState() => _TestFormState();
 }
 
-class _ImageCaptureState extends State<ImageCapture> {
-  /// Active image file
+class _TestFormState extends State<TestForm> {
+  final _formKey = GlobalKey<FormState>();
   File _imageFile;
+  String locWorking;
+  Model model = Model();
 
-  /// Cropper plugin
-  Future<void> _cropImage() async {
-    File cropped = await ImageCropper.cropImage(
-        sourcePath: _imageFile.path,
-        // ratioX: 1.0,
-        // ratioY: 1.0,
-        // maxWidth: 512,
-        // maxHeight: 512,
-        toolbarColor: Colors.purple,
-        toolbarWidgetColor: Colors.white,
-        toolbarTitle: 'Crop It');
-
+  Future<void> _getLocation() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print(position.toString());
     setState(() {
-      _imageFile = cropped ?? _imageFile;
+      model.location = position.toString();
     });
   }
 
-  /// Select an image via gallery or camera
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
 
     setState(() {
       _imageFile = selected;
+      String fileName = 'images/${DateTime.now()}.png';
+      model.picName = fileName;
     });
-  }
-
-  /// Remove image
-  void _clear() {
-    setState(() => _imageFile = null);
   }
 
   @override
   Widget build(BuildContext context) {
+    final halfMediaWidth = MediaQuery.of(context).size.width / 2.0;
+    model.checkBox = false;
     return Scaffold(
-      // Select an image from the camera or gallery
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: <Widget>[
+            Container(
+              alignment: Alignment.topCenter,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    alignment: Alignment.topCenter,
+                    width: halfMediaWidth,
+                    child: MyTextFormField(
+                      hintText: 'Name',
+                      validator: (String value) {
+                        if (value.isEmpty) {
+                          return 'Enter your first name';
+                        }
+                        return null;
+                      },
+                      onSaved: (String value) {
+                        model.firstName = value;
+                      },
+                    ),
+                  ),
+                  Container(
+                      alignment: Alignment.topCenter,
+                      width: halfMediaWidth,
+                      child: RaisedButton(
+                          color: Colors.blueAccent,
+                          onPressed: () {
+                            _getLocation();
+                          },
+                          child: Text("Get Location")))
+                ],
+              ),
+            ),
+            MyTextFormField(
+              hintText: 'Description',
+              validator: (String value) {
+                if (value.isEmpty) {
+                  return 'Please Enter Description';
+                }
+                return null;
+              },
+              onSaved: (String value) {
+                model.email = value;
+              },
+            ),
+            StatefulBuilder(
+              builder: (context, setState) => CheckboxListTile(
+                title: Text("Need urgent repair"),
+                value: model.checkBox,
+                onChanged: (bool newValue) {
+                  setState(() {
+                    model.checkBox = newValue;
+                  });
+                },
+                controlAffinity:
+                    ListTileControlAffinity.leading, //  <-- leading Checkbox
+              ),
+            ),
+            RaisedButton(
+              color: Colors.blueAccent,
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  print(locWorking);
+                  _formKey.currentState.save();
+                  if (model.location == null) {
+                    print("No location");
+
+                    setState(() {
+                      model.dataCheck = false;
+                    });
+                    print(model.dataCheck);
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: new Text("Error"),
+                              content:
+                                  new Text("No location has been picked up"),
+                              actions: <Widget>[
+                                new FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: new Text("Close"))
+                              ],
+                            ));
+                  } else {
+                    print("All checks passed...");
+                    setState(() {
+                      model.dataCheck = true;
+                    });
+
+                    print(model.dataCheck);
+                  }
+                }
+              },
+              child: Text(
+                'Upload_all',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            RaisedButton(
+              color: Colors.blueAccent,
+              onPressed: () {
+                String fileName = 'images/${DateTime.now()}.png';
+                model.picName = fileName;
+                showDialog(
+                    context: context,
+                    builder: (context) => Uploader(
+                          file: _imageFile,
+                          fileName: fileName,
+                        ));
+              },
+              child: Text(
+                'Upload_photo',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            if (_imageFile != null) ...[
+              Uploader(
+                file: _imageFile,
+                fileName: model.picName,
+              ),
+            ],
+            if (model.dataCheck == true) ...[
+              DataAdder(model: this.model),
+            ],
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
           children: <Widget>[
@@ -77,27 +212,39 @@ class _ImageCaptureState extends State<ImageCapture> {
           ],
         ),
       ),
+    );
+  }
+}
 
-      // Preview the image and crop it
-      body: ListView(
-        children: <Widget>[
-          if (_imageFile != null) ...[
-            Image.file(_imageFile),
-            Row(
-              children: <Widget>[
-                FlatButton(
-                  child: Icon(Icons.crop),
-                  onPressed: _cropImage,
-                ),
-                FlatButton(
-                  child: Icon(Icons.refresh),
-                  onPressed: _clear,
-                ),
-              ],
-            ),
-            Uploader(file: _imageFile),
-          ]
-        ],
+class MyTextFormField extends StatelessWidget {
+  final String hintText;
+  final Function validator;
+  final Function onSaved;
+  final bool isPassword;
+  final bool isEmail;
+  MyTextFormField({
+    this.hintText,
+    this.validator,
+    this.onSaved,
+    this.isPassword = false,
+    this.isEmail = false,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: TextFormField(
+        decoration: InputDecoration(
+          hintText: hintText,
+          contentPadding: EdgeInsets.all(15.0),
+          border: InputBorder.none,
+          filled: true,
+          fillColor: Colors.grey[200],
+        ),
+        obscureText: isPassword ? true : false,
+        validator: validator,
+        onSaved: onSaved,
+        keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
       ),
     );
   }
@@ -105,8 +252,9 @@ class _ImageCaptureState extends State<ImageCapture> {
 
 class Uploader extends StatefulWidget {
   final File file;
+  final String fileName;
 
-  Uploader({Key key, this.file}) : super(key: key);
+  Uploader({Key key, this.file, this.fileName}) : super(key: key);
   createState() => _UploaderState();
 }
 
@@ -119,10 +267,9 @@ class _UploaderState extends State<Uploader> {
   /// Starts an upload task
   void _startUpload() {
     /// Unique file name for the file
-    String filePath = 'images/${DateTime.now()}.png';
 
     setState(() {
-      _uploadTask = _storage.ref().child(filePath).putFile(widget.file);
+      _uploadTask = _storage.ref().child(widget.fileName).putFile(widget.file);
     });
   }
 
@@ -141,7 +288,7 @@ class _UploaderState extends State<Uploader> {
 
             return Column(
               children: [
-                if (_uploadTask.isComplete) Text('🎉🎉🎉'),
+                if (_uploadTask.isComplete) Text('Upload Complete...'),
 
                 if (_uploadTask.isPaused)
                   FlatButton(
