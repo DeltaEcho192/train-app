@@ -15,14 +15,13 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Form Demo'),
+    return AppBuilder(builder: (context) {
+      return MaterialApp(
+        home: Scaffold(
+          body: TestForm(),
         ),
-        body: TestForm(),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -53,6 +52,7 @@ class _TestFormState extends State<TestForm> {
       _imageFile = selected;
       String fileName = 'images/${DateTime.now()}.png';
       model.picName = fileName;
+      model.picCheck = true;
     });
   }
 
@@ -61,6 +61,9 @@ class _TestFormState extends State<TestForm> {
     final halfMediaWidth = MediaQuery.of(context).size.width / 2.0;
     model.checkBox = false;
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Form Demo"),
+      ),
       body: Form(
         key: _formKey,
         child: Column(
@@ -158,29 +161,35 @@ class _TestFormState extends State<TestForm> {
 
                     print(model.dataCheck);
                   }
+                  if (model.picCheck == false || model.picCheck == null) {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: new Text("Notice"),
+                              content: new Text("No picture has been added..."),
+                              actions: <Widget>[
+                                new FlatButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        model.picCheck = true;
+                                        model.picName = "Null";
+                                        AppBuilder.of(context).rebuild();
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: new Text("No Picture Needed")),
+                                new FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: new Text("Close"))
+                              ],
+                            ));
+                  }
                 }
               },
               child: Text(
-                'Upload_all',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            RaisedButton(
-              color: Colors.blueAccent,
-              onPressed: () {
-                String fileName = 'images/${DateTime.now()}.png';
-                model.picName = fileName;
-                showDialog(
-                    context: context,
-                    builder: (context) => Uploader(
-                          file: _imageFile,
-                          fileName: fileName,
-                        ));
-              },
-              child: Text(
-                'Upload_photo',
+                'Check Data',
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -192,7 +201,7 @@ class _TestFormState extends State<TestForm> {
                 fileName: model.picName,
               ),
             ],
-            if (model.dataCheck == true) ...[
+            if (model.dataCheck == true && model.picCheck == true) ...[
               DataAdder(model: this.model),
             ],
           ],
@@ -311,10 +320,34 @@ class _UploaderState extends State<Uploader> {
     } else {
       // Allows user to decide when to start the upload
       return FlatButton.icon(
-        label: Text('Upload to Firebase'),
+        label: Text('Upload Image'),
         icon: Icon(Icons.cloud_upload),
         onPressed: _startUpload,
       );
     }
+  }
+}
+
+class AppBuilder extends StatefulWidget {
+  final Function(BuildContext) builder;
+
+  const AppBuilder({Key key, this.builder}) : super(key: key);
+
+  @override
+  AppBuilderState createState() => new AppBuilderState();
+
+  static AppBuilderState of(BuildContext context) {
+    return context.ancestorStateOfType(const TypeMatcher<AppBuilderState>());
+  }
+}
+
+class AppBuilderState extends State<AppBuilder> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context);
+  }
+
+  void rebuild() {
+    setState(() {});
   }
 }

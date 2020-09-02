@@ -1,6 +1,16 @@
 Make Upload look better
 How to add location to firestore
-Integrate photo Upload and data Upload use wait until completed
-Add location plugin for location using gps and parsing that.
-Null value check
-Formating
+Integrate photo Upload and data Upload use wait until completed 1
+Null value check 3
+Formating 4
+Change Names.
+Check if Data has already been Uploaded
+
+logic:
+Check Data:
+ask if an image should be selected when data check is pressed...
+On result make a boolean value which will stop until a photo has been added...
+
+Last Thing:
+Add google crash
+Add google analytics

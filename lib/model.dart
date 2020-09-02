@@ -8,11 +8,13 @@ class Model {
   String location;
   bool checkBox;
   String picName;
+  bool picCheck;
   Model(
       {this.firstName,
       this.dataCheck,
       this.email,
       this.location,
       this.checkBox,
-      this.picName});
+      this.picName,
+      this.picCheck});
 }

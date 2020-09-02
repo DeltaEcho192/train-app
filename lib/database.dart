@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'model.dart';
+import 'main.dart';
 
 class DataAdder extends StatefulWidget {
   Model model;
+  TestForm testForm;
 
   DataAdder({Key key, this.model}) : super(key: key);
   createState() => _DataState();
@@ -29,6 +31,7 @@ class _DataState extends State<DataAdder> {
             new FlatButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  AppBuilder.of(context).rebuild();
                 },
                 child: new Text("Close"))
           ],
@@ -41,7 +44,7 @@ class _DataState extends State<DataAdder> {
   @override
   Widget build(BuildContext context) {
     return FlatButton.icon(
-      label: Text('Upload to Data To database'),
+      label: Text('Upload Information'),
       icon: Icon(Icons.cloud_upload),
       onPressed: _uploadData,
     );
