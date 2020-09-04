@@ -312,7 +312,7 @@ class _UploaderState extends State<Uploader> {
                   ),
 
                 // Progress bar
-                LinearProgressIndicator(value: progressPercent),
+                CircularProgressIndicator(value: progressPercent),
                 Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
               ],
             );
