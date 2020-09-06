@@ -18,7 +18,7 @@ class _DataState extends State<DataAdder> {
   void _uploadData() {
     firestoreInstance.collection("issues").add({
       "check": widget.model.checkBox,
-      "description": widget.model.email,
+      "description": widget.model.description,
       "location": widget.model.location,
       "name": widget.model.firstName,
       "photo_id": widget.model.picName
@@ -31,7 +31,6 @@ class _DataState extends State<DataAdder> {
             new FlatButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  AppBuilder.of(context).rebuild();
                 },
                 child: new Text("Close"))
           ],

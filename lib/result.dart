@@ -15,7 +15,7 @@ class Result extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(model.firstName, style: TextStyle(fontSize: 22)),
-            Text(model.email, style: TextStyle(fontSize: 22)),
+            Text(model.description, style: TextStyle(fontSize: 22)),
             Text(model.checkBox.toString(), style: TextStyle(fontSize: 22)),
             Text(model.picName, style: TextStyle(fontSize: 22)),
             Text(

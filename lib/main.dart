@@ -15,13 +15,11 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AppBuilder(builder: (context) {
-      return MaterialApp(
-        home: Scaffold(
-          body: TestForm(),
-        ),
-      );
-    });
+    return MaterialApp(
+      home: Scaffold(
+        body: TestForm(),
+      ),
+    );
   }
 }
 
@@ -110,7 +108,7 @@ class _TestFormState extends State<TestForm> {
                 return null;
               },
               onSaved: (String value) {
-                model.email = value;
+                model.description = value;
               },
             ),
             StatefulBuilder(
@@ -173,7 +171,6 @@ class _TestFormState extends State<TestForm> {
                                       setState(() {
                                         model.picCheck = true;
                                         model.picName = "Null";
-                                        AppBuilder.of(context).rebuild();
                                       });
                                       Navigator.of(context).pop();
                                     },
@@ -325,29 +322,5 @@ class _UploaderState extends State<Uploader> {
         onPressed: _startUpload,
       );
     }
-  }
-}
-
-class AppBuilder extends StatefulWidget {
-  final Function(BuildContext) builder;
-
-  const AppBuilder({Key key, this.builder}) : super(key: key);
-
-  @override
-  AppBuilderState createState() => new AppBuilderState();
-
-  static AppBuilderState of(BuildContext context) {
-    return context.ancestorStateOfType(const TypeMatcher<AppBuilderState>());
-  }
-}
-
-class AppBuilderState extends State<AppBuilder> {
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder(context);
-  }
-
-  void rebuild() {
-    setState(() {});
   }
 }

@@ -1,16 +1,10 @@
-Make Upload look better
-How to add location to firestore
-Integrate photo Upload and data Upload use wait until completed 1
-Null value check 3
+
+Reload all widgets clean after a user uploads data
+Null value check 
+Integrate photo Upload and data Upload use wait until completed 
 Formating 4
 Change Names.
-Check if Data has already been Uploaded
 
-logic:
-Check Data:
-ask if an image should be selected when data check is pressed...
-On result make a boolean value which will stop until a photo has been added...
 
 Last Thing:
-Add google crash
 Add google analytics
