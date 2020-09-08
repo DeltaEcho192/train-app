@@ -9,8 +9,13 @@ import 'database.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+      Phoenix(
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
@@ -191,6 +196,12 @@ class _TestFormState extends State<TestForm> {
                   color: Colors.white,
                 ),
               ),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Phoenix.rebirth(context);
+              },
+              child: Text("Clear"),
             ),
             if (_imageFile != null) ...[
               Uploader(
