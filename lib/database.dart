@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'model.dart';
 import 'main.dart';
 
@@ -31,6 +32,7 @@ class _DataState extends State<DataAdder> {
             new FlatButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  Phoenix.rebirth(context);
                 },
                 child: new Text("Close"))
           ],
