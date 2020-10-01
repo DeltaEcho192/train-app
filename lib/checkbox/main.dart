@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'testScreen.dart';
 import 'dart:io';
 import 'dart:developer';
@@ -13,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_udid/flutter_udid.dart';
 import 'data.dart';
 
 void main() => runApp(MyApp());
@@ -45,6 +47,7 @@ class CheckboxWidgetState extends State {
   Model model = Model();
   Data data = Data();
   String dateFinal = "Schicht:";
+  String _udid = 'Unknown';
   StorageUploadTask _uploadTask;
   var txt = TextEditingController();
 
@@ -64,6 +67,22 @@ class CheckboxWidgetState extends State {
       model.picName = fileName;
       model.picCheck = true;
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
+    });
+  }
+
+  Future<void> getUDID() async {
+    String udid;
+    try {
+      udid = await FlutterUdid.udid;
+    } on PlatformException {
+      udid = 'Failed to get UDID.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      print(udid);
+      _udid = udid;
     });
   }
 
@@ -108,29 +127,36 @@ class CheckboxWidgetState extends State {
                 ),
               ),
               FlatButton(
-                  onPressed: () {
-                    DatePicker.showDatePicker(context,
-                        showTitleActions: true,
-                        minTime: DateTime(2020, 1, 1),
-                        maxTime: DateTime(2099, 12, 31), onChanged: (date) {
-                      print('change $date');
-                    }, onConfirm: (date) {
-                      print('confirm $date');
-                      data.schicht = date;
-                      setState(() {
-                        String dayW = date.day.toString();
-                        String monthW = date.month.toString();
-                        String yearW = date.year.toString();
-                        String working = dayW + '/' + monthW + '/' + yearW;
-                        print(working);
-                        dateFinal = working;
-                      });
-                    }, currentTime: DateTime.now(), locale: LocaleType.de);
-                  },
-                  child: Text(
-                    dateFinal,
-                    style: TextStyle(color: Colors.blue),
-                  )),
+                onPressed: () {
+                  DatePicker.showDatePicker(context,
+                      showTitleActions: true,
+                      minTime: DateTime(2020, 1, 1),
+                      maxTime: DateTime(2099, 12, 31), onChanged: (date) {
+                    print('change $date');
+                  }, onConfirm: (date) {
+                    print('confirm $date');
+                    data.schicht = date;
+                    setState(() {
+                      String dayW = date.day.toString();
+                      String monthW = date.month.toString();
+                      String yearW = date.year.toString();
+                      String working = dayW + '/' + monthW + '/' + yearW;
+                      print(working);
+                      dateFinal = working;
+                    });
+                  }, currentTime: DateTime.now(), locale: LocaleType.de);
+                },
+                child: Text(
+                  dateFinal,
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  getUDID();
+                },
+                child: Text("Get UDID"),
+              ),
             ]),
         Expanded(
           child: ListView(
