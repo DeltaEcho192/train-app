@@ -1,15 +1,20 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'model.dart';
+// ignore: unused_import
 import 'result.dart';
 import 'database.dart';
 import 'package:flutter/widgets.dart';
+// ignore: unused_import
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter/foundation.dart';
 
 void main() => runApp(
       Phoenix(
@@ -38,6 +43,7 @@ class _TestFormState extends State<TestForm> {
   File _imageFile;
   String locWorking;
   Model model = Model();
+  StorageUploadTask _uploadTask;
 
   Future<void> _getLocation() async {
     Position position = await Geolocator()
@@ -50,12 +56,20 @@ class _TestFormState extends State<TestForm> {
 
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
+    //Make sure network is connected!!!!
+    //TODO Add pop up if there is no network
+
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+
+    // ignore: unused_local_variable
 
     setState(() {
       _imageFile = selected;
       String fileName = 'images/${DateTime.now()}.png';
       model.picName = fileName;
       model.picCheck = true;
+      _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
     });
   }
 
