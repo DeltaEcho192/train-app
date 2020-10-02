@@ -1,16 +1,18 @@
-CheckBoxs filled and if not true then make pop up.
+
 If user decides not to change anything ask for confirm
 If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server)
-Delete Text in alert after close
+Make alertDialog box larger to type in.
+(Bug)Delete Text in alert after close
 
 Multiple image upload?
 Display image in alertDialog after upload.
 
+Add chosing location to when a baustelle is entered.
 
 Image nameing convention with image picker... (Perhaps API would be better.)
 
-Build Some basic api's for lists that need to be delivered 
-(Specifically for getting all the required check marks for a program)
+Build Login system
 
+Dockerise NodeJS server and test
 
 End of the day write comments on code!!!

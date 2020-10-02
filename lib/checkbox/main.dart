@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'testScreen.dart';
 import 'dart:io';
 import 'dart:developer';
 import 'package:geolocator/geolocator.dart';
@@ -17,6 +16,9 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'data.dart';
 import 'package:toast/toast.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -54,6 +56,8 @@ class CheckboxWidgetState extends State {
   StorageUploadTask _uploadTask;
   var txt = TextEditingController();
   var baustelle = TextEditingController();
+  //
+  //
 
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
@@ -81,6 +85,9 @@ class CheckboxWidgetState extends State {
         duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
 
+  //
+  //
+
   Future<void> getUDID() async {
     String udid;
     try {
@@ -93,36 +100,60 @@ class CheckboxWidgetState extends State {
 
     setState(() {
       print(udid);
-      print("First item of array" + names[1]);
+      //print("First item of array" + names[1]);
       _udid = udid;
     });
   }
+
+  //
+  //
 
   Map<String, bool> numbers = {
     'One': true,
     'Two': true,
     'Three': true,
-    'Four': true,
-    'Five': true,
-    'Six': true,
-    'Test': true,
   };
 
-  var holder_1 = [];
+  Future<void> fetchChecklist(var baustelle) async {
+    final response = await http
+        .get('http://192.168.202.107:3000/test/' + baustelle.toString());
 
-  getItems() {
-    numbers.forEach((key, value) {
-      if (value == true) {
-        holder_1.add(key);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      //print(json.decode(response.body));
+
+      var tagsJson = jsonDecode(response.body);
+      List<String> tags = tagsJson != null ? List.from(tagsJson) : null;
+      var working = numbers.keys;
+      print(working);
+      //numbers.clear();
+      List<bool> boolIte = [];
+
+      for (int i = 0; i < tags.length; i++) {
+        print("Iterate");
+        boolIte.add(true);
       }
-    });
+      var testing = Map.fromIterables(tags, boolIte);
+      print(tags);
+      print(numbers);
+      setState(() {
+        numbers = testing;
+      });
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
+  }
 
-    // Printing all selected items on Terminal screen.
-    print(holder_1);
-    // Here you will get all your selected Checkbox items.
+  //
+  //
 
-    // Clear array after use.
-    holder_1.clear();
+  @override
+  void initState() {
+    super.initState();
+    fetchChecklist("Zurich-9221");
   }
 
   @override
@@ -167,8 +198,9 @@ class CheckboxWidgetState extends State {
               FlatButton(
                 onPressed: () {
                   getUDID();
+                  fetchChecklist("Zurich-9222");
                 },
-                child: Text("Get UDID"),
+                child: Text("Get Checklist"),
               ),
             ]),
         Expanded(
@@ -189,7 +221,7 @@ class CheckboxWidgetState extends State {
                         builder: (BuildContext context) {
                           // return object of type Dialog
                           return AlertDialog(
-                            title: new Text("Alert Dialog title"),
+                            title: new Text("Alert Dialog"),
                             content: new Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
@@ -215,6 +247,7 @@ class CheckboxWidgetState extends State {
                               new FlatButton(
                                 child: new Text("Close"),
                                 onPressed: () {
+                                  txt.clear();
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -222,6 +255,7 @@ class CheckboxWidgetState extends State {
                                 onPressed: () {
                                   data.error = txt.text;
                                   print(txt.text);
+                                  txt.clear();
                                   Navigator.of(context).pop();
                                 },
                                 child: new Text("Confirm"),
