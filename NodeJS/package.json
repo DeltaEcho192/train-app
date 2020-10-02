@@ -1,0 +1,11 @@
+{
+  "name": "train-app",
+  "version": "1.0.0",
+  "description": "Node server to handle REST api",
+  "main": "main.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
