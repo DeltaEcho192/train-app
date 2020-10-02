@@ -4,14 +4,18 @@ If checkbox made true again wipe out data added previously. (How to do with imag
 Make alertDialog box larger to type in.
 (Bug)Delete Text in alert after close
 
-Multiple image upload?
-Display image in alertDialog after upload.
+Reload all widgets clean after a user uploads data
+Integrate photo Upload and data Upload use wait until completed
+How to delete photos again. 
 
 Add chosing location to when a baustelle is entered.
 
 Image nameing convention with image picker... (Perhaps API would be better.)
 
 Build Login system
+Integrate auto check at begining on application.
+also logout again.
+Use json file to save values
 
 Dockerise NodeJS server and test
 
