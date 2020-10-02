@@ -8,6 +8,7 @@ class Data {
   bool picCheck;
   String baustelle;
   DateTime schicht;
+  String error;
   Data({
     this.firstName,
     this.dataCheck,
@@ -18,5 +19,6 @@ class Data {
     this.picCheck,
     this.baustelle,
     this.schicht,
+    this.error,
   });
 }

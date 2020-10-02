@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'data.dart';
+import 'package:toast/toast.dart';
 
 void main() => runApp(MyApp());
 
@@ -46,10 +47,13 @@ class CheckboxWidgetState extends State {
   String locWorking;
   Model model = Model();
   Data data = Data();
+  List<String> names = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
+  int photoAmt = 0;
   StorageUploadTask _uploadTask;
   var txt = TextEditingController();
+  var baustelle = TextEditingController();
 
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
@@ -64,10 +68,17 @@ class CheckboxWidgetState extends State {
     setState(() {
       _imageFile = selected;
       String fileName = 'images/${DateTime.now()}.png';
+      print("Counter" + photoAmt.toString());
       model.picName = fileName;
       model.picCheck = true;
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
+
+      names.add(fileName);
     });
+    await _uploadTask.onComplete;
+    print("Upload done");
+    Toast.show("Upload Complete", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
 
   Future<void> getUDID() async {
@@ -82,18 +93,19 @@ class CheckboxWidgetState extends State {
 
     setState(() {
       print(udid);
+      print("First item of array" + names[1]);
       _udid = udid;
     });
   }
 
   Map<String, bool> numbers = {
-    'One': false,
-    'Two': false,
-    'Three': false,
-    'Four': false,
-    'Five': false,
-    'Six': false,
-    'Test': false,
+    'One': true,
+    'Two': true,
+    'Three': true,
+    'Four': true,
+    'Five': true,
+    'Six': true,
+    'Test': true,
   };
 
   var holder_1 = [];
@@ -122,6 +134,7 @@ class CheckboxWidgetState extends State {
             children: <Widget>[
               new Flexible(
                 child: TextField(
+                  controller: baustelle,
                   decoration: InputDecoration(
                       border: InputBorder.none, hintText: 'Baustelle'),
                 ),
@@ -170,42 +183,56 @@ class CheckboxWidgetState extends State {
                   setState(() {
                     numbers[key] = value;
                     exec = true;
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        // return object of type Dialog
-                        return AlertDialog(
-                          title: new Text("Alert Dialog title"),
-                          content: new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              new Flexible(
-                                child: new TextField(
-                                  decoration: const InputDecoration(
-                                      hintText: "Enter App ID"),
+                    if (value == false) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          // return object of type Dialog
+                          return AlertDialog(
+                            title: new Text("Alert Dialog title"),
+                            content: new Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                new Flexible(
+                                  child: new TextField(
+                                    controller: txt,
+                                    decoration: const InputDecoration(
+                                        hintText: "Enter Problem"),
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.photo_camera),
-                                onPressed: () => _pickImage(ImageSource.camera),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.mic),
-                              ),
-                            ],
-                          ),
-                          actions: <Widget>[
-                            // usually buttons at the bottom of the dialog
-                            new FlatButton(
-                              child: new Text("Close"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
+                                IconButton(
+                                  icon: Icon(Icons.photo_camera),
+                                  onPressed: () =>
+                                      (_pickImage(ImageSource.camera)),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.mic),
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    );
+                            actions: <Widget>[
+                              // usually buttons at the bottom of the dialog
+                              new FlatButton(
+                                child: new Text("Close"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              new FlatButton(
+                                onPressed: () {
+                                  data.error = txt.text;
+                                  print(txt.text);
+                                  Navigator.of(context).pop();
+                                },
+                                child: new Text("Confirm"),
+                              )
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      print("Returned to true");
+                    }
                   });
                 },
               );
