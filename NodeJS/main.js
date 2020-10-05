@@ -5,6 +5,7 @@ const port = 3000
 const fs = require('fs');
 const csv=require('csvtojson')
 
+//Route for application to get Baustelle specific Checklist.
 app.get('/test/:id', (req, res) => {
   var jsonobj = require("./example.json");
   var trainStation = req.params.id;
@@ -23,6 +24,7 @@ app.get('/test/:id', (req, res) => {
 
 })
 
+//Route so that application can verify a user based on internal list
 app.get('/check/:userId', (req, res) => {
   var usercheck = false;
   emp.forEach(em => {
@@ -62,7 +64,7 @@ class Employee {
 }
 let emp=[];
 
-// Invoking csv returns a promise
+// Reads user file once on Application Start.
 const converter=csv()
 .fromFile('./users.csv')
 .then((json)=>{

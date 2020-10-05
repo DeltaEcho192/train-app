@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'success.dart';
+import './successV1.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,7 @@ Future<Map<String, dynamic>> fetchUser(var userid) async {
 class UserStorage {
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
+    print(directory);
 
     return directory.path;
   }
@@ -60,25 +62,35 @@ class UserStorage {
 
 void main() => runApp(
       MaterialApp(
-          title: "Login In testing", home: MyApp(storage: UserStorage())),
+          title: "Login In testing",
+          home: LoginTest(userstorage: UserStorage())),
     );
 
-class MyApp extends StatefulWidget {
-  final UserStorage storage;
-  MyApp({Key key, @required this.storage}) : super(key: key);
+class LoginTest extends StatefulWidget {
+  final UserStorage userstorage;
+  LoginTest({Key key, @required this.userstorage}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _LoginState createState() => _LoginState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _LoginState extends State<LoginTest> {
   Future<Map<String, dynamic>> logStatus;
   String _user;
 
   @override
   void initState() {
     super.initState();
-    widget.storage.readUser().then((value) => {
+    widget.userstorage.readUser().then((value) => {
+          if (value == 'error')
+            {print("No User has been logged in")}
+          else
+            {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SuccessV1()),
+              )
+            },
           print(value),
           setState(() {
             _user = value;
@@ -92,7 +104,13 @@ class _MyAppState extends State<MyApp> {
       _user = userid;
     });
 
-    return widget.storage.writeUser(userid);
+    return widget.userstorage.writeUser(userid);
+  }
+
+  Future<void> _logout() {
+    setState(() {
+      _user = null;
+    });
   }
 
   @override
@@ -116,7 +134,7 @@ class _MyAppState extends State<MyApp> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HelloWorld()),
+                                  builder: (context) => SuccessV1()),
                             )
                           }
                         else
@@ -130,7 +148,7 @@ class _MyAppState extends State<MyApp> {
               alignment: Alignment.center,
               child: RaisedButton(
                 onPressed: () {
-                  widget.storage.readUser().then((value) => {
+                  widget.userstorage.readUser().then((value) => {
                         print(value),
                       });
                 },

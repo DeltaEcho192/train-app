@@ -2,7 +2,6 @@
 If user decides not to change anything ask for confirm
 If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server)
 Make alertDialog box larger to type in.
-(Bug)Delete Text in alert after close
 
 Reload all widgets clean after a user uploads data
 Integrate photo Upload and data Upload use wait until completed
@@ -18,5 +17,3 @@ also logout again.
 Use json file to save values
 
 Dockerise NodeJS server and test
-
-End of the day write comments on code!!!

@@ -59,6 +59,7 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  //Takes a picture from camera and then uploads its to Firebase Storage
   Future<void> _pickImage(ImageSource source) async {
     File selected = await ImagePicker.pickImage(source: source);
     //Make sure network is connected!!!!
@@ -76,7 +77,7 @@ class CheckboxWidgetState extends State {
       model.picName = fileName;
       model.picCheck = true;
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
-
+      //Adds all current photo names to an array
       names.add(fileName);
     });
     await _uploadTask.onComplete;
@@ -88,6 +89,7 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  //Gets device UDID for database upload
   Future<void> getUDID() async {
     String udid;
     try {
@@ -114,6 +116,7 @@ class CheckboxWidgetState extends State {
     'Three': true,
   };
 
+  //Dynamically gets Checklist from NODE JS based on which Baustelle is selected.
   Future<void> fetchChecklist(var baustelle) async {
     final response = await http
         .get('http://192.168.202.107:3000/test/' + baustelle.toString());
@@ -204,6 +207,7 @@ class CheckboxWidgetState extends State {
               ),
             ]),
         Expanded(
+          //Creates the checklist dynamically based on API
           child: ListView(
             children: numbers.keys.map((String key) {
               return new CheckboxListTile(
@@ -216,6 +220,7 @@ class CheckboxWidgetState extends State {
                     numbers[key] = value;
                     exec = true;
                     if (value == false) {
+                      //If Checkbox is false then a dialog will pop up so information can be filled in.
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
