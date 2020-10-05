@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -50,6 +51,7 @@ class CheckboxWidgetState extends State {
   Model model = Model();
   Data data = Data();
   List<String> names = [];
+  Map<String, String> errors = {};
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
   int photoAmt = 0;
@@ -153,6 +155,21 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  Future<void> uploadData(Data dataFinal) async {
+    final firestoreInstance = Firestore.instance;
+
+    firestoreInstance.collection("issues").add({
+      "user": dataFinal.user,
+      "baustelle": dataFinal.baustelle,
+      "schicht": dataFinal.schicht,
+      "udid": dataFinal.udid,
+      "errors": dataFinal.errors
+    }).then((value) => print(value.documentID));
+  }
+
+  //
+  //
+
   @override
   void initState() {
     super.initState();
@@ -205,6 +222,23 @@ class CheckboxWidgetState extends State {
                 },
                 child: Text("Get Checklist"),
               ),
+              RaisedButton(
+                  onPressed: () {
+                    print(errors);
+                    data.errors = Map<String, String>.from(errors);
+                    print(names);
+                  },
+                  child: new Text("data1")),
+              RaisedButton(
+                  onPressed: () {
+                    print(data.errors);
+                    data.user = "ad";
+                    data.baustelle = "Zurich-9221";
+                    data.schicht = new DateTime.now();
+                    data.udid = "AnthonyTest";
+                    uploadData(data);
+                  },
+                  child: new Text("data")),
             ]),
         Expanded(
           //Creates the checklist dynamically based on API
@@ -258,8 +292,10 @@ class CheckboxWidgetState extends State {
                               ),
                               new FlatButton(
                                 onPressed: () {
-                                  data.error = txt.text;
+                                  //errors.add(txt.text);
                                   print(txt.text);
+                                  print(key);
+                                  errors[key] = txt.text;
                                   txt.clear();
                                   Navigator.of(context).pop();
                                 },

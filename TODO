@@ -1,6 +1,6 @@
 
 If user decides not to change anything ask for confirm
-If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server)
+If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server) // Cloud function reads all files and deletes all files where the names are not found in the documents
 Make alertDialog box larger to type in.
 
 Reload all widgets clean after a user uploads data

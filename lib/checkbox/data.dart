@@ -1,24 +1,14 @@
 class Data {
-  String firstName;
-  bool dataCheck;
-  String description;
-  String location;
-  bool checkBox;
-  String picName;
-  bool picCheck;
+  String user;
   String baustelle;
   DateTime schicht;
-  String error;
+  String udid;
+  Map<String, String> errors;
   Data({
-    this.firstName,
-    this.dataCheck,
-    this.description,
-    this.location,
-    this.checkBox,
-    this.picName,
-    this.picCheck,
+    this.user,
     this.baustelle,
     this.schicht,
-    this.error,
+    this.udid,
+    this.errors,
   });
 }
