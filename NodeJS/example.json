@@ -1,5 +1,5 @@
 {
-    "Zurich-9221" : ["Main","Second","Extra"],
-    "Zurich-9222" : ["Main","Third","Extra1","Extra2"],
-    "Mogelsberg-9122" : ["Test"]
+    "Zurich-9221" : ["Gas Check","Brige Saftey"],
+    "Zurich-9222" : ["Extra1","Extra2"],
+    "Default" : ["One","Two","Three"]
 }

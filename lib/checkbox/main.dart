@@ -173,7 +173,7 @@ class CheckboxWidgetState extends State {
   @override
   void initState() {
     super.initState();
-    fetchChecklist("Zurich-9221");
+    fetchChecklist("Default");
   }
 
   @override
@@ -307,6 +307,7 @@ class CheckboxWidgetState extends State {
                       );
                     } else {
                       print("Returned to true");
+                      errors.remove(key);
                     }
                   });
                 },

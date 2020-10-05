@@ -8,6 +8,7 @@
   "dependencies": {
     "csv-parser": "^2.3.3",
     "csvtojson": "^2.0.10",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "nodemailer": "^6.4.13"
   }
 }

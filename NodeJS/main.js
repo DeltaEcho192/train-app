@@ -6,21 +6,33 @@ const fs = require('fs');
 const csv=require('csvtojson')
 
 //Route for application to get Baustelle specific Checklist.
+//TODO have default and station merge.
 app.get('/test/:id', (req, res) => {
   var jsonobj = require("./example.json");
   var trainStation = req.params.id;
-  console.log(trainStation);
-  console.log(jsonobj[trainStation]);
-  try{
-    workingInfo = jsonobj[trainStation];
-    res.send(workingInfo)
-    if(workingInfo == undefined)
-    {
-      throw "Incorrect TrainStation"
+  var default1 = jsonobj['Default'];
+  if(trainStation == 'Default')
+  {
+    res.send(default1);
+  }else{
+    console.log(default1)
+    console.log(trainStation);
+    console.log(jsonobj[trainStation]);
+    try{
+      workingInfo = jsonobj[trainStation];
+      var final = [...default1,...workingInfo];
+      res.send(final)
+      if(workingInfo == undefined)
+      {
+        throw "Incorrect TrainStation"
+      }
+    }catch(e){
+      console.log(e);
+      res.status(404);
     }
-  }catch(e){
-    console.log(e);
   }
+  
+  
 
 })
 
