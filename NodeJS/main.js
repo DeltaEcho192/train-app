@@ -3,7 +3,8 @@ const app = express()
 const port = 3000
 
 const fs = require('fs');
-const csv=require('csvtojson')
+const csv=require('csvtojson');
+const { send } = require('process');
 
 //Route for application to get Baustelle specific Checklist.
 //TODO have default and station merge.
@@ -37,19 +38,47 @@ app.get('/test/:id', (req, res) => {
 })
 
 //Route so that application can verify a user based on internal list
-app.get('/check/:userId', (req, res) => {
+app.get('/check/:userId/:udid', (req, res) => {
   var usercheck = false;
-  emp.forEach(em => {
-    console.log(em._userId)
-    if(em._userId == req.params.userId)
-    {
-      console.log("Success")
-      usercheck = true;
+  var udidC = req.params.udid;
+  var deviceCheck;
+
+  fs.readFile("devices.txt", function (err, data) {
+    if (err) throw err;
+    if(data.includes(udidC) == true){
+     deviceCheck = true;
+     emp.forEach(em => {
+      console.log(em._userId)
+      if(em._userId == req.params.userId)
+      {
+        console.log("Success")
+        usercheck = true;
+      }
+    });
+    console.log(req.params.userId);
+    console.log(req.params.udid);
+    console.log(usercheck);
+    res.send(JSON.stringify({"userid": req.params.userId ,"status": usercheck}));
+    }
+    else{
+      deviceCheck = false
+      console.log("Not Allowed")
+      res.send(JSON.stringify({"userid": req.params.userId ,"status": false}));
     }
   });
-  console.log(req.params.userId);
-  console.log(usercheck);
-  res.send(JSON.stringify({"userid": req.params.userId ,"status": usercheck}));
+
+  
+})
+
+app.get('/udid/:check', (req,res) => {
+  var udid = req.params.check;
+  fs.readFile("devices.txt", function (err, data) {
+    if (err) throw err;
+    if(data.includes(udid) == true){
+     res.send("Found Device");
+    }
+    else{res.send("Device Not found")}
+  });
 })
 
 app.listen(port, () => {

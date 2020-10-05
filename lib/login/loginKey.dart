@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_udid/flutter_udid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './successKey.dart';
 import 'package:http/http.dart' as http;
@@ -20,9 +22,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<Map<String, dynamic>> fetchUser(var userid) async {
-  final response =
-      await http.get('http://192.168.202.107:3000/check/' + userid.toString());
+Future<Map<String, dynamic>> fetchUser(var userid, String udid) async {
+  print("Function UDID " + udid);
+  final response = await http.get(
+      'http://192.168.202.107:3000/check/' + userid.toString() + "/" + udid);
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -47,11 +50,30 @@ class LoginKey extends StatefulWidget {
 
 class _LoginKeyState extends State<LoginKey> {
   String _user = "";
+  String _udid = "";
   final myController = TextEditingController();
+
+  Future<void> getUDID() async {
+    String udid;
+    try {
+      udid = await FlutterUdid.udid;
+    } on PlatformException {
+      udid = 'Failed to get UDID.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      print(udid);
+      //print("First item of array" + names[1]);
+      _udid = udid;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getUDID();
     _loadUser();
     checkLogin();
   }
@@ -145,8 +167,10 @@ class _LoginKeyState extends State<LoginKey> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           String newUser = myController.text;
-          print("User Input" + newUser);
-          fetchUser(newUser).then((value) => {
+          print("User Input " + newUser);
+          print("UDID" + _udid);
+          getUDID();
+          fetchUser(newUser, _udid).then((value) => {
                 print("Server User" + value['userid']),
                 print("Server Check" + value['status'].toString()),
                 if (value['status'] == true)
