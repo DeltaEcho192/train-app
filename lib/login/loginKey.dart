@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './successKey.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() => runApp(MyApp());
 
@@ -15,6 +17,24 @@ class MyApp extends StatelessWidget {
       ),
       home: LoginKey(),
     );
+  }
+}
+
+Future<Map<String, dynamic>> fetchUser(var userid) async {
+  final response =
+      await http.get('http://192.168.202.107:3000/check/' + userid.toString());
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    //print(json.decode(response.body));
+
+    Map<String, dynamic> logIn = jsonDecode(response.body);
+    return logIn;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load user');
   }
 }
 
@@ -33,6 +53,17 @@ class _LoginKeyState extends State<LoginKey> {
   void initState() {
     super.initState();
     _loadUser();
+    checkLogin();
+  }
+
+  void checkLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool usercheck = (prefs.getBool('loged') ?? false);
+
+    if (usercheck == true) {
+      Navigator.pushReplacement(
+          context, new MaterialPageRoute(builder: (context) => SuccessKey()));
+    }
   }
 
   //Loading counter value on start
@@ -56,6 +87,13 @@ class _LoginKeyState extends State<LoginKey> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('user', null);
+    });
+  }
+
+  _setLogState(bool logState) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setBool('loged', logState);
     });
   }
 
@@ -88,8 +126,12 @@ class _LoginKeyState extends State<LoginKey> {
             RaisedButton(
               onPressed: () {
                 _loadUser();
-                if (_user != 'empty') {
-                  Navigator.push(
+
+                print(_user.compareTo('empty'));
+                int check = _user.compareTo('empty');
+                print(check);
+                if (check == -1) {
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => (SuccessKey())),
                   );
@@ -103,8 +145,22 @@ class _LoginKeyState extends State<LoginKey> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           String newUser = myController.text;
-          _writeUser(newUser);
-          _loadUser();
+          print("User Input" + newUser);
+          fetchUser(newUser).then((value) => {
+                print("Server User" + value['userid']),
+                print("Server Check" + value['status'].toString()),
+                if (value['status'] == true)
+                  {
+                    _setLogState(true),
+                    _writeUser(value['userid']),
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => (SuccessKey())),
+                    ),
+                  }
+                else
+                  {print("Login failed"), _setLogState(false)}
+              });
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

@@ -47,7 +47,8 @@ class _SuccessKeyState extends State<SuccessKey> {
   _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      prefs.setString('user', null);
+      prefs.setString('user', 'empty');
+      prefs.setBool('loged', false);
     });
   }
 
@@ -71,7 +72,7 @@ class _SuccessKeyState extends State<SuccessKey> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _logout();
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => (LoginKey())),
           );
