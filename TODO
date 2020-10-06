@@ -11,10 +11,10 @@ Add chosing location to when a baustelle is entered.
 05/10/2020 Things to do:
 
 !!!API Authentication 1. [N]
-1. Image Deletions []
+1. Image Deletions [Y]
 2. Image preview [Y]
 3. Wait for image to upload before allowing new photo. [Y]
 4. Baustelle Search function and API []
 5. Write unit tests. []
 6. Write requirments for Web Interface. []
-7. If Image not uploading then show notification. []
+7. If Image not uploading then show notification. [M]

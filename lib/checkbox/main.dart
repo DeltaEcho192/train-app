@@ -62,6 +62,7 @@ class CheckboxWidgetState extends State {
   Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
   StorageUploadTask _uploadTask;
   StorageUploadTask _uploadTask2;
+  StorageUploadTask _deleteTask;
   var txt = TextEditingController();
   var baustelle = TextEditingController();
   //
@@ -100,6 +101,18 @@ class CheckboxWidgetState extends State {
 
   //
   //
+
+  Future<void> deleteCanceledFiles(List deletion) {
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+    for (int i = 0; i < deletion.length; i++) {
+      _storage.ref().child(deletion[i]).delete();
+    }
+  }
+
+  //
+  //
+
   Future<void> _pickImageSec(ImageSource source, String key) async {
     File selected2 = await ImagePicker.pickImage(source: source);
     //Make sure network is connected!!!!
@@ -256,10 +269,10 @@ class CheckboxWidgetState extends State {
               ),
               FlatButton(
                 onPressed: () {
-                  getUDID();
-                  fetchChecklist("Zurich-9222");
+                  deleteCanceledFiles(toDelete);
+                  toDelete.clear();
                 },
-                child: Text("Get Checklist"),
+                child: Text("Delete Old"),
               ),
               RaisedButton(
                   onPressed: () {
@@ -387,8 +400,12 @@ class CheckboxWidgetState extends State {
                     } else {
                       print("Returned to true");
                       errors.remove(key);
-                      toDelete.add(names[key]);
-                      toDelete.add(names[key + "Sec"]);
+                      if (names[key] != null) {
+                        toDelete.add(names[key]);
+                      }
+                      if (names[key + "Sec"] != null) {
+                        toDelete.add(names[key + "Sec"]);
+                      }
                       names.remove(key);
                       names.remove(key + "Sec");
                     }
