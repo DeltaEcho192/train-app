@@ -1,4 +1,3 @@
-
 If user decides not to change anything ask for confirm
 If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server) // Cloud function reads all files and deletes all files where the names are not found in the documents
 Make alertDialog box larger to type in.
@@ -9,11 +8,13 @@ How to delete photos again.
 
 Add chosing location to when a baustelle is entered.
 
-Image nameing convention with image picker... (Perhaps API would be better.)
+05/10/2020 Things to do:
 
-Build Login system
-Integrate auto check at begining on application.
-also logout again.
-Use json file to save values
-
-Dockerise NodeJS server and test
+!!!API Authentication 1.
+1. Image Deletions
+2. Image preview
+3. Wait for image to upload before allowing new photo.
+4. Baustelle Search function and API
+5. Write unit tests.
+6. Write requirments for Web Interface
+7. If Image not uploading then show notification

@@ -261,23 +261,41 @@ class CheckboxWidgetState extends State {
                           // return object of type Dialog
                           return AlertDialog(
                             title: new Text("Alert Dialog"),
-                            content: new Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                new Flexible(
-                                  child: new TextField(
-                                    controller: txt,
-                                    decoration: const InputDecoration(
-                                        hintText: "Enter Problem"),
-                                  ),
+                            content: new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                new Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    new Flexible(
+                                      child: new TextField(
+                                        controller: txt,
+                                        decoration: const InputDecoration(
+                                            hintText: "Enter Problem"),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.photo_camera),
+                                      onPressed: () =>
+                                          (_pickImage(ImageSource.camera).then(
+                                              (value) => (context as Element)
+                                                  .reassemble())),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.mic),
+                                    ),
+                                  ],
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.photo_camera),
-                                  onPressed: () =>
-                                      (_pickImage(ImageSource.camera)),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.mic),
+                                Container(
+                                  height: 200,
+                                  child: _imageFile == null
+                                      ? Text('No image selected.')
+                                      : Image.file(
+                                          _imageFile,
+                                          width: 100,
+                                          height: 150,
+                                        ),
                                 ),
                               ],
                             ),
