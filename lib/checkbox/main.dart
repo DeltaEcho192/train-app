@@ -20,6 +20,7 @@ import 'package:toast/toast.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 void main() => runApp(MyApp());
 
@@ -64,7 +65,13 @@ class CheckboxWidgetState extends State {
   StorageUploadTask _uploadTask2;
   StorageUploadTask _deleteTask;
   var txt = TextEditingController();
-  var baustelle = TextEditingController();
+  String baustelle;
+  final bauController = TextEditingController(text: "Baustelle");
+  String currentText = "";
+  List<String> suggestions = ["Default"];
+  GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
+  SimpleAutoCompleteTextField textField;
+
   //
   //
 
@@ -207,6 +214,24 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  Future<void> getBaustelle() async {
+    final response = await http.get('http://192.168.202.107:3000/all/');
+
+    if (response.statusCode == 200) {
+      var bauApi = jsonDecode(response.body);
+      List<String> bauSugg = bauApi != null ? List.from(bauApi) : null;
+      print(bauApi[0]);
+      suggestions = await bauSugg;
+      textField.updateSuggestions(suggestions);
+      print(suggestions);
+    } else {
+      throw Exception("Failed to get Baustelle");
+    }
+  }
+
+  //
+  //
+
   Future<void> uploadData(Data dataFinal) async {
     final firestoreInstance = Firestore.instance;
 
@@ -215,9 +240,13 @@ class CheckboxWidgetState extends State {
       "baustelle": dataFinal.baustelle,
       "schicht": dataFinal.schicht,
       "udid": dataFinal.udid,
-      "errors": dataFinal.errors
+      "errors": dataFinal.errors,
+      "images": dataFinal.images,
     }).then((value) => print(value.documentID));
   }
+
+  //
+  //
 
   //
   //
@@ -226,6 +255,7 @@ class CheckboxWidgetState extends State {
   void initState() {
     super.initState();
     fetchChecklist("Default");
+    getBaustelle();
   }
 
   @override
@@ -236,63 +266,77 @@ class CheckboxWidgetState extends State {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               new Flexible(
-                child: TextField(
-                  controller: baustelle,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: 'Baustelle'),
-                ),
-              ),
-              FlatButton(
-                onPressed: () {
-                  DatePicker.showDatePicker(context,
-                      showTitleActions: true,
-                      minTime: DateTime(2020, 1, 1),
-                      maxTime: DateTime(2099, 12, 31), onChanged: (date) {
-                    print('change $date');
-                  }, onConfirm: (date) {
-                    print('confirm $date');
-                    data.schicht = date;
-                    setState(() {
-                      String dayW = date.day.toString();
-                      String monthW = date.month.toString();
-                      String yearW = date.year.toString();
-                      String working = dayW + '/' + monthW + '/' + yearW;
-                      print(working);
-                      dateFinal = working;
-                    });
-                  }, currentTime: DateTime.now(), locale: LocaleType.de);
-                },
-                child: Text(
-                  dateFinal,
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
-              FlatButton(
-                onPressed: () {
-                  deleteCanceledFiles(toDelete);
-                  toDelete.clear();
-                },
-                child: Text("Delete Old"),
-              ),
-              RaisedButton(
-                  onPressed: () {
-                    print(errors);
-                    data.errors = Map<String, String>.from(errors);
-                    print(names);
-                    print(toDelete);
-                  },
-                  child: new Text("data1")),
-              RaisedButton(
-                  onPressed: () {
-                    print(data.errors);
-                    data.user = "ad";
-                    data.baustelle = "Zurich-9221";
-                    data.schicht = new DateTime.now();
-                    data.udid = "AnthonyTest";
-                    uploadData(data);
-                  },
-                  child: new Text("data")),
+                  child: textField = SimpleAutoCompleteTextField(
+                      key: key,
+                      controller: bauController,
+                      suggestions: suggestions,
+                      textChanged: (text) => currentText = text,
+                      clearOnSubmit: true,
+                      textSubmitted: (text) => setState(() {
+                            if (text != "") {
+                              baustelle = text;
+                              fetchChecklist(baustelle);
+                            }
+                          }))),
             ]),
+        new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            FlatButton(
+              onPressed: () {
+                DatePicker.showDatePicker(context,
+                    showTitleActions: true,
+                    minTime: DateTime(2020, 1, 1),
+                    maxTime: DateTime(2099, 12, 31), onChanged: (date) {
+                  print('change $date');
+                }, onConfirm: (date) {
+                  print('confirm $date');
+                  data.schicht = date;
+                  setState(() {
+                    String dayW = date.day.toString();
+                    String monthW = date.month.toString();
+                    String yearW = date.year.toString();
+                    String working = dayW + '/' + monthW + '/' + yearW;
+                    print(working);
+                    dateFinal = working;
+                  });
+                }, currentTime: DateTime.now(), locale: LocaleType.de);
+              },
+              child: Text(
+                dateFinal,
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                deleteCanceledFiles(toDelete);
+                toDelete.clear();
+              },
+              child: Text("Delete Old"),
+            ),
+            RaisedButton(
+                onPressed: () {
+                  print(errors);
+                  print(baustelle);
+                  data.errors = Map<String, String>.from(errors);
+                  data.images = Map<String, String>.from(names);
+                  print(names);
+                  print(toDelete);
+                  getBaustelle();
+                },
+                child: new Text("data1")),
+            RaisedButton(
+                onPressed: () {
+                  print(data.errors);
+                  data.user = "ad";
+                  data.baustelle = "Zurich-9221";
+                  data.schicht = new DateTime.now();
+                  data.udid = "AnthonyTest";
+                  uploadData(data);
+                },
+                child: new Text("data")),
+          ],
+        ),
         Expanded(
           //Creates the checklist dynamically based on API
           child: ListView(

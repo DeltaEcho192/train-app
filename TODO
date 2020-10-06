@@ -1,10 +1,7 @@
 If user decides not to change anything ask for confirm
-If checkbox made true again wipe out data added previously. (How to do with images? Probably easier todo with local server) // Cloud function reads all files and deletes all files where the names are not found in the documents
 Make alertDialog box larger to type in.
 
 Reload all widgets clean after a user uploads data
-Integrate photo Upload and data Upload use wait until completed
-How to delete photos again. 
 
 Add chosing location to when a baustelle is entered.
 
@@ -14,7 +11,7 @@ Add chosing location to when a baustelle is entered.
 1. Image Deletions [Y]
 2. Image preview [Y]
 3. Wait for image to upload before allowing new photo. [Y]
-4. Baustelle Search function and API []
+4. Baustelle Search function and API [Y]
 5. Write unit tests. []
 6. Write requirments for Web Interface. []
 7. If Image not uploading then show notification. [M]
