@@ -47,22 +47,31 @@ class CheckboxWidget extends StatefulWidget {
 class CheckboxWidgetState extends State {
   bool exec = false;
   File _imageFile;
+  File _imageFile2;
   String locWorking;
   Model model = Model();
   Data data = Data();
-  List<String> names = [];
+  Map<String, String> names = {};
   Map<String, String> errors = {};
+  List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
   int photoAmt = 0;
+  int iteration = 0;
+  Image cameraIcon = Image.asset("assets/cameraIcon.png");
+  Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
   StorageUploadTask _uploadTask;
+  StorageUploadTask _uploadTask2;
   var txt = TextEditingController();
   var baustelle = TextEditingController();
   //
   //
 
   //Takes a picture from camera and then uploads its to Firebase Storage
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(
+    ImageSource source,
+    String key,
+  ) async {
     File selected = await ImagePicker.pickImage(source: source);
     //Make sure network is connected!!!!
     //TODO Add pop up if there is no network
@@ -78,12 +87,42 @@ class CheckboxWidgetState extends State {
       print("Counter" + photoAmt.toString());
       model.picName = fileName;
       model.picCheck = true;
+      cameraIcon = new Image.file(_imageFile);
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
       //Adds all current photo names to an array
-      names.add(fileName);
+      names[key] = fileName;
     });
     await _uploadTask.onComplete;
     print("Upload done");
+    Toast.show("Upload Complete", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+  }
+
+  //
+  //
+  Future<void> _pickImageSec(ImageSource source, String key) async {
+    File selected2 = await ImagePicker.pickImage(source: source);
+    //Make sure network is connected!!!!
+    //TODO Add pop up if there is no network
+
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+
+    // ignore: unused_local_variable
+
+    setState(() {
+      _imageFile2 = selected2;
+      String fileName = 'images/${DateTime.now()}.png';
+      print("Counter" + photoAmt.toString());
+      model.picName = fileName;
+      model.picCheck = true;
+      String newKey = key + "Sec";
+      names[newKey] = fileName;
+      cameraIcon2 = new Image.file(_imageFile2);
+      _uploadTask2 = _storage.ref().child(model.picName).putFile(_imageFile);
+    });
+    await _uploadTask2.onComplete;
+    print("Upload done on second");
     Toast.show("Upload Complete", context,
         duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
@@ -227,6 +266,7 @@ class CheckboxWidgetState extends State {
                     print(errors);
                     data.errors = Map<String, String>.from(errors);
                     print(names);
+                    print(toDelete);
                   },
                   child: new Text("data1")),
               RaisedButton(
@@ -275,27 +315,40 @@ class CheckboxWidgetState extends State {
                                             hintText: "Enter Problem"),
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.photo_camera),
-                                      onPressed: () =>
-                                          (_pickImage(ImageSource.camera).then(
-                                              (value) => (context as Element)
-                                                  .reassemble())),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.mic),
-                                    ),
                                   ],
                                 ),
-                                Container(
-                                  height: 200,
-                                  child: _imageFile == null
-                                      ? Text('No image selected.')
-                                      : Image.file(
-                                          _imageFile,
-                                          width: 100,
-                                          height: 150,
-                                        ),
+                                new Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    new SizedBox(
+                                      height: 100,
+                                      width: 125,
+                                      child: IconButton(
+                                        padding: new EdgeInsets.all(10.0),
+                                        icon: cameraIcon,
+                                        onPressed: () =>
+                                            (_pickImage(ImageSource.camera, key)
+                                                .then(
+                                          (value) =>
+                                              (context as Element).reassemble(),
+                                        )),
+                                      ),
+                                    ),
+                                    new SizedBox(
+                                      height: 100,
+                                      width: 125,
+                                      child: IconButton(
+                                        padding: new EdgeInsets.all(10.0),
+                                        icon: cameraIcon2,
+                                        onPressed: () => (_pickImageSec(
+                                                ImageSource.camera, key)
+                                            .then((value) =>
+                                                (context as Element)
+                                                    .reassemble())),
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ],
                             ),
@@ -305,6 +358,10 @@ class CheckboxWidgetState extends State {
                                 child: new Text("Close"),
                                 onPressed: () {
                                   txt.clear();
+                                  cameraIcon =
+                                      Image.asset("assets/cameraIcon.png");
+                                  cameraIcon2 =
+                                      Image.asset("assets/cameraIcon.png");
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -315,6 +372,10 @@ class CheckboxWidgetState extends State {
                                   print(key);
                                   errors[key] = txt.text;
                                   txt.clear();
+                                  cameraIcon =
+                                      Image.asset("assets/cameraIcon.png");
+                                  cameraIcon2 =
+                                      Image.asset("assets/cameraIcon.png");
                                   Navigator.of(context).pop();
                                 },
                                 child: new Text("Confirm"),
@@ -326,6 +387,10 @@ class CheckboxWidgetState extends State {
                     } else {
                       print("Returned to true");
                       errors.remove(key);
+                      toDelete.add(names[key]);
+                      toDelete.add(names[key + "Sec"]);
+                      names.remove(key);
+                      names.remove(key + "Sec");
                     }
                   });
                 },
