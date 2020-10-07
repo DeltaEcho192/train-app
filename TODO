@@ -3,8 +3,6 @@ Make alertDialog box larger to type in.
 
 Reload all widgets clean after a user uploads data
 
-Add chosing location to when a baustelle is entered.
-
 05/10/2020 Things to do:
 
 !!!API Authentication 1. [N]
@@ -15,3 +13,14 @@ Add chosing location to when a baustelle is entered.
 5. Write unit tests. []
 6. Write requirments for Web Interface. []
 7. If Image not uploading then show notification. [M]
+
+
+07/10/2020 Things to do:
+
+1. Clear text on focus [Y]
+2. Clean up and integrate layout (Check box. make functions called when needed) [Y]
+3. Config file for url/ip of API [Y]
+4. Integrate log in and checkbox into one program. []
+5. Fix Docker on main server [Y]
+6. Start with Basic web interface (Change server files. Display some data... To be defined) []
+

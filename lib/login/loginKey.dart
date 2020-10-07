@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_udid/flutter_udid.dart';
+import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import './successKey.dart';
+import '../checkbox/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -23,9 +26,18 @@ class MyApp extends StatelessWidget {
 }
 
 Future<Map<String, dynamic>> fetchUser(var userid, String udid) async {
+  await GlobalConfiguration().loadFromAsset("app_settings");
+  var host = GlobalConfiguration().getValue("host");
+  var port = GlobalConfiguration().getValue("port");
   print("Function UDID " + udid);
-  final response = await http.get(
-      'http://192.168.202.107:3000/check/' + userid.toString() + "/" + udid);
+  final response = await http.get("http://" +
+      host +
+      ":" +
+      port +
+      '/check/' +
+      userid.toString() +
+      "/" +
+      udid);
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -83,8 +95,8 @@ class _LoginKeyState extends State<LoginKey> {
     bool usercheck = (prefs.getBool('loged') ?? false);
 
     if (usercheck == true) {
-      Navigator.pushReplacement(
-          context, new MaterialPageRoute(builder: (context) => SuccessKey()));
+      Navigator.pushReplacement(context,
+          new MaterialPageRoute(builder: (context) => CheckboxWidget()));
     }
   }
 
@@ -130,37 +142,17 @@ class _LoginKeyState extends State<LoginKey> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'This is your Current logged in User',
+              'Please Enter your user key.',
             ),
             TextField(
               controller: myController,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+              ),
             ),
-            Text(
-              '$_user',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            RaisedButton(
-              onPressed: () {
-                _logout();
-              },
-              child: Text("Logout"),
-            ),
-            RaisedButton(
-              onPressed: () {
-                _loadUser();
-
-                print(_user.compareTo('empty'));
-                int check = _user.compareTo('empty');
-                print(check);
-                if (check == -1) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => (SuccessKey())),
-                  );
-                }
-              },
-              child: Text("Load User"),
-            )
           ],
         ),
       ),
@@ -179,11 +171,17 @@ class _LoginKeyState extends State<LoginKey> {
                     _writeUser(value['userid']),
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => (SuccessKey())),
+                      MaterialPageRoute(
+                          builder: (context) => (CheckboxWidget())),
                     ),
                   }
                 else
-                  {print("Login failed"), _setLogState(false)}
+                  {
+                    print("Login failed"),
+                    Toast.show("Login Unsuccessful", context,
+                        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
+                    _setLogState(false)
+                  }
               });
         },
         tooltip: 'Increment',

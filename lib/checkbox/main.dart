@@ -21,26 +21,29 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:global_configuration/global_configuration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../login/loginKey.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            title: Text("Flutter Create Checkbox Dynamically"),
-          ),
           body: SafeArea(
               child: Center(
-            child: CheckboxWidget(),
-          ))),
+        child: CheckboxWidget(),
+      ))),
     );
   }
 }
 
 class CheckboxWidget extends StatefulWidget {
+  CheckboxWidget({Key key}) : super(key: key);
   @override
   CheckboxWidgetState createState() => new CheckboxWidgetState();
 }
@@ -71,6 +74,7 @@ class CheckboxWidgetState extends State {
   List<String> suggestions = ["Default"];
   GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
   SimpleAutoCompleteTextField textField;
+  FocusNode _focusNode;
 
   //
   //
@@ -165,6 +169,7 @@ class CheckboxWidgetState extends State {
       print(udid);
       //print("First item of array" + names[1]);
       _udid = udid;
+      data.udid = udid;
     });
   }
 
@@ -179,8 +184,11 @@ class CheckboxWidgetState extends State {
 
   //Dynamically gets Checklist from NODE JS based on which Baustelle is selected.
   Future<void> fetchChecklist(var baustelle) async {
+    await GlobalConfiguration().loadFromAsset("app_settings");
+    var host = GlobalConfiguration().getValue("host");
+    var port = GlobalConfiguration().getValue("port");
     final response = await http
-        .get('http://192.168.202.107:3000/test/' + baustelle.toString());
+        .get("http://" + host + ":" + port + '/test/' + baustelle.toString());
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -215,7 +223,10 @@ class CheckboxWidgetState extends State {
   //
 
   Future<void> getBaustelle() async {
-    final response = await http.get('http://192.168.202.107:3000/all/');
+    await GlobalConfiguration().loadFromAsset("app_settings");
+    var host = GlobalConfiguration().getValue("host");
+    var port = GlobalConfiguration().getValue("port");
+    final response = await http.get("http://" + host + ":" + port + '/all/');
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
@@ -242,11 +253,32 @@ class CheckboxWidgetState extends State {
       "udid": dataFinal.udid,
       "errors": dataFinal.errors,
       "images": dataFinal.images,
-    }).then((value) => print(value.documentID));
+    }).then((value) => {
+          print(value.documentID),
+          Toast.show("All Data is uploaded", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER)
+        });
   }
 
   //
   //
+
+  _loadUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("Loading User");
+    print(prefs.getString('user') ?? "empty");
+    setState(() {
+      data.user = (prefs.getString('user') ?? "empty");
+    });
+  }
+
+  _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('user', 'empty');
+      prefs.setBool('loged', false);
+    });
+  }
 
   //
   //
@@ -254,212 +286,276 @@ class CheckboxWidgetState extends State {
   @override
   void initState() {
     super.initState();
-    fetchChecklist("Default");
+
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) bauController.clear();
+    });
     getBaustelle();
+    fetchChecklist("Default");
+    getUDID();
+    _loadUser();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              new Flexible(
-                  child: textField = SimpleAutoCompleteTextField(
-                      key: key,
-                      controller: bauController,
-                      suggestions: suggestions,
-                      textChanged: (text) => currentText = text,
-                      clearOnSubmit: true,
-                      textSubmitted: (text) => setState(() {
-                            if (text != "") {
-                              baustelle = text;
-                              fetchChecklist(baustelle);
-                            }
-                          }))),
-            ]),
-        new Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            FlatButton(
-              onPressed: () {
-                DatePicker.showDatePicker(context,
-                    showTitleActions: true,
-                    minTime: DateTime(2020, 1, 1),
-                    maxTime: DateTime(2099, 12, 31), onChanged: (date) {
-                  print('change $date');
-                }, onConfirm: (date) {
-                  print('confirm $date');
-                  data.schicht = date;
-                  setState(() {
-                    String dayW = date.day.toString();
-                    String monthW = date.month.toString();
-                    String yearW = date.year.toString();
-                    String working = dayW + '/' + monthW + '/' + yearW;
-                    print(working);
-                    dateFinal = working;
-                  });
-                }, currentTime: DateTime.now(), locale: LocaleType.de);
-              },
-              child: Text(
-                dateFinal,
-                style: TextStyle(color: Colors.blue),
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Train App"),
+        actions: [
+          FlatButton(
+            padding: EdgeInsets.only(right: 75),
+            onPressed: () {
+              DatePicker.showDatePicker(context,
+                  showTitleActions: true,
+                  minTime: DateTime(2020, 1, 1),
+                  maxTime: DateTime(2099, 12, 31), onChanged: (date) {
+                print('change $date');
+              }, onConfirm: (date) {
+                print('confirm $date');
+                data.schicht = date;
+                setState(() {
+                  String dayW = date.day.toString();
+                  String monthW = date.month.toString();
+                  String yearW = date.year.toString();
+                  String working = dayW + '/' + monthW + '/' + yearW;
+                  print(working);
+                  dateFinal = working;
+                });
+              }, currentTime: DateTime.now(), locale: LocaleType.de);
+            },
+            child: Text(
+              dateFinal,
+              style: TextStyle(color: Colors.white),
             ),
-            FlatButton(
+          ),
+          new IconButton(
+              icon: new Icon(Icons.check),
               onPressed: () {
-                deleteCanceledFiles(toDelete);
-                toDelete.clear();
-              },
-              child: Text("Delete Old"),
-            ),
-            RaisedButton(
-                onPressed: () {
-                  print(errors);
-                  print(baustelle);
-                  data.errors = Map<String, String>.from(errors);
-                  data.images = Map<String, String>.from(names);
-                  print(names);
-                  print(toDelete);
-                  getBaustelle();
-                },
-                child: new Text("data1")),
-            RaisedButton(
-                onPressed: () {
-                  print(data.errors);
-                  data.user = "ad";
-                  data.baustelle = "Zurich-9221";
-                  data.schicht = new DateTime.now();
-                  data.udid = "AnthonyTest";
-                  uploadData(data);
-                },
-                child: new Text("data")),
-          ],
-        ),
-        Expanded(
-          //Creates the checklist dynamically based on API
-          child: ListView(
-            children: numbers.keys.map((String key) {
-              return new CheckboxListTile(
-                title: new Text(key),
-                value: numbers[key],
-                activeColor: Colors.pink,
-                checkColor: Colors.white,
-                onChanged: (bool value) {
-                  setState(() {
-                    numbers[key] = value;
-                    exec = true;
-                    if (value == false) {
-                      //If Checkbox is false then a dialog will pop up so information can be filled in.
-                      showDialog(
+                data.errors = Map<String, String>.from(errors);
+                data.images = Map<String, String>.from(names);
+                data.user = "ad";
+                if (data.user == null ||
+                    data.udid == null ||
+                    data.schicht == null) {
+                  Toast.show("Form is not Complete", context,
+                      duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+                } else {
+                  if (data.errors.isEmpty) {
+                    //Possible error double upload
+                    showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          // return object of type Dialog
                           return AlertDialog(
-                            title: new Text("Alert Dialog"),
-                            content: new Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                new Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    new Flexible(
-                                      child: new TextField(
-                                        controller: txt,
-                                        decoration: const InputDecoration(
-                                            hintText: "Enter Problem"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                new Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    new SizedBox(
-                                      height: 100,
-                                      width: 125,
-                                      child: IconButton(
-                                        padding: new EdgeInsets.all(10.0),
-                                        icon: cameraIcon,
-                                        onPressed: () =>
-                                            (_pickImage(ImageSource.camera, key)
-                                                .then(
-                                          (value) =>
-                                              (context as Element).reassemble(),
-                                        )),
-                                      ),
-                                    ),
-                                    new SizedBox(
-                                      height: 100,
-                                      width: 125,
-                                      child: IconButton(
-                                        padding: new EdgeInsets.all(10.0),
-                                        icon: cameraIcon2,
-                                        onPressed: () => (_pickImageSec(
-                                                ImageSource.camera, key)
-                                            .then((value) =>
-                                                (context as Element)
-                                                    .reassemble())),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                            actions: <Widget>[
-                              // usually buttons at the bottom of the dialog
-                              new FlatButton(
-                                child: new Text("Close"),
-                                onPressed: () {
-                                  txt.clear();
-                                  cameraIcon =
-                                      Image.asset("assets/cameraIcon.png");
-                                  cameraIcon2 =
-                                      Image.asset("assets/cameraIcon.png");
-                                  Navigator.of(context).pop();
-                                },
+                            title: new Text("Confirm"),
+                            content: SingleChildScrollView(
+                              child: ListBody(
+                                children: <Widget>[
+                                  Text('Everything has been marked okay'),
+                                  Text('Is that correct?'),
+                                ],
                               ),
-                              new FlatButton(
+                            ),
+                            actions: [
+                              FlatButton(
                                 onPressed: () {
-                                  //errors.add(txt.text);
-                                  print(txt.text);
-                                  print(key);
-                                  errors[key] = txt.text;
-                                  txt.clear();
-                                  cameraIcon =
-                                      Image.asset("assets/cameraIcon.png");
-                                  cameraIcon2 =
-                                      Image.asset("assets/cameraIcon.png");
+                                  uploadData(data);
+                                  deleteCanceledFiles(toDelete);
+                                  toDelete.clear();
                                   Navigator.of(context).pop();
                                 },
-                                child: new Text("Confirm"),
+                                child: Text("Yes"),
+                              ),
+                              FlatButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("No"),
                               )
                             ],
                           );
-                        },
-                      );
-                    } else {
-                      print("Returned to true");
-                      errors.remove(key);
-                      if (names[key] != null) {
-                        toDelete.add(names[key]);
+                        });
+                  } else {
+                    uploadData(data);
+                    deleteCanceledFiles(toDelete);
+                    toDelete.clear();
+                  }
+                }
+              })
+        ],
+      ),
+      body: Column(
+        children: <Widget>[
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                new Flexible(
+                    child: textField = SimpleAutoCompleteTextField(
+                        key: key,
+                        controller: bauController,
+                        focusNode: _focusNode,
+                        suggestions: suggestions,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        textChanged: (text) => currentText = text,
+                        clearOnSubmit: false,
+                        textSubmitted: (text) => setState(() {
+                              if (text != "") {
+                                baustelle = text;
+                                data.baustelle = text;
+                                fetchChecklist(baustelle);
+                              }
+                            }))),
+              ]),
+          Expanded(
+            //Creates the checklist dynamically based on API
+            child: ListView(
+              children: numbers.keys.map((String key) {
+                return new CheckboxListTile(
+                  title: new Text(key),
+                  value: numbers[key],
+                  activeColor: Colors.pink,
+                  checkColor: Colors.white,
+                  onChanged: (bool value) {
+                    setState(() {
+                      numbers[key] = value;
+                      exec = true;
+                      if (value == false) {
+                        //If Checkbox is false then a dialog will pop up so information can be filled in.
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // return object of type Dialog
+                            return AlertDialog(
+                              title: new Text("Alert Dialog"),
+                              content: new Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  new Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      new Flexible(
+                                        child: new TextField(
+                                          controller: txt,
+                                          minLines: 5,
+                                          maxLines: 7,
+                                          decoration: const InputDecoration(
+                                            hintText: "Enter Problem",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10.0)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  new Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      new SizedBox(
+                                        height: 100,
+                                        width: 125,
+                                        child: IconButton(
+                                          padding: new EdgeInsets.all(10.0),
+                                          icon: cameraIcon,
+                                          onPressed: () => (_pickImage(
+                                                  ImageSource.camera, key)
+                                              .then(
+                                            (value) => (context as Element)
+                                                .reassemble(),
+                                          )),
+                                        ),
+                                      ),
+                                      new SizedBox(
+                                        height: 100,
+                                        width: 125,
+                                        child: IconButton(
+                                          padding: new EdgeInsets.all(10.0),
+                                          icon: cameraIcon2,
+                                          onPressed: () => (_pickImageSec(
+                                                  ImageSource.camera, key)
+                                              .then((value) =>
+                                                  (context as Element)
+                                                      .reassemble())),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                // usually buttons at the bottom of the dialog
+                                new FlatButton(
+                                  child: new Text("Close"),
+                                  onPressed: () {
+                                    txt.clear();
+                                    cameraIcon =
+                                        Image.asset("assets/cameraIcon.png");
+                                    cameraIcon2 =
+                                        Image.asset("assets/cameraIcon.png");
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                new FlatButton(
+                                  onPressed: () {
+                                    //errors.add(txt.text);
+                                    print(txt.text);
+                                    print(key);
+                                    errors[key] = txt.text;
+                                    txt.clear();
+                                    cameraIcon =
+                                        Image.asset("assets/cameraIcon.png");
+                                    cameraIcon2 =
+                                        Image.asset("assets/cameraIcon.png");
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: new Text("Confirm"),
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        print("Returned to true");
+                        errors.remove(key);
+                        if (names[key] != null) {
+                          toDelete.add(names[key]);
+                        }
+                        if (names[key + "Sec"] != null) {
+                          toDelete.add(names[key + "Sec"]);
+                        }
+                        names.remove(key);
+                        names.remove(key + "Sec");
                       }
-                      if (names[key + "Sec"] != null) {
-                        toDelete.add(names[key + "Sec"]);
-                      }
-                      names.remove(key);
-                      names.remove(key + "Sec");
-                    }
-                  });
-                },
-              );
-            }).toList(),
+                    });
+                  },
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _logout();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => (LoginKey())),
+          );
+        },
+        tooltip: 'Logout',
+        child: Icon(Icons.exit_to_app),
+      ),
     );
   }
 }
