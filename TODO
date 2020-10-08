@@ -28,8 +28,9 @@ Reload all widgets clean after a user uploads data
 08/10/2020 Things to do:
 
 1. Finish API routes and add basic functionality [Y]
-2. Added logic to return to true Like would they like to add more or would they like to delete. []
+2. Added logic to return to true Like would they like to add more or would they like to delete. [Y]
 3. Add be able to undo last sent report. []
 4. Add Http functionality to API's. []
 5. Display Firebase data on website. []
 6. Add README for train-app-api github. []
+7. Max width change of Alert Dialog. []

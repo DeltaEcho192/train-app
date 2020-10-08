@@ -57,6 +57,7 @@ class CheckboxWidgetState extends State {
   Data data = Data();
   Map<String, String> names = {};
   Map<String, String> errors = {};
+  Map<String, String> comments = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -254,6 +255,7 @@ class CheckboxWidgetState extends State {
       "schicht": dataFinal.schicht,
       "udid": dataFinal.udid,
       "errors": dataFinal.errors,
+      "comments": dataFinal.comments,
       "images": dataFinal.images,
     }).then((value) => {
           print(value.documentID),
@@ -285,6 +287,22 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  _intialDate() async {
+    var date = DateTime.now();
+    data.schicht = date;
+    setState(() {
+      String dayW = date.day.toString();
+      String monthW = date.month.toString();
+      String yearW = date.year.toString();
+      String working = dayW + '/' + monthW + '/' + yearW;
+      print(working);
+      dateFinal = working;
+    });
+  }
+
+  //
+  //
+
   @override
   void initState() {
     super.initState();
@@ -297,6 +315,7 @@ class CheckboxWidgetState extends State {
     fetchChecklist("Default");
     getUDID();
     _loadUser();
+    _intialDate();
   }
 
   @override
@@ -335,6 +354,7 @@ class CheckboxWidgetState extends State {
               icon: new Icon(Icons.check),
               onPressed: () {
                 data.errors = Map<String, String>.from(errors);
+                data.comments = Map<String, String>.from(comments);
                 data.images = Map<String, String>.from(names);
                 data.user = "ad";
                 if (data.user == null ||
@@ -443,6 +463,7 @@ class CheckboxWidgetState extends State {
                                   new Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    mainAxisSize: MainAxisSize.max,
                                     children: <Widget>[
                                       new Flexible(
                                         child: new TextField(
@@ -495,30 +516,60 @@ class CheckboxWidgetState extends State {
                                       )
                                     ],
                                   ),
+                                  new Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      new Text("Alles Okay "),
+                                      new IconButton(
+                                          icon: checkboxIcon,
+                                          onPressed: () {
+                                            if (secondCheck == false) {
+                                              setState(() {
+                                                checkboxIcon =
+                                                    Icon(Icons.check_box);
+                                                secondCheck = true;
+                                                (context as Element)
+                                                    .reassemble();
+                                              });
+                                            } else {
+                                              setState(() {
+                                                checkboxIcon = Icon(Icons
+                                                    .check_box_outline_blank);
+                                                secondCheck = false;
+                                                (context as Element)
+                                                    .reassemble();
+                                              });
+                                            }
+                                          }),
+                                    ],
+                                  ),
                                 ],
                               ),
                               actions: <Widget>[
                                 // usually buttons at the bottom of the dialog
-                                new IconButton(
-                                    icon: checkboxIcon,
-                                    onPressed: () {
-                                      if (secondCheck == false) {
-                                        setState(() {
-                                          checkboxIcon = Icon(Icons.check_box);
-                                          secondCheck = true;
-                                          (context as Element).reassemble();
-                                        });
-                                      } else {
-                                        setState(() {
-                                          checkboxIcon = Icon(
-                                              Icons.check_box_outline_blank);
-                                          secondCheck = false;
-                                          (context as Element).reassemble();
-                                        });
-                                      }
-                                    }),
                                 new FlatButton(
-                                  child: new Text("Close"),
+                                    onPressed: () {
+                                      setState(() {
+                                        errors.remove(key);
+                                        if (names[key] != null) {
+                                          toDelete.add(names[key]);
+                                        }
+                                        if (names[key + "Sec"] != null) {
+                                          toDelete.add(names[key + "Sec"]);
+                                        }
+                                        names.remove(key);
+                                        names.remove(key + "Sec");
+                                        secondCheck = false;
+                                        numbers[key] = true;
+                                        txt.clear();
+                                        Navigator.of(context).pop();
+                                        (context as Element).reassemble();
+                                      });
+                                    },
+                                    child: new Text("Löschen")),
+
+                                new FlatButton(
+                                  child: new Text("Abbruch"),
                                   onPressed: () {
                                     txt.clear();
                                     setState(() {
@@ -539,7 +590,17 @@ class CheckboxWidgetState extends State {
                                     //errors.add(txt.text);
                                     print(txt.text);
                                     print(key);
-                                    errors[key] = txt.text;
+                                    setState(() {
+                                      value = secondCheck;
+                                      numbers[key] = value;
+                                      (context as Element).reassemble();
+                                    });
+                                    if (secondCheck == true) {
+                                      comments[key] = txt.text;
+                                    } else {
+                                      errors[key] = txt.text;
+                                    }
+
                                     txt.clear();
                                     cameraIcon =
                                         Image.asset("assets/cameraIcon.png");
@@ -547,7 +608,7 @@ class CheckboxWidgetState extends State {
                                         Image.asset("assets/cameraIcon.png");
                                     Navigator.of(context).pop();
                                   },
-                                  child: new Text("Confirm"),
+                                  child: new Text("Speichern"),
                                 )
                               ],
                             );
@@ -618,30 +679,60 @@ class CheckboxWidgetState extends State {
                                       )
                                     ],
                                   ),
+                                  new Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      new Text("Alles Okay "),
+                                      new IconButton(
+                                          icon: checkboxIcon,
+                                          onPressed: () {
+                                            if (secondCheck == false) {
+                                              setState(() {
+                                                checkboxIcon =
+                                                    Icon(Icons.check_box);
+                                                secondCheck = true;
+                                                (context as Element)
+                                                    .reassemble();
+                                              });
+                                            } else {
+                                              setState(() {
+                                                checkboxIcon = Icon(Icons
+                                                    .check_box_outline_blank);
+                                                secondCheck = false;
+                                                (context as Element)
+                                                    .reassemble();
+                                              });
+                                            }
+                                          }),
+                                    ],
+                                  ),
                                 ],
                               ),
                               actions: <Widget>[
                                 // usually buttons at the bottom of the dialog
-                                new IconButton(
-                                    icon: checkboxIcon,
-                                    onPressed: () {
-                                      if (secondCheck == false) {
-                                        setState(() {
-                                          checkboxIcon = Icon(Icons.check_box);
-                                          secondCheck = true;
-                                          (context as Element).reassemble();
-                                        });
-                                      } else {
-                                        setState(() {
-                                          checkboxIcon = Icon(
-                                              Icons.check_box_outline_blank);
-                                          secondCheck = false;
-                                          (context as Element).reassemble();
-                                        });
-                                      }
-                                    }),
+
                                 new FlatButton(
-                                  child: new Text("Close"),
+                                    onPressed: () {
+                                      setState(() {
+                                        errors.remove(key);
+                                        if (names[key] != null) {
+                                          toDelete.add(names[key]);
+                                        }
+                                        if (names[key + "Sec"] != null) {
+                                          toDelete.add(names[key + "Sec"]);
+                                        }
+                                        names.remove(key);
+                                        names.remove(key + "Sec");
+                                        secondCheck = false;
+                                        numbers[key] = true;
+                                        Navigator.of(context).pop();
+                                        (context as Element).reassemble();
+                                      });
+                                    },
+                                    child: new Text("Löschen")),
+
+                                new FlatButton(
+                                  child: new Text("Abbruch"),
                                   onPressed: () {
                                     txt.clear();
                                     setState(() {
@@ -662,7 +753,18 @@ class CheckboxWidgetState extends State {
                                     //errors.add(txt.text);
                                     print(txt.text);
                                     print(key);
-                                    errors[key] = txt.text;
+                                    setState(() {
+                                      value = secondCheck;
+                                      numbers[key] = value;
+                                      (context as Element).reassemble();
+                                    });
+
+                                    if (secondCheck == true) {
+                                      comments[key] = txt.text;
+                                    } else {
+                                      errors[key] = txt.text;
+                                    }
+
                                     txt.clear();
                                     cameraIcon =
                                         Image.asset("assets/cameraIcon.png");
@@ -670,7 +772,7 @@ class CheckboxWidgetState extends State {
                                         Image.asset("assets/cameraIcon.png");
                                     Navigator.of(context).pop();
                                   },
-                                  child: new Text("Confirm"),
+                                  child: new Text("Speichern"),
                                 )
                               ],
                             );
@@ -679,6 +781,7 @@ class CheckboxWidgetState extends State {
                       }
                     });
                   },
+                  secondary: new Icon(Icons.edit),
                 );
               }).toList(),
             ),
