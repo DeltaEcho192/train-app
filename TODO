@@ -11,7 +11,7 @@ Reload all widgets clean after a user uploads data
 3. Wait for image to upload before allowing new photo. [Y]
 4. Baustelle Search function and API [Y]
 5. Write unit tests. []
-6. Write requirments for Web Interface. []
+6. Write requirments for Web Interface. [Y]
 7. If Image not uploading then show notification. [M]
 
 
@@ -20,7 +20,16 @@ Reload all widgets clean after a user uploads data
 1. Clear text on focus [Y]
 2. Clean up and integrate layout (Check box. make functions called when needed) [Y]
 3. Config file for url/ip of API [Y]
-4. Integrate log in and checkbox into one program. []
+4. Integrate log in and checkbox into one program. [Y]
 5. Fix Docker on main server [Y]
-6. Start with Basic web interface (Change server files. Display some data... To be defined) []
+6. Start with Basic web interface (Change server files. Display some data... To be defined) [Y]
 
+
+08/10/2020 Things to do:
+
+1. Finish API routes and add basic functionality [Y]
+2. Added logic to return to true Like would they like to add more or would they like to delete. []
+3. Add be able to undo last sent report. []
+4. Add Http functionality to API's. []
+5. Display Firebase data on website. []
+6. Add README for train-app-api github. []

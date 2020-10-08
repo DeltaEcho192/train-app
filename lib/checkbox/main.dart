@@ -526,16 +526,40 @@ class CheckboxWidgetState extends State {
                           },
                         );
                       } else {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: new Text("Confirm"),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      Text(
+                                          'Are you sure you want to Delete data'),
+                                      Text('Is that correct?'),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  FlatButton(
+                                    onPressed: () {
+                                      errors.remove(key);
+                                      if (names[key] != null) {
+                                        toDelete.add(names[key]);
+                                      }
+                                      if (names[key + "Sec"] != null) {
+                                        toDelete.add(names[key + "Sec"]);
+                                      }
+                                      names.remove(key);
+                                      names.remove(key + "Sec");
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("Delete"),
+                                  ),
+                                ],
+                              );
+                            });
                         print("Returned to true");
-                        errors.remove(key);
-                        if (names[key] != null) {
-                          toDelete.add(names[key]);
-                        }
-                        if (names[key + "Sec"] != null) {
-                          toDelete.add(names[key + "Sec"]);
-                        }
-                        names.remove(key);
-                        names.remove(key + "Sec");
                       }
                     });
                   },
