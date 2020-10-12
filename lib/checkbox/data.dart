@@ -4,6 +4,7 @@ class Data {
   DateTime schicht;
   String udid;
   Map<String, String> errors;
+  Map<String, String> comments;
   Map<String, String> images;
   Data({
     this.user,
@@ -11,6 +12,7 @@ class Data {
     this.schicht,
     this.udid,
     this.errors,
+    this.comments,
     this.images,
   });
 }

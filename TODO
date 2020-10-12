@@ -28,8 +28,23 @@ Reload all widgets clean after a user uploads data
 08/10/2020 Things to do:
 
 1. Finish API routes and add basic functionality [Y]
-2. Added logic to return to true Like would they like to add more or would they like to delete. []
+2. Added logic to return to true Like would they like to add more or would they like to delete. [Y]
 3. Add be able to undo last sent report. []
 4. Add Http functionality to API's. []
-5. Display Firebase data on website. []
-6. Add README for train-app-api github. []
+5. Display Firebase data on website. [Y]
+6. Add README for train-app-api github. [Y]
+7. Max width change of Alert Dialog. [N]
+
+09/10/2020 Things to do:
+
+1. Go bug hunting. [M]
+2. Get mongoDB working. [Y]
+3. Get and display Firebase in website. [M]
+4. Get Firebase baustelle api route working properly. []
+
+12/10/2020 Things to do:
+
+1. Fix Bugs dad found. [Y]
+2. Fix firebase JSON parse bug. []
+3. Show Firebase data on website. []
+4. Integrate more Mongodb. []
