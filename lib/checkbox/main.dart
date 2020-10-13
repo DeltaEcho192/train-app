@@ -80,6 +80,9 @@ class CheckboxWidgetState extends State {
   FocusNode _focusNode;
   Icon checkboxIcon = new Icon(Icons.check_box);
   bool secondCheck = false;
+  bool reportExist = false;
+  DateTime timeStart;
+  DateTime timeEnd;
 
   //
   //
@@ -262,6 +265,7 @@ class CheckboxWidgetState extends State {
       "errors": dataFinal.errors,
       "comments": dataFinal.comments,
       "images": dataFinal.images,
+      "checklist": dataFinal.index,
     }).then((value) => {
           print(value.documentID),
           Toast.show("All Data is uploaded", context,
@@ -271,6 +275,80 @@ class CheckboxWidgetState extends State {
 
   //
   //
+
+  var pullReport;
+
+  Future<void> getReport(String baustelle, String date) async {
+    final firestoreInstance = Firestore.instance;
+    final startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+        DateTime.parse('2020-10-13 00:00:00.000').millisecondsSinceEpoch);
+    final endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
+        DateTime.parse('2020-10-14 00:00:00.000').millisecondsSinceEpoch);
+    firestoreInstance
+        .collection("issues")
+        .where("baustelle", isEqualTo: baustelle)
+        .where("user", isEqualTo: "ad")
+        .where("schicht", isGreaterThan: startAtTimestamp)
+        .where("schicht", isLessThan: endAtTimeStamp)
+        .orderBy("schicht")
+        .limit(1)
+        .getDocuments()
+        .then((value) => {
+              value.documents.forEach((element) {
+                print(element.data);
+                pullReport = element.data;
+
+                var test = pullReport["errors"];
+                var checklist = pullReport["checklist"];
+                print("Checklist $checklist");
+                print("Error test $test");
+                setState(() {
+                  numbers = Map<String, bool>.from(checklist);
+                  errors = Map<String, String>.from(test);
+                  (context as Element).reassemble();
+                });
+
+                print(errors["One"]);
+              })
+            });
+  }
+
+  //
+  //
+
+  Future<void> reportCheck(String baustelle) async {
+    DateTime now = new DateTime.now();
+    DateTime dateStart = new DateTime(now.year, now.month, now.day);
+    DateTime dateEnd = new DateTime(now.year, now.month, now.day + 1);
+
+    final firestoreInstance = Firestore.instance;
+    final startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+        DateTime.parse('2020-10-07 00:00:00.000').millisecondsSinceEpoch);
+    final endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
+        DateTime.parse('2020-10-08 00:00:00.000').millisecondsSinceEpoch);
+    firestoreInstance
+        .collection("issues")
+        .where("baustelle", isEqualTo: "Zurich-9221")
+        .where("user", isEqualTo: "ad")
+        .where("schicht", isGreaterThan: startAtTimestamp)
+        .where("schicht", isLessThan: endAtTimeStamp)
+        .getDocuments()
+        .then((value) => {
+              if (value.documents.length > 0)
+                {getReport(baustelle, "test")}
+              else
+                {fetchChecklist(baustelle)}
+            });
+  }
+
+  //
+  //
+
+  _checkNumber() {
+    print(numbers);
+    print(errors);
+    print(comments);
+  }
 
   _loadUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -317,10 +395,14 @@ class CheckboxWidgetState extends State {
       if (_focusNode.hasFocus) bauController.clear();
     });
     getBaustelle();
-    fetchChecklist("Default");
+
+    reportCheck("Zürich-9221");
+    print(reportExist);
+
     getUDID();
     _loadUser();
     _intialDate();
+    _checkNumber();
   }
 
   @override
@@ -361,6 +443,7 @@ class CheckboxWidgetState extends State {
                 data.errors = Map<String, String>.from(errors);
                 data.comments = Map<String, String>.from(comments);
                 data.images = Map<String, String>.from(names);
+                data.index = Map<String, bool>.from(numbers);
                 data.user = "ad";
                 if (data.user == null ||
                     data.udid == null ||
@@ -445,372 +528,197 @@ class CheckboxWidgetState extends State {
               children: numbers.keys.map((String key) {
                 return new CheckboxListTile(
                   title: new Text(key),
-                  subtitle: new Text(subtitles[key]),
+                  //subtitle: new Text(subtitles[key]),
                   value: numbers[key],
                   activeColor: Colors.pink,
                   checkColor: Colors.white,
                   onChanged: (bool value) {
                     setState(() {
                       //numbers[key] = value;
-                      if (data.baustelle == null) {
-                        Toast.show("Keine Baustelle Selected", context,
-                            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+                      value = secondCheck;
+                      print(errors[key]);
+                      print(errors);
+                      txt.text = errors[key];
+                      if (numbers[key] == true) {
+                        checkboxIcon = Icon(Icons.check_box);
+                        txt.text = comments[key];
                       } else {
-                        value = secondCheck;
-                        if (numbers[key] == true) {
-                          checkboxIcon = Icon(Icons.check_box);
-                          txt.text = comments[key];
-                        } else {
-                          checkboxIcon = Icon(Icons.check_box_outline_blank);
-                          txt.text = errors[key];
-                        }
-                        exec = true;
-                        if (value == false) {
-                          //If Checkbox is false then a dialog will pop up so information can be filled in.
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              // return object of type Dialog
-                              return AlertDialog(
-                                title: new Text(key),
-                                insetPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 8.0),
-                                content: new Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: <Widget>[
-                                        new Flexible(
-                                          child: new TextField(
-                                            controller: txt,
-                                            minLines: 5,
-                                            maxLines: 7,
-                                            decoration: const InputDecoration(
-                                              hintText: "Enter Problem",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10.0)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        new SizedBox(
-                                          height: 100,
-                                          width: 100,
-                                          child: IconButton(
-                                            padding: new EdgeInsets.all(10.0),
-                                            icon: cameraIcon,
-                                            onPressed: () => (_pickImage(
-                                                    ImageSource.camera, key)
-                                                .then(
-                                              (value) => (context as Element)
-                                                  .reassemble(),
-                                            )),
-                                          ),
-                                        ),
-                                        new SizedBox(
-                                          height: 100,
-                                          width: 100,
-                                          child: IconButton(
-                                            padding: new EdgeInsets.all(10.0),
-                                            icon: cameraIcon2,
-                                            onPressed: () => (_pickImageSec(
-                                                    ImageSource.camera, key)
-                                                .then((value) =>
-                                                    (context as Element)
-                                                        .reassemble())),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        new Text("Alles Okay "),
-                                        new IconButton(
-                                            icon: checkboxIcon,
-                                            onPressed: () {
-                                              if (numbers[key] == false) {
-                                                setState(() {
-                                                  checkboxIcon =
-                                                      Icon(Icons.check_box);
-                                                  secondCheck = true;
-                                                  value = true;
-                                                  numbers[key] = true;
-                                                  (context as Element)
-                                                      .reassemble();
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  checkboxIcon = Icon(Icons
-                                                      .check_box_outline_blank);
-                                                  secondCheck = false;
-                                                  value = false;
-                                                  numbers[key] = false;
-                                                  (context as Element)
-                                                      .reassemble();
-                                                });
-                                              }
-                                            }),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                actions: <Widget>[
-                                  // usually buttons at the bottom of the dialog
-                                  new FlatButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          errors.remove(key);
-                                          if (names[key] != null) {
-                                            toDelete.add(names[key]);
-                                          }
-                                          if (names[key + "Sec"] != null) {
-                                            toDelete.add(names[key + "Sec"]);
-                                          }
-                                          names.remove(key);
-                                          names.remove(key + "Sec");
-                                          secondCheck = false;
-                                          numbers[key] = true;
-                                          txt.clear();
-                                          Navigator.of(context).pop();
-                                          (context as Element).reassemble();
-                                        });
-                                      },
-                                      child: new Text("Löschen")),
-
-                                  new FlatButton(
-                                    child: new Text("Abbruch"),
-                                    onPressed: () {
-                                      txt.clear();
-                                      setState(() {
-                                        value = numbers[key];
-                                        (context as Element).reassemble();
-                                      });
-
-                                      cameraIcon =
-                                          Image.asset("assets/cameraIcon.png");
-                                      cameraIcon2 =
-                                          Image.asset("assets/cameraIcon.png");
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  new FlatButton(
-                                    onPressed: () {
-                                      //errors.add(txt.text);
-                                      print(txt.text);
-                                      print(key);
-                                      setState(() {
-                                        //value = numbers[key];
-                                        (context as Element).reassemble();
-                                      });
-                                      if (value == true) {
-                                        comments[key] = txt.text;
-                                        subtitles[key] = txt.text;
-                                      } else {
-                                        errors[key] = txt.text;
-                                        subtitles[key] = txt.text;
-                                      }
-
-                                      txt.clear();
-                                      cameraIcon =
-                                          Image.asset("assets/cameraIcon.png");
-                                      cameraIcon2 =
-                                          Image.asset("assets/cameraIcon.png");
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: new Text("Speichern"),
-                                  )
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              // return object of type Dialog
-                              return AlertDialog(
-                                title: new Text(key),
-                                insetPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 8.0),
-                                content: new Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        new Flexible(
-                                          child: new TextField(
-                                            controller: txt,
-                                            minLines: 5,
-                                            maxLines: 7,
-                                            decoration: const InputDecoration(
-                                              hintText: "Enter Problem",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10.0)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        new SizedBox(
-                                          height: 100,
-                                          width: 100,
-                                          child: IconButton(
-                                            padding: new EdgeInsets.all(10.0),
-                                            icon: cameraIcon,
-                                            onPressed: () => (_pickImage(
-                                                    ImageSource.camera, key)
-                                                .then(
-                                              (value) => (context as Element)
-                                                  .reassemble(),
-                                            )),
-                                          ),
-                                        ),
-                                        new SizedBox(
-                                          height: 100,
-                                          width: 100,
-                                          child: IconButton(
-                                            padding: new EdgeInsets.all(10.0),
-                                            icon: cameraIcon2,
-                                            onPressed: () => (_pickImageSec(
-                                                    ImageSource.camera, key)
-                                                .then((value) =>
-                                                    (context as Element)
-                                                        .reassemble())),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        new Text("Alles Okay "),
-                                        new IconButton(
-                                            icon: checkboxIcon,
-                                            onPressed: () {
-                                              if (numbers[key] == false) {
-                                                setState(() {
-                                                  checkboxIcon =
-                                                      Icon(Icons.check_box);
-                                                  secondCheck = true;
-                                                  value = true;
-                                                  (context as Element)
-                                                      .reassemble();
-                                                });
-                                              } else {
-                                                setState(() {
-                                                  checkboxIcon = Icon(Icons
-                                                      .check_box_outline_blank);
-                                                  secondCheck = false;
-                                                  value = true;
-                                                  (context as Element)
-                                                      .reassemble();
-                                                });
-                                              }
-                                            }),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                actions: <Widget>[
-                                  // usually buttons at the bottom of the dialog
-
-                                  new FlatButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          errors.remove(key);
-                                          if (names[key] != null) {
-                                            toDelete.add(names[key]);
-                                          }
-                                          if (names[key + "Sec"] != null) {
-                                            toDelete.add(names[key + "Sec"]);
-                                          }
-                                          names.remove(key);
-                                          names.remove(key + "Sec");
-                                          secondCheck = false;
-                                          numbers[key] = true;
-                                          Navigator.of(context).pop();
-                                          (context as Element).reassemble();
-                                        });
-                                      },
-                                      child: new Text("Löschen")),
-
-                                  new FlatButton(
-                                    child: new Text("Abbruch"),
-                                    onPressed: () {
-                                      //TODO change back text to original
-                                      txt.clear();
-                                      setState(() {
-                                        value = numbers[key];
-                                        (context as Element).reassemble();
-                                      });
-
-                                      cameraIcon =
-                                          Image.asset("assets/cameraIcon.png");
-                                      cameraIcon2 =
-                                          Image.asset("assets/cameraIcon.png");
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  new FlatButton(
-                                    onPressed: () {
-                                      //errors.add(txt.text);
-                                      print(txt.text);
-                                      print(key);
-                                      setState(() {
-                                        value = numbers[key];
-                                        (context as Element).reassemble();
-                                      });
-
-                                      if (value == true) {
-                                        comments[key] = txt.text;
-                                        subtitles[key] = txt.text;
-                                      } else {
-                                        errors[key] = txt.text;
-                                        subtitles[key] = txt.text;
-                                      }
-
-                                      txt.clear();
-                                      cameraIcon =
-                                          Image.asset("assets/cameraIcon.png");
-                                      cameraIcon2 =
-                                          Image.asset("assets/cameraIcon.png");
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: new Text("Speichern"),
-                                  )
-                                ],
-                              );
-                            },
-                          );
-                        }
+                        checkboxIcon = Icon(Icons.check_box_outline_blank);
+                        print(errors[key]);
+                        txt.text = errors[key];
                       }
+                      exec = true;
+
+                      //If Checkbox is false then a dialog will pop up so information can be filled in.
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          // return object of type Dialog
+                          return AlertDialog(
+                            title: new Text(key),
+                            insetPadding: EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 8.0),
+                            content: new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                new Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    new Flexible(
+                                      child: new TextField(
+                                        controller: txt,
+                                        minLines: 5,
+                                        maxLines: 7,
+                                        decoration: const InputDecoration(
+                                          hintText: "Enter Problem",
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0)),
+                                            borderSide:
+                                                BorderSide(color: Colors.grey),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                new Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    new SizedBox(
+                                      height: 100,
+                                      width: 100,
+                                      child: IconButton(
+                                        padding: new EdgeInsets.all(10.0),
+                                        icon: cameraIcon,
+                                        onPressed: () =>
+                                            (_pickImage(ImageSource.camera, key)
+                                                .then(
+                                          (value) =>
+                                              (context as Element).reassemble(),
+                                        )),
+                                      ),
+                                    ),
+                                    new SizedBox(
+                                      height: 100,
+                                      width: 100,
+                                      child: IconButton(
+                                        padding: new EdgeInsets.all(10.0),
+                                        icon: cameraIcon2,
+                                        onPressed: () => (_pickImageSec(
+                                                ImageSource.camera, key)
+                                            .then((value) =>
+                                                (context as Element)
+                                                    .reassemble())),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                new Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    new Text("Alles Okay "),
+                                    new IconButton(
+                                        icon: checkboxIcon,
+                                        onPressed: () {
+                                          if (numbers[key] == false) {
+                                            setState(() {
+                                              checkboxIcon =
+                                                  Icon(Icons.check_box);
+                                              secondCheck = true;
+                                              value = true;
+                                              numbers[key] = true;
+                                              (context as Element).reassemble();
+                                            });
+                                          } else {
+                                            setState(() {
+                                              checkboxIcon = Icon(Icons
+                                                  .check_box_outline_blank);
+                                              secondCheck = false;
+                                              value = false;
+                                              numbers[key] = false;
+                                              (context as Element).reassemble();
+                                            });
+                                          }
+                                        }),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            actions: <Widget>[
+                              // usually buttons at the bottom of the dialog
+                              //TODO fix Delete function
+                              new FlatButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      errors.remove(key);
+                                      if (names[key] != null) {
+                                        toDelete.add(names[key]);
+                                      }
+                                      if (names[key + "Sec"] != null) {
+                                        toDelete.add(names[key + "Sec"]);
+                                      }
+                                      names.remove(key);
+                                      names.remove(key + "Sec");
+                                      secondCheck = false;
+                                      numbers[key] = true;
+                                      txt.clear();
+                                      Navigator.of(context).pop();
+                                      (context as Element).reassemble();
+                                    });
+                                  },
+                                  child: new Text("Löschen")),
+
+                              new FlatButton(
+                                child: new Text("Abbruch"),
+                                onPressed: () {
+                                  txt.clear();
+                                  setState(() {
+                                    value = numbers[key];
+                                    (context as Element).reassemble();
+                                  });
+
+                                  cameraIcon =
+                                      Image.asset("assets/cameraIcon.png");
+                                  cameraIcon2 =
+                                      Image.asset("assets/cameraIcon.png");
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              new FlatButton(
+                                onPressed: () {
+                                  //errors.add(txt.text);
+                                  print(txt.text);
+                                  print(key);
+                                  setState(() {
+                                    //value = numbers[key];
+                                    (context as Element).reassemble();
+                                  });
+                                  if (value == true) {
+                                    comments[key] = txt.text;
+                                    subtitles[key] = txt.text;
+                                  } else {
+                                    errors[key] = txt.text;
+                                    subtitles[key] = txt.text;
+                                  }
+
+                                  txt.clear();
+                                  cameraIcon =
+                                      Image.asset("assets/cameraIcon.png");
+                                  cameraIcon2 =
+                                      Image.asset("assets/cameraIcon.png");
+                                  Navigator.of(context).pop();
+                                },
+                                child: new Text("Speichern"),
+                              )
+                            ],
+                          );
+                        },
+                      );
                     });
                   },
                   secondary: new Icon(Icons.edit),

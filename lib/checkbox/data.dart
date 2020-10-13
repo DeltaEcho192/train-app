@@ -6,6 +6,7 @@ class Data {
   Map<String, String> errors;
   Map<String, String> comments;
   Map<String, String> images;
+  Map<String, bool> index;
   Data({
     this.user,
     this.baustelle,
@@ -14,5 +15,6 @@ class Data {
     this.errors,
     this.comments,
     this.images,
+    this.index,
   });
 }

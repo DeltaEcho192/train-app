@@ -45,6 +45,14 @@ Reload all widgets clean after a user uploads data
 12/10/2020 Things to do:
 
 1. Fix Bugs dad found. [Y]
-2. Fix firebase JSON parse bug. []
-3. Show Firebase data on website. []
-4. Integrate more Mongodb. []
+2. Fix firebase JSON parse bug. [Y]
+3. Show Firebase data on website. [Y]
+4. Integrate more Mongodb. [Y]
+
+13/12/2020 Things to do:
+
+1. Create Seperate Baustelle screen at the start. []
+2. Load the report of the day for a baustelle and place data in alert dialogs. []
+3. Make questions non_name based. []
+4. Firestore dynamically load photos when opening dialog. []
+5. Better auto complete. []
