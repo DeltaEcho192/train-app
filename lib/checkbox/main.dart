@@ -81,8 +81,7 @@ class CheckboxWidgetState extends State {
   Icon checkboxIcon = new Icon(Icons.check_box);
   bool secondCheck = false;
   bool reportExist = false;
-  DateTime timeStart;
-  DateTime timeEnd;
+  String reportID;
 
   //
   //
@@ -276,14 +275,26 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  Future<void> updateData(Data dataFinal) async {
+    final firestoreInstance = Firestore.instance;
+    firestoreInstance.collection("issues").document(reportID).updateData({
+      "errors": dataFinal.errors,
+      "comments": dataFinal.comments,
+      "checklist": dataFinal.index
+    }).then((value) => {print("Successfully updated data")});
+  }
+
+  //
+  //
+
   var pullReport;
 
-  Future<void> getReport(String baustelle, String date) async {
+  Future<void> getReport(String baustelle, DateTime start, DateTime end) async {
     final firestoreInstance = Firestore.instance;
     final startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse('2020-10-13 00:00:00.000').millisecondsSinceEpoch);
+        DateTime.parse(start.toString()).millisecondsSinceEpoch);
     final endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse('2020-10-14 00:00:00.000').millisecondsSinceEpoch);
+        DateTime.parse(end.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
         .where("baustelle", isEqualTo: baustelle)
@@ -295,7 +306,8 @@ class CheckboxWidgetState extends State {
         .getDocuments()
         .then((value) => {
               value.documents.forEach((element) {
-                print(element.data);
+                print(element.documentID);
+                reportID = element.documentID;
                 pullReport = element.data;
 
                 var test = pullReport["errors"];
@@ -323,19 +335,19 @@ class CheckboxWidgetState extends State {
 
     final firestoreInstance = Firestore.instance;
     final startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse('2020-10-07 00:00:00.000').millisecondsSinceEpoch);
+        DateTime.parse(dateStart.toString()).millisecondsSinceEpoch);
     final endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse('2020-10-08 00:00:00.000').millisecondsSinceEpoch);
+        DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: "Zurich-9221")
+        .where("baustelle", isEqualTo: "Zürich-9221")
         .where("user", isEqualTo: "ad")
         .where("schicht", isGreaterThan: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .getDocuments()
         .then((value) => {
               if (value.documents.length > 0)
-                {getReport(baustelle, "test")}
+                {reportExist = true, getReport(baustelle, dateStart, dateEnd)}
               else
                 {fetchChecklist(baustelle)}
             });
@@ -396,6 +408,7 @@ class CheckboxWidgetState extends State {
     });
     getBaustelle();
 
+    //Parse Info from WIP baustelle screen
     reportCheck("Zürich-9221");
     print(reportExist);
 
@@ -486,7 +499,12 @@ class CheckboxWidgetState extends State {
                           );
                         });
                   } else {
-                    uploadData(data);
+                    if (reportExist == true) {
+                      updateData(data);
+                    } else {
+                      uploadData(data);
+                    }
+
                     deleteCanceledFiles(toDelete);
                     toDelete.clear();
                   }
