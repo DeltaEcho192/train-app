@@ -4,7 +4,7 @@ import 'package:flutter_udid/flutter_udid.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import './successKey.dart';
+import '../checkbox/location.dart';
 import '../checkbox/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -95,8 +95,8 @@ class _LoginKeyState extends State<LoginKey> {
     bool usercheck = (prefs.getBool('loged') ?? false);
 
     if (usercheck == true) {
-      Navigator.pushReplacement(context,
-          new MaterialPageRoute(builder: (context) => CheckboxWidget()));
+      Navigator.pushReplacement(
+          context, new MaterialPageRoute(builder: (context) => Location()));
     }
   }
 
@@ -171,8 +171,7 @@ class _LoginKeyState extends State<LoginKey> {
                     _writeUser(value['userid']),
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => (CheckboxWidget())),
+                      MaterialPageRoute(builder: (context) => (Location())),
                     ),
                   }
                 else

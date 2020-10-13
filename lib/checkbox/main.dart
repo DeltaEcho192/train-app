@@ -58,7 +58,6 @@ class CheckboxWidgetState extends State {
   Map<String, String> names = {};
   Map<String, String> errors = {};
   Map<String, String> comments = {};
-
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -298,7 +297,7 @@ class CheckboxWidgetState extends State {
     firestoreInstance
         .collection("issues")
         .where("baustelle", isEqualTo: baustelle)
-        .where("user", isEqualTo: "ad")
+        .where("user", isEqualTo: data.user)
         .where("schicht", isGreaterThan: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .orderBy("schicht")
@@ -310,17 +309,17 @@ class CheckboxWidgetState extends State {
                 reportID = element.documentID;
                 pullReport = element.data;
 
-                var test = pullReport["errors"];
+                var errorsLoc = pullReport["errors"];
+                var commentsLoc = pullReport["comments"];
                 var checklist = pullReport["checklist"];
                 print("Checklist $checklist");
-                print("Error test $test");
+                print("Error test $errorsLoc");
                 setState(() {
                   numbers = Map<String, bool>.from(checklist);
-                  errors = Map<String, String>.from(test);
+                  comments = Map<String, String>.from(commentsLoc);
+                  errors = Map<String, String>.from(errorsLoc);
                   (context as Element).reassemble();
                 });
-
-                print(errors["One"]);
               })
             });
   }
@@ -328,7 +327,12 @@ class CheckboxWidgetState extends State {
   //
   //
 
-  Future<void> reportCheck(String baustelle) async {
+  Future<void> reportCheck() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var baustelle = prefs.getString("baustellePref");
+    data.baustelle = baustelle;
+    var userid = prefs.getString('user');
+    data.user = userid;
     DateTime now = new DateTime.now();
     DateTime dateStart = new DateTime(now.year, now.month, now.day);
     DateTime dateEnd = new DateTime(now.year, now.month, now.day + 1);
@@ -340,8 +344,8 @@ class CheckboxWidgetState extends State {
         DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: "Zürich-9221")
-        .where("user", isEqualTo: "ad")
+        .where("baustelle", isEqualTo: baustelle)
+        .where("user", isEqualTo: userid)
         .where("schicht", isGreaterThan: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .getDocuments()
@@ -409,13 +413,10 @@ class CheckboxWidgetState extends State {
     getBaustelle();
 
     //Parse Info from WIP baustelle screen
-    reportCheck("Zürich-9221");
-    print(reportExist);
-
-    getUDID();
     _loadUser();
+    reportCheck();
+    getUDID();
     _intialDate();
-    _checkNumber();
   }
 
   @override
@@ -457,7 +458,6 @@ class CheckboxWidgetState extends State {
                 data.comments = Map<String, String>.from(comments);
                 data.images = Map<String, String>.from(names);
                 data.index = Map<String, bool>.from(numbers);
-                data.user = "ad";
                 if (data.user == null ||
                     data.udid == null ||
                     data.schicht == null) {
@@ -482,7 +482,11 @@ class CheckboxWidgetState extends State {
                             actions: [
                               FlatButton(
                                 onPressed: () {
-                                  uploadData(data);
+                                  if (reportExist == true) {
+                                    updateData(data);
+                                  } else {
+                                    uploadData(data);
+                                  }
                                   deleteCanceledFiles(toDelete);
                                   toDelete.clear();
                                   Navigator.of(context).pop();
@@ -719,9 +723,15 @@ class CheckboxWidgetState extends State {
                                   if (value == true) {
                                     comments[key] = txt.text;
                                     subtitles[key] = txt.text;
+                                    if (errors.containsKey(key)) {
+                                      errors.remove(key);
+                                    }
                                   } else {
                                     errors[key] = txt.text;
                                     subtitles[key] = txt.text;
+                                    if (comments.containsKey(key)) {
+                                      comments.remove(key);
+                                    }
                                   }
 
                                   txt.clear();

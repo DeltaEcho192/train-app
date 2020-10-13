@@ -52,7 +52,6 @@ Reload all widgets clean after a user uploads data
 13/12/2020 Things to do:
 
 1. Create Seperate Baustelle screen at the start. []
-2. Load the report of the day for a baustelle and place data in alert dialogs. []
-3. Make questions non_name based. []
-4. Firestore dynamically load photos when opening dialog. []
-5. Better auto complete. []
+2. Load the report of the day for a baustelle and place data in alert dialogs. [Y]
+3. Firestore dynamically load photos when opening dialog. []
+4. Better auto complete. []
