@@ -29,8 +29,8 @@ Reload all widgets clean after a user uploads data
 
 1. Finish API routes and add basic functionality [Y]
 2. Added logic to return to true Like would they like to add more or would they like to delete. [Y]
-3. Add be able to undo last sent report. []
-4. Add Http functionality to API's. []
+3. Add be able to undo last sent report. [N]
+4. Add Https functionality to API's. []
 5. Display Firebase data on website. [Y]
 6. Add README for train-app-api github. [Y]
 7. Max width change of Alert Dialog. [N]
@@ -39,8 +39,8 @@ Reload all widgets clean after a user uploads data
 
 1. Go bug hunting. [M]
 2. Get mongoDB working. [Y]
-3. Get and display Firebase in website. [M]
-4. Get Firebase baustelle api route working properly. []
+3. Get and display Firebase in website. [Y]
+4. Get Firebase baustelle api route working properly. [Y]
 
 12/10/2020 Things to do:
 
@@ -49,9 +49,18 @@ Reload all widgets clean after a user uploads data
 3. Show Firebase data on website. [Y]
 4. Integrate more Mongodb. [Y]
 
-13/12/2020 Things to do:
+13/10/2020 Things to do:
 
-1. Create Seperate Baustelle screen at the start. []
+1. Create Seperate Baustelle screen at the start. [Y]
 2. Load the report of the day for a baustelle and place data in alert dialogs. [Y]
-3. Firestore dynamically load photos when opening dialog. []
-4. Better auto complete. []
+3. Firestore dynamically load photos when opening dialog. [N]
+4. Better auto complete. [Y]
+
+14/10/2020 Things to do:
+
+1. Change of date checking of records. [Y]
+2. Error check if they want to edit but the form was left empty. (Calling a null array). [Y]
+3. Firebase load photos into Icons. []
+4. Complete mongodb API web integration. []
+5. Integrate Mongodb with local API. []
+6. Dad bug testing. []

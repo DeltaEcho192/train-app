@@ -279,7 +279,8 @@ class CheckboxWidgetState extends State {
     firestoreInstance.collection("issues").document(reportID).updateData({
       "errors": dataFinal.errors,
       "comments": dataFinal.comments,
-      "checklist": dataFinal.index
+      "checklist": dataFinal.index,
+      "images": dataFinal.images,
     }).then((value) => {print("Successfully updated data")});
   }
 
@@ -298,7 +299,7 @@ class CheckboxWidgetState extends State {
         .collection("issues")
         .where("baustelle", isEqualTo: baustelle)
         .where("user", isEqualTo: data.user)
-        .where("schicht", isGreaterThan: startAtTimestamp)
+        .where("schicht", isGreaterThanOrEqualTo: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .orderBy("schicht")
         .limit(1)
@@ -312,12 +313,14 @@ class CheckboxWidgetState extends State {
                 var errorsLoc = pullReport["errors"];
                 var commentsLoc = pullReport["comments"];
                 var checklist = pullReport["checklist"];
+                var imagesLoc = pullReport["images"];
                 print("Checklist $checklist");
-                print("Error test $errorsLoc");
+                print("image test $imagesLoc");
                 setState(() {
                   numbers = Map<String, bool>.from(checklist);
                   comments = Map<String, String>.from(commentsLoc);
                   errors = Map<String, String>.from(errorsLoc);
+                  names = Map<String, String>.from(imagesLoc);
                   (context as Element).reassemble();
                 });
               })
@@ -327,21 +330,40 @@ class CheckboxWidgetState extends State {
   //
   //
 
-  Future<void> reportCheck() async {
+  Future<void> reportCheck(
+      bool dateCheck, String newStart, String newEnd) async {
+    final firestoreInstance = Firestore.instance;
+    var startAtTimestamp;
+    var endAtTimeStamp;
+    DateTime dateEnd;
+    DateTime dateStart;
+
+    DateTime now = new DateTime.now();
+
+    if (dateCheck == true) {
+      startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+          DateTime.parse(newStart).millisecondsSinceEpoch);
+      endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
+          DateTime.parse(newEnd).millisecondsSinceEpoch);
+
+      dateStart = DateTime.parse(newStart);
+      dateEnd = DateTime.parse(newEnd);
+    } else {
+      dateStart = new DateTime(now.year, now.month, now.day);
+      dateEnd = new DateTime(now.year, now.month, now.day + 1);
+
+      startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
+          DateTime.parse(dateStart.toString()).millisecondsSinceEpoch);
+      endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
+          DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var baustelle = prefs.getString("baustellePref");
     data.baustelle = baustelle;
+    bauController.text = baustelle;
     var userid = prefs.getString('user');
     data.user = userid;
-    DateTime now = new DateTime.now();
-    DateTime dateStart = new DateTime(now.year, now.month, now.day);
-    DateTime dateEnd = new DateTime(now.year, now.month, now.day + 1);
 
-    final firestoreInstance = Firestore.instance;
-    final startAtTimestamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse(dateStart.toString()).millisecondsSinceEpoch);
-    final endAtTimeStamp = Timestamp.fromMillisecondsSinceEpoch(
-        DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
         .where("baustelle", isEqualTo: baustelle)
@@ -353,8 +375,22 @@ class CheckboxWidgetState extends State {
               if (value.documents.length > 0)
                 {reportExist = true, getReport(baustelle, dateStart, dateEnd)}
               else
-                {fetchChecklist(baustelle)}
+                {reportExist = false, fetchChecklist(baustelle)}
             });
+  }
+
+  //
+  //
+
+  Future<void> imageLoad(String fileName) async {
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+    final ref = _storage.ref().child(fileName);
+    var url = await ref.getDownloadURL();
+    Image workingImage = new Image.network(url);
+    setState(() {
+      cameraIcon = new Image.network(url);
+    });
   }
 
   //
@@ -411,10 +447,9 @@ class CheckboxWidgetState extends State {
       if (_focusNode.hasFocus) bauController.clear();
     });
     getBaustelle();
-
     //Parse Info from WIP baustelle screen
     _loadUser();
-    reportCheck();
+    reportCheck(false, null, null);
     getUDID();
     _intialDate();
   }
@@ -435,14 +470,20 @@ class CheckboxWidgetState extends State {
                 print('change $date');
               }, onConfirm: (date) {
                 print('confirm $date');
-                data.schicht = date;
+                data.schicht = date.add(new Duration(hours: 12));
+                print(data.schicht);
                 setState(() {
                   String dayW = date.day.toString();
                   String monthW = date.month.toString();
                   String yearW = date.year.toString();
                   String working = dayW + '/' + monthW + '/' + yearW;
+                  String reportStart = date.toLocal().toString();
+                  print(reportStart);
+                  String reportEnd =
+                      date.add(new Duration(days: 1)).toLocal().toString();
                   print(working);
                   dateFinal = working;
+                  reportCheck(true, reportStart, reportEnd);
                 });
               }, currentTime: DateTime.now(), locale: LocaleType.de);
             },
@@ -556,6 +597,9 @@ class CheckboxWidgetState extends State {
                   checkColor: Colors.white,
                   onChanged: (bool value) {
                     setState(() {
+                      var fileName = names[key];
+                      //imageLoad(fileName);
+                      //(context as Element).reassemble();
                       //numbers[key] = value;
                       value = secondCheck;
                       print(errors[key]);
