@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,7 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../login/loginKey.dart';
+import './location.dart';
 
 void main() async {
   runApp(MyApp());
@@ -81,6 +84,8 @@ class CheckboxWidgetState extends State {
   bool secondCheck = false;
   bool reportExist = false;
   String reportID;
+  Uint8List imageBytes;
+  String errorMsg;
 
   //
   //
@@ -267,7 +272,11 @@ class CheckboxWidgetState extends State {
     }).then((value) => {
           print(value.documentID),
           Toast.show("All Data is uploaded", context,
-              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER)
+              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => (Location())),
+          ),
         });
   }
 
@@ -281,7 +290,15 @@ class CheckboxWidgetState extends State {
       "comments": dataFinal.comments,
       "checklist": dataFinal.index,
       "images": dataFinal.images,
-    }).then((value) => {print("Successfully updated data")});
+    }).then((value) => {
+          print("Successfully updated data"),
+          Toast.show("All Data is updated", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => (Location())),
+          ),
+        });
   }
 
   //
@@ -381,16 +398,20 @@ class CheckboxWidgetState extends State {
 
   //
   //
-
+  final FirebaseStorage storage = FirebaseStorage(
+      app: Firestore.instance.app,
+      storageBucket: 'gs://train-app-287911.appspot.com');
   Future<void> imageLoad(String fileName) async {
-    final FirebaseStorage _storage =
-        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
-    final ref = _storage.ref().child(fileName);
-    var url = await ref.getDownloadURL();
-    Image workingImage = new Image.network(url);
-    setState(() {
-      cameraIcon = new Image.network(url);
-    });
+    storage
+        .ref()
+        .child(fileName)
+        .getData(10000000)
+        .then((data) => setState(() {
+              imageBytes = data;
+            }))
+        .catchError((e) => setState(() {
+              errorMsg = e.error;
+            }));
   }
 
   //
@@ -456,6 +477,12 @@ class CheckboxWidgetState extends State {
 
   @override
   Widget build(BuildContext context) {
+    var img = imageBytes != null
+        ? Image.memory(
+            imageBytes,
+            fit: BoxFit.cover,
+          )
+        : Icon(Icons.camera);
     return Scaffold(
       appBar: AppBar(
         title: Text("Report App"),
@@ -597,10 +624,6 @@ class CheckboxWidgetState extends State {
                   checkColor: Colors.white,
                   onChanged: (bool value) {
                     setState(() {
-                      var fileName = names[key];
-                      //imageLoad(fileName);
-                      //(context as Element).reassemble();
-                      //numbers[key] = value;
                       value = secondCheck;
                       print(errors[key]);
                       print(errors);
@@ -655,33 +678,24 @@ class CheckboxWidgetState extends State {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
-                                    new SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: IconButton(
-                                        padding: new EdgeInsets.all(10.0),
-                                        icon: cameraIcon,
-                                        onPressed: () =>
-                                            (_pickImage(ImageSource.camera, key)
-                                                .then(
-                                          (value) =>
-                                              (context as Element).reassemble(),
-                                        )),
-                                      ),
+                                    IconButton(
+                                      padding: new EdgeInsets.all(10.0),
+                                      icon: img,
+                                      onPressed: () =>
+                                          (_pickImage(ImageSource.camera, key)
+                                              .then(
+                                        (value) =>
+                                            (context as Element).reassemble(),
+                                      )),
                                     ),
-                                    new SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: IconButton(
-                                        padding: new EdgeInsets.all(10.0),
-                                        icon: cameraIcon2,
-                                        onPressed: () => (_pickImageSec(
-                                                ImageSource.camera, key)
-                                            .then((value) =>
-                                                (context as Element)
-                                                    .reassemble())),
-                                      ),
-                                    )
+                                    IconButton(
+                                      padding: new EdgeInsets.all(10.0),
+                                      icon: cameraIcon2,
+                                      onPressed: () => (_pickImageSec(
+                                              ImageSource.camera, key)
+                                          .then((value) => (context as Element)
+                                              .reassemble())),
+                                    ),
                                   ],
                                 ),
                                 new Row(
@@ -711,6 +725,12 @@ class CheckboxWidgetState extends State {
                                             });
                                           }
                                         }),
+                                    new FlatButton(
+                                        onPressed: () {
+                                          imageLoad(
+                                              'images/2020-10-14 14:44:58.748341.png');
+                                        },
+                                        child: Text("Load"))
                                   ],
                                 ),
                               ],
