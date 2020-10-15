@@ -99,6 +99,7 @@ class _DialogState extends State<DialogScreen> {
       print("Counter" + photoAmt.toString());
       model.picName = fileName;
       model.picCheck = true;
+      widget.dialogdata.image1 = fileName;
       cameraIcon = new Image.file(_imageFile);
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
       //Adds all current photo names to an array
@@ -122,11 +123,11 @@ class _DialogState extends State<DialogScreen> {
     setState(() {
       _imageFile2 = selected2;
       String fileName = 'images/${DateTime.now()}.png';
-      print("Counter" + photoAmt.toString());
       model.picName = fileName;
       model.picCheck = true;
+      widget.dialogdata.image2 = fileName;
       cameraIcon2 = new Image.file(_imageFile2);
-      _uploadTask2 = _storage.ref().child(model.picName).putFile(_imageFile);
+      _uploadTask2 = _storage.ref().child(fileName).putFile(_imageFile2);
     });
     await _uploadTask2.onComplete;
     print("Upload done on second");
@@ -144,12 +145,12 @@ class _DialogState extends State<DialogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var img = imageBytes != null
+    cameraIcon = imageBytes != null
         ? Image.memory(
             imageBytes,
             fit: BoxFit.cover,
           )
-        : Icon(Icons.camera);
+        : Image.asset("assets/cameraIcon.png");
     return Scaffold(
       appBar: AppBar(
         title: Text("Dialog Test"),
@@ -182,7 +183,7 @@ class _DialogState extends State<DialogScreen> {
             children: <Widget>[
               IconButton(
                 padding: new EdgeInsets.all(10.0),
-                icon: img,
+                icon: cameraIcon,
                 onPressed: () => (_pickImage(ImageSource.camera)),
               ),
               IconButton(
@@ -202,27 +203,29 @@ class _DialogState extends State<DialogScreen> {
                       setState(() {
                         checkboxIcon = Icon(Icons.check_box);
                         secondCheck = true;
-
                         widget.dialogdata.check = true;
-                        (context as Element).reassemble();
                       });
                     } else {
                       setState(() {
                         checkboxIcon = Icon(Icons.check_box_outline_blank);
                         secondCheck = false;
                         widget.dialogdata.check = false;
-                        (context as Element).reassemble();
                       });
                     }
                   }),
               new FlatButton(
                   onPressed: () {
-                    imageLoad('images/2020-10-14 14:44:58.748341.png');
+                    imageLoad(widget.dialogdata.image1);
                   },
                   child: Text("Load"))
             ],
           ),
-          new FlatButton(onPressed: () {}, child: Text("Return"))
+          new FlatButton(
+              onPressed: () {
+                widget.dialogdata.text = txt.text;
+                Navigator.pop(context, widget.dialogdata);
+              },
+              child: Text("Return"))
         ],
       ),
     );

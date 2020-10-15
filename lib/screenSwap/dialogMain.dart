@@ -92,39 +92,37 @@ class CheckboxWidgetState extends State {
   DialogData dialogData = DialogData();
 
   //
-  //
 
-  //Takes a picture from camera and then uploads its to Firebase Storage
-  Future<void> _pickImage(
-    ImageSource source,
-    String key,
-  ) async {
-    File selected = await ImagePicker.pickImage(source: source);
-    //Make sure network is connected!!!!
-    //TODO Add pop up if there is no network
+  _navigateAndDisplaySelection(BuildContext context, String keyVar) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => DialogScreen(dialogdata: dialogData)),
+    );
 
-    final FirebaseStorage _storage =
-        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
-
-    // ignore: unused_local_variable
-
+    // After the Selection Screen returns a result, hide any previous snackbars
+    // and show the new result.
+    print(result.text);
+    print(keyVar);
     setState(() {
-      _imageFile = selected;
-      String fileName = 'images/${DateTime.now()}.png';
-      print("Counter" + photoAmt.toString());
-      model.picName = fileName;
-      model.picCheck = true;
-      cameraIcon = new Image.file(_imageFile);
-      _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
-      //Adds all current photo names to an array
-      names[key] = fileName;
+      if (result.check == true) {
+        comments[keyVar] = result.text;
+        subtitles[keyVar] = result.text;
+        if (errors.containsKey(keyVar)) {
+          errors.remove(keyVar);
+        }
+      } else {
+        errors[keyVar] = result.text;
+        subtitles[keyVar] = result.text;
+        if (comments.containsKey(keyVar)) {
+          comments.remove(keyVar);
+        }
+      }
+      numbers[keyVar] = result.check;
+      names[keyVar] = result.image1;
+      names[(keyVar + "Sec")] = result.image2;
     });
-    await _uploadTask.onComplete;
-    print("Upload done");
-    Toast.show("Upload Complete", context,
-        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
-
   //
   //
 
@@ -134,36 +132,6 @@ class CheckboxWidgetState extends State {
     for (int i = 0; i < deletion.length; i++) {
       _storage.ref().child(deletion[i]).delete();
     }
-  }
-
-  //
-  //
-
-  Future<void> _pickImageSec(ImageSource source, String key) async {
-    File selected2 = await ImagePicker.pickImage(source: source);
-    //Make sure network is connected!!!!
-    //TODO Add pop up if there is no network
-
-    final FirebaseStorage _storage =
-        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
-
-    // ignore: unused_local_variable
-
-    setState(() {
-      _imageFile2 = selected2;
-      String fileName = 'images/${DateTime.now()}.png';
-      print("Counter" + photoAmt.toString());
-      model.picName = fileName;
-      model.picCheck = true;
-      String newKey = key + "Sec";
-      names[newKey] = fileName;
-      cameraIcon2 = new Image.file(_imageFile2);
-      _uploadTask2 = _storage.ref().child(model.picName).putFile(_imageFile);
-    });
-    await _uploadTask2.onComplete;
-    print("Upload done on second");
-    Toast.show("Upload Complete", context,
-        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
 
   //
@@ -631,25 +599,17 @@ class CheckboxWidgetState extends State {
                       value = secondCheck;
                       print(errors[key]);
                       print(errors);
-                      txt.text = errors[key];
                       if (numbers[key] == true) {
-                        checkboxIcon = Icon(Icons.check_box);
                         dialogData.text = comments[key];
                       } else {
-                        checkboxIcon = Icon(Icons.check_box_outline_blank);
-                        print(errors[key]);
                         dialogData.text = errors[key];
                       }
+
                       exec = true;
-                      dialogData.check = value;
-                      dialogData.image1 = "";
+                      dialogData.check = numbers[key];
+                      dialogData.image1 = names[key];
                       dialogData.image2 = "";
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DialogScreen(dialogdata: dialogData),
-                          ));
+                      _navigateAndDisplaySelection(context, key);
                     });
                   },
                   secondary: new Icon(Icons.edit),
