@@ -1,0 +1,230 @@
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../model.dart';
+import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
+import '../checkbox/data.dart';
+import 'package:toast/toast.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:global_configuration/global_configuration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dialogScreen.dart';
+import 'dialog.dart';
+
+class DialogScreen extends StatefulWidget {
+  final DialogData dialogdata;
+  DialogScreen({Key key, this.dialogdata}) : super(key: key);
+
+  _DialogState createState() => new _DialogState();
+}
+
+class _DialogState extends State<DialogScreen> {
+  bool exec = false;
+  File _imageFile;
+  File _imageFile2;
+  String locWorking;
+  DialogData data = DialogData();
+  Model model = Model();
+  Map<String, String> names = {};
+  Map<String, String> errors = {};
+  Map<String, String> comments = {};
+  List<String> toDelete = [];
+  String dateFinal = "Schicht:";
+  String _udid = 'Unknown';
+  int photoAmt = 0;
+  int iteration = 0;
+  Image cameraIcon = Image.asset("assets/cameraIcon.png");
+  Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
+  StorageUploadTask _uploadTask;
+  StorageUploadTask _uploadTask2;
+  StorageUploadTask _deleteTask;
+  var txt = TextEditingController();
+  String baustelle;
+  final bauController = TextEditingController(text: "Baustelle");
+  var subtController = TextEditingController();
+  String currentText = "";
+  List<String> suggestions = ["Default"];
+  FocusNode _focusNode;
+  Icon checkboxIcon = new Icon(Icons.check_box);
+  bool secondCheck = false;
+  bool reportExist = false;
+  String reportID;
+  Uint8List imageBytes;
+  String errorMsg;
+  //
+  //
+
+  final FirebaseStorage storage = FirebaseStorage(
+      app: Firestore.instance.app,
+      storageBucket: 'gs://train-app-287911.appspot.com');
+  Future<void> imageLoad(String fileName) async {
+    storage
+        .ref()
+        .child(fileName)
+        .getData(10000000)
+        .then((data) => setState(() {
+              imageBytes = data;
+            }))
+        .catchError((e) => setState(() {
+              errorMsg = e.error;
+            }));
+  }
+
+  //
+  //
+
+  Future<void> _pickImage(
+    ImageSource source,
+  ) async {
+    File selected = await ImagePicker.pickImage(source: source);
+    //Make sure network is connected!!!!
+    //TODO Add pop up if there is no network
+
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+
+    // ignore: unused_local_variable
+
+    setState(() {
+      _imageFile = selected;
+      String fileName = 'images/${DateTime.now()}.png';
+      print("Counter" + photoAmt.toString());
+      model.picName = fileName;
+      model.picCheck = true;
+      cameraIcon = new Image.file(_imageFile);
+      _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
+      //Adds all current photo names to an array
+    });
+    await _uploadTask.onComplete;
+    print("Upload done");
+    Toast.show("Upload Complete", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+  }
+
+  Future<void> _pickImageSec(ImageSource source) async {
+    File selected2 = await ImagePicker.pickImage(source: source);
+    //Make sure network is connected!!!!
+    //TODO Add pop up if there is no network
+
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+
+    // ignore: unused_local_variable
+
+    setState(() {
+      _imageFile2 = selected2;
+      String fileName = 'images/${DateTime.now()}.png';
+      print("Counter" + photoAmt.toString());
+      model.picName = fileName;
+      model.picCheck = true;
+      cameraIcon2 = new Image.file(_imageFile2);
+      _uploadTask2 = _storage.ref().child(model.picName).putFile(_imageFile);
+    });
+    await _uploadTask2.onComplete;
+    print("Upload done on second");
+    Toast.show("Upload Complete", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+  }
+
+  //
+  //
+  @override
+  void initState() {
+    super.initState();
+    txt.text = widget.dialogdata.text;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var img = imageBytes != null
+        ? Image.memory(
+            imageBytes,
+            fit: BoxFit.cover,
+          )
+        : Icon(Icons.camera);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Dialog Test"),
+      ),
+      body: new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              new Flexible(
+                child: new TextField(
+                  controller: txt,
+                  minLines: 5,
+                  maxLines: 7,
+                  decoration: const InputDecoration(
+                    hintText: "Enter Problem",
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              IconButton(
+                padding: new EdgeInsets.all(10.0),
+                icon: img,
+                onPressed: () => (_pickImage(ImageSource.camera)),
+              ),
+              IconButton(
+                  padding: new EdgeInsets.all(10.0),
+                  icon: cameraIcon2,
+                  onPressed: () => (_pickImageSec(ImageSource.camera))),
+            ],
+          ),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Text("Alles Okay "),
+              new IconButton(
+                  icon: checkboxIcon,
+                  onPressed: () {
+                    if (widget.dialogdata.check == false) {
+                      setState(() {
+                        checkboxIcon = Icon(Icons.check_box);
+                        secondCheck = true;
+
+                        widget.dialogdata.check = true;
+                        (context as Element).reassemble();
+                      });
+                    } else {
+                      setState(() {
+                        checkboxIcon = Icon(Icons.check_box_outline_blank);
+                        secondCheck = false;
+                        widget.dialogdata.check = false;
+                        (context as Element).reassemble();
+                      });
+                    }
+                  }),
+              new FlatButton(
+                  onPressed: () {
+                    imageLoad('images/2020-10-14 14:44:58.748341.png');
+                  },
+                  child: Text("Load"))
+            ],
+          ),
+          new FlatButton(onPressed: () {}, child: Text("Return"))
+        ],
+      ),
+    );
+  }
+}
