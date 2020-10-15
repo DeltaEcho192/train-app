@@ -483,7 +483,7 @@ class CheckboxWidgetState extends State {
             fit: BoxFit.cover,
           )
         : Icon(Icons.camera);
-    return Scaffold(
+    return new Scaffold(
       appBar: AppBar(
         title: Text("Report App"),
         actions: [
