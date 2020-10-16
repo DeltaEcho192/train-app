@@ -60,7 +60,14 @@ Reload all widgets clean after a user uploads data
 
 1. Change of date checking of records. [Y]
 2. Error check if they want to edit but the form was left empty. (Calling a null array). [Y]
-3. Firebase load photos into Icons. []
+3. Firebase load photos into Icons. [Y]
 4. Complete mongodb API web integration. []
 5. Integrate Mongodb with local API. []
-6. Dad bug testing. []
+6. Dad bug testing. [Y]
+
+16/10/2020 Things to do:
+
+1. Complete mongodb API web integration. [Y]
+2. Integrate Mongodb with local API. [Y]
+3. Finish Flutter second page. [Y] (Checkbox button bug. )
+4. Show daddy so things can be changed and fixed. []

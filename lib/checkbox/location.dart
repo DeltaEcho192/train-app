@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import './main.dart';
+import '../screenSwap/dialogMain.dart';
 
 void main() => runApp(new MyApp());
 

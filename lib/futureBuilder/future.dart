@@ -62,31 +62,38 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             new FlatButton(
                 onPressed: () {
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                            title: Text("Img Testing"),
-                            content: Column(
-                              children: <Widget>[
-                                IconButton(
-                                  icon: img,
-                                  onPressed: () {
-                                    print("Get photo");
-                                  },
-                                ),
-                                FlatButton(
-                                  onPressed: () {
-                                    imageLoad(
-                                            'images/2020-10-14 14:44:58.748341.png')
-                                        .then((value) => print("Done Getting"));
-                                  },
-                                  child: new Text("Load"),
-                                )
-                              ],
-                            ));
-                      });
+                  var img = imageBytes != null
+                      ? Image.memory(
+                          imageBytes,
+                          fit: BoxFit.cover,
+                        )
+                      : Icon(Icons.camera);
+
+                  imageLoad('images/2020-10-14 14:44:58.748341.png')
+                      .then((value) => () {
+                            print("done");
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                      title: Text("Img Testing"),
+                                      content: Column(
+                                        children: <Widget>[
+                                          IconButton(
+                                            icon: img,
+                                            onPressed: () {
+                                              print("Get photo");
+                                            },
+                                          ),
+                                          FlatButton(
+                                            onPressed: () {},
+                                            child: new Text("Load"),
+                                          )
+                                        ],
+                                      ));
+                                });
+                          });
                 },
                 child: Text("Img Test")),
           ],
