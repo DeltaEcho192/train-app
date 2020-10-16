@@ -58,6 +58,7 @@ class _DialogState extends State<DialogScreen> {
   bool reportExist = false;
   String reportID;
   Uint8List imageBytes;
+  Uint8List imageBytes2;
   String errorMsg;
   //
   //
@@ -72,6 +73,27 @@ class _DialogState extends State<DialogScreen> {
         .getData(10000000)
         .then((data) => setState(() {
               imageBytes = data;
+              cameraIcon = Image.memory(
+                imageBytes,
+                fit: BoxFit.cover,
+              );
+            }))
+        .catchError((e) => setState(() {
+              errorMsg = e.error;
+            }));
+  }
+
+  Future<void> imageLoad2(String fileName) async {
+    storage
+        .ref()
+        .child(fileName)
+        .getData(10000000)
+        .then((data) => setState(() {
+              imageBytes2 = data;
+              cameraIcon2 = Image.memory(
+                imageBytes2,
+                fit: BoxFit.cover,
+              );
             }))
         .catchError((e) => setState(() {
               errorMsg = e.error;
@@ -137,20 +159,41 @@ class _DialogState extends State<DialogScreen> {
 
   //
   //
+
+  void _imageCheck() {
+    if (widget.dialogdata.image1 != null) {
+      imageLoad(widget.dialogdata.image1);
+    }
+    if (widget.dialogdata.image2 != null) {
+      imageLoad2(widget.dialogdata.image2);
+    }
+  }
+
+  void _iconCheck() {
+    if (widget.dialogdata.check == true) {
+      setState(() {
+        checkboxIcon = Icon(Icons.check_box);
+      });
+    } else {
+      setState() {
+        checkboxIcon = Icon(Icons.check_box_outline_blank);
+      }
+    }
+  }
+
+  //
+  //
   @override
   void initState() {
     super.initState();
     txt.text = widget.dialogdata.text;
+    print(widget.dialogdata.image2);
+    _iconCheck();
+    _imageCheck();
   }
 
   @override
   Widget build(BuildContext context) {
-    cameraIcon = imageBytes != null
-        ? Image.memory(
-            imageBytes,
-            fit: BoxFit.cover,
-          )
-        : Image.asset("assets/cameraIcon.png");
     return Scaffold(
       appBar: AppBar(
         title: Text("Dialog Test"),
@@ -181,15 +224,23 @@ class _DialogState extends State<DialogScreen> {
           new Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              IconButton(
-                padding: new EdgeInsets.all(10.0),
-                icon: cameraIcon,
-                onPressed: () => (_pickImage(ImageSource.camera)),
+              new SizedBox(
+                height: 300,
+                width: 100,
+                child: IconButton(
+                  padding: new EdgeInsets.all(5.0),
+                  icon: cameraIcon,
+                  onPressed: () => (_pickImage(ImageSource.camera)),
+                ),
               ),
-              IconButton(
-                  padding: new EdgeInsets.all(10.0),
-                  icon: cameraIcon2,
-                  onPressed: () => (_pickImageSec(ImageSource.camera))),
+              new SizedBox(
+                width: 100,
+                height: 300,
+                child: IconButton(
+                    padding: new EdgeInsets.all(5.0),
+                    icon: cameraIcon2,
+                    onPressed: () => (_pickImageSec(ImageSource.camera))),
+              ),
             ],
           ),
           new Row(
@@ -213,11 +264,6 @@ class _DialogState extends State<DialogScreen> {
                       });
                     }
                   }),
-              new FlatButton(
-                  onPressed: () {
-                    imageLoad(widget.dialogdata.image1);
-                  },
-                  child: Text("Load"))
             ],
           ),
           new FlatButton(

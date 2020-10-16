@@ -449,12 +449,6 @@ class CheckboxWidgetState extends State {
 
   @override
   Widget build(BuildContext context) {
-    var img = imageBytes != null
-        ? Image.memory(
-            imageBytes,
-            fit: BoxFit.cover,
-          )
-        : Icon(Icons.camera);
     return new Scaffold(
       appBar: AppBar(
         title: Text("Report App"),
@@ -608,7 +602,7 @@ class CheckboxWidgetState extends State {
                       exec = true;
                       dialogData.check = numbers[key];
                       dialogData.image1 = names[key];
-                      dialogData.image2 = "";
+                      dialogData.image2 = names[(key + "Sec")];
                       _navigateAndDisplaySelection(context, key);
                     });
                   },
