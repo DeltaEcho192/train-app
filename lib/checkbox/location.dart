@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:train_app/login/loginKey.dart';
 import '../screenSwap/dialogMain.dart';
 
 void main() => runApp(new MyApp());
@@ -39,6 +40,8 @@ class _LocationState extends State<Location> {
     var port = GlobalConfiguration().getValue("port");
     final response = await http.get("http://" + host + ":" + port + '/all/');
 
+    items.clear();
+    duplicateItems.clear();
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
       bauSugg = await bauApi != null ? List.from(bauApi) : null;
@@ -89,53 +92,77 @@ class _LocationState extends State<Location> {
     }
   }
 
+  _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('user', 'empty');
+      prefs.setBool('loged', false);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Baustelle Select"),
-      ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                onChanged: (value) {
-                  filterSearchResults(value);
-                },
-                controller: editingController,
-                decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search",
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)))),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('${items[index]}'),
-                    onTap: () {
-                      print("${items[index]}");
-                      var baustelle = items[index];
-                      _writeBaustelle(baustelle);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => (CheckboxWidget())));
-                    },
-                  );
-                },
-              ),
-            ),
+        appBar: new AppBar(
+          title: new Text("Baustelle Select"),
+          backgroundColor: Colors.yellow[700],
+          actions: [
+            IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  getBaustelle();
+                })
           ],
         ),
-      ),
-    );
+        body: Container(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: (value) {
+                    filterSearchResults(value);
+                  },
+                  controller: editingController,
+                  decoration: InputDecoration(
+                      labelText: "Search",
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(25.0)))),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text('${items[index]}'),
+                      onTap: () {
+                        print("${items[index]}");
+                        var baustelle = items[index];
+                        _writeBaustelle(baustelle);
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => (CheckboxWidget())));
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _logout();
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => (LoginKey())));
+          },
+          child: Icon(Icons.exit_to_app),
+        ));
   }
 }

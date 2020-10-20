@@ -437,7 +437,11 @@ class CheckboxWidgetState extends State {
 
     _focusNode = FocusNode();
     _focusNode.addListener(() {
-      if (_focusNode.hasFocus) bauController.clear();
+      if (_focusNode.hasFocus) {
+        bauController.clear();
+      } else {
+        bauController.text = data.baustelle;
+      }
     });
     getBaustelle();
     //Parse Info from WIP baustelle screen
@@ -451,6 +455,15 @@ class CheckboxWidgetState extends State {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.yellow[700],
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => (Location())),
+              );
+            }),
         title: Text("Report App"),
         actions: [
           FlatButton(
@@ -486,7 +499,10 @@ class CheckboxWidgetState extends State {
             ),
           ),
           new IconButton(
-              icon: new Icon(Icons.check),
+              icon: new Icon(
+                Icons.save,
+                color: Colors.red[800],
+              ),
               onPressed: () {
                 data.errors = Map<String, String>.from(errors);
                 data.comments = Map<String, String>.from(comments);
@@ -600,6 +616,8 @@ class CheckboxWidgetState extends State {
                       }
 
                       exec = true;
+                      print(numbers[key]);
+                      dialogData.name = key;
                       dialogData.check = numbers[key];
                       dialogData.image1 = names[key];
                       dialogData.image2 = names[(key + "Sec")];
@@ -612,17 +630,6 @@ class CheckboxWidgetState extends State {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _logout();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => (LoginKey())),
-          );
-        },
-        tooltip: 'Logout',
-        child: Icon(Icons.exit_to_app),
       ),
     );
   }

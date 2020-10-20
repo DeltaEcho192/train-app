@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Shared preferences demo',
+      title: 'Login',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -64,6 +64,7 @@ class _LoginKeyState extends State<LoginKey> {
   String _user = "";
   String _udid = "";
   final myController = TextEditingController();
+  Image loginIcon = Image.asset("assets/2x/engIcon.png");
 
   Future<void> getUDID() async {
     String udid;
@@ -135,7 +136,8 @@ class _LoginKeyState extends State<LoginKey> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Shared Preference Demo"),
+        title: Text("Login"),
+        backgroundColor: Colors.yellow[700],
       ),
       body: Center(
         child: Column(
@@ -144,48 +146,54 @@ class _LoginKeyState extends State<LoginKey> {
             Text(
               'Please Enter your user key.',
             ),
-            TextField(
-              controller: myController,
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(color: Colors.grey),
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: myController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+                IconButton(
+                    icon: loginIcon,
+                    onPressed: () {
+                      String newUser = myController.text;
+                      print("User Input " + newUser);
+                      print("UDID" + _udid);
+                      getUDID();
+                      fetchUser(newUser, _udid).then((value) => {
+                            print("Server User" + value['userid']),
+                            print("Server Check" + value['status'].toString()),
+                            if (value['status'] == true)
+                              {
+                                _setLogState(true),
+                                _writeUser(value['userid']),
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => (Location())),
+                                ),
+                              }
+                            else
+                              {
+                                print("Login failed"),
+                                Toast.show("Login Unsuccessful", context,
+                                    duration: Toast.LENGTH_LONG,
+                                    gravity: Toast.CENTER),
+                                _setLogState(false)
+                              }
+                          });
+                    })
+              ],
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          String newUser = myController.text;
-          print("User Input " + newUser);
-          print("UDID" + _udid);
-          getUDID();
-          fetchUser(newUser, _udid).then((value) => {
-                print("Server User" + value['userid']),
-                print("Server Check" + value['status'].toString()),
-                if (value['status'] == true)
-                  {
-                    _setLogState(true),
-                    _writeUser(value['userid']),
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => (Location())),
-                    ),
-                  }
-                else
-                  {
-                    print("Login failed"),
-                    Toast.show("Login Unsuccessful", context,
-                        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
-                    _setLogState(false)
-                  }
-              });
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
