@@ -10,7 +10,7 @@ Reload all widgets clean after a user uploads data
 2. Image preview [Y]
 3. Wait for image to upload before allowing new photo. [Y]
 4. Baustelle Search function and API [Y]
-5. Write unit tests. []
+5. Write unit tests. [N]
 6. Write requirments for Web Interface. [Y]
 7. If Image not uploading then show notification. [M]
 
@@ -61,8 +61,8 @@ Reload all widgets clean after a user uploads data
 1. Change of date checking of records. [Y]
 2. Error check if they want to edit but the form was left empty. (Calling a null array). [Y]
 3. Firebase load photos into Icons. [Y]
-4. Complete mongodb API web integration. []
-5. Integrate Mongodb with local API. []
+4. Complete mongodb API web integration. [Y]
+5. Integrate Mongodb with local API. [Y]
 6. Dad bug testing. [Y]
 
 16/10/2020 Things to do:
@@ -70,4 +70,33 @@ Reload all widgets clean after a user uploads data
 1. Complete mongodb API web integration. [Y]
 2. Integrate Mongodb with local API. [Y]
 3. Finish Flutter second page. [Y] (Checkbox button bug. )
-4. Show daddy so things can be changed and fixed. []
+4. Show daddy so things can be changed and fixed. [Y]
+
+20/10/2020 Things to do:
+
+1. Email Formating. []
+2. Change listener. []
+3. Ordering Data to people. [Y]
+4. Getting website running on server too. []
+5. Compile for Iphone. []
+6. Iterable errror. Main.js line 81. []
+
+App Changes:
+
+- Onkey change boolean value (When click to enter text flag automatically becomes error). [Y]
+- Image Dynamic Screen size sizing. [Y]
+- Icon White space to make smaller icon and bigger photo. [M]
+- Return button to save Icon at same location. [Y]
+
+- Change Save Icon. (Colour red). [Y]
+- Banner colour change. [Y]
+- Change to German Text.  []
+- back arrow on app bar. [Y]
+- Vanoli icon instead of report app text. []
+- unkey return original text on baustelle. [Y]
+
+- refresh icon for baustelle list. [Y]
+
+- Login Icon instead of plus. [Y]
+- Login button next to input field. [Y]
+

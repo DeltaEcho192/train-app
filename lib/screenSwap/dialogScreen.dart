@@ -18,6 +18,7 @@ import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dialogScreen.dart';
 import 'dialog.dart';
+import 'size_helpers.dart';
 
 class DialogScreen extends StatefulWidget {
   final DialogData dialogdata;
@@ -170,13 +171,14 @@ class _DialogState extends State<DialogScreen> {
   }
 
   void _iconCheck() {
-    if (widget.dialogdata.check == true) {
+    print(widget.dialogdata.check);
+    if (widget.dialogdata.check == false) {
       setState(() {
-        checkboxIcon = Icon(Icons.check_box);
+        checkboxIcon = Icon(Icons.check_box_outline_blank);
       });
     } else {
       setState() {
-        checkboxIcon = Icon(Icons.check_box_outline_blank);
+        checkboxIcon = Icon(Icons.check_box);
       }
     }
   }
@@ -196,7 +198,20 @@ class _DialogState extends State<DialogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dialog Test"),
+        backgroundColor: Colors.yellow[700],
+        title: Text(widget.dialogdata.name),
+        actions: [
+          new IconButton(
+            icon: new Icon(
+              Icons.save,
+              color: Colors.red[800],
+            ),
+            onPressed: () {
+              widget.dialogdata.text = txt.text;
+              Navigator.pop(context, widget.dialogdata);
+            },
+          )
+        ],
       ),
       body: new Column(
         mainAxisSize: MainAxisSize.min,
@@ -210,6 +225,13 @@ class _DialogState extends State<DialogScreen> {
                   controller: txt,
                   minLines: 5,
                   maxLines: 7,
+                  onChanged: (String value) {
+                    setState(() {
+                      checkboxIcon = Icon(Icons.check_box_outline_blank);
+                      secondCheck = false;
+                      widget.dialogdata.check = false;
+                    });
+                  },
                   decoration: const InputDecoration(
                     hintText: "Enter Problem",
                     enabledBorder: OutlineInputBorder(
@@ -226,7 +248,7 @@ class _DialogState extends State<DialogScreen> {
             children: <Widget>[
               new SizedBox(
                 height: 300,
-                width: 100,
+                width: displayWidth(context) * 0.5,
                 child: IconButton(
                   padding: new EdgeInsets.all(5.0),
                   icon: cameraIcon,
@@ -234,7 +256,7 @@ class _DialogState extends State<DialogScreen> {
                 ),
               ),
               new SizedBox(
-                width: 100,
+                width: displayWidth(context) * 0.5,
                 height: 300,
                 child: IconButton(
                     padding: new EdgeInsets.all(5.0),
@@ -246,7 +268,7 @@ class _DialogState extends State<DialogScreen> {
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Text("Alles Okay "),
+              new Text("Keine Probleme"),
               new IconButton(
                   icon: checkboxIcon,
                   onPressed: () {
@@ -266,12 +288,6 @@ class _DialogState extends State<DialogScreen> {
                   }),
             ],
           ),
-          new FlatButton(
-              onPressed: () {
-                widget.dialogdata.text = txt.text;
-                Navigator.pop(context, widget.dialogdata);
-              },
-              child: Text("Return"))
         ],
       ),
     );
