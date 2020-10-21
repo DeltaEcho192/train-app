@@ -75,11 +75,11 @@ Reload all widgets clean after a user uploads data
 20/10/2020 Things to do:
 
 1. Email Formating. [Y]
-2. Change listener. []
+2. Change listener. [Y]
 3. Ordering Data to people. [Y]
 4. Getting website running on server too. [M]
 5. Compile for Iphone. []
-6. Iterable errror. Main.js line 81. [N]
+6. Iterable errror. Main.js line 81. [N] (Default call error)
 
 App Changes:
 
@@ -102,15 +102,15 @@ App Changes:
 
 21/10/2020 Things to do:
 
-1. Get node and apache working on docker. []
-2. Make App changes discussed yesterday. []
-3. Firebase collection listen flag detection. []
+1. Get node and apache working on docker. [M]
+2. Make App changes discussed yesterday. [Y]
+3. Firebase collection listen flag detection. [Y]
 
 App Changes:
 
 - Add subtiles back under Title. [Y]
-- Capitilization of search list and input to search no matter the Capitilization. []
+- Capitilization of search list and input to search no matter the Capitilization. [Y]
 - Remove edit pen Icon. [Y]
-- Compress image before uploading. []
-- Add checkItem to list from application. []
+- Compress image before uploading. [Y]
+- Add checkItem to list from application. [N]
 - Optional. If new item added does it merge with old report. []

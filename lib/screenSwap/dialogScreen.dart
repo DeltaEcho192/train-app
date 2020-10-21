@@ -107,7 +107,11 @@ class _DialogState extends State<DialogScreen> {
   Future<void> _pickImage(
     ImageSource source,
   ) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    File selected;
+    final picker = ImagePicker();
+
+    final pickedFile =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
     //Make sure network is connected!!!!
     //TODO Add pop up if there is no network
 
@@ -117,7 +121,7 @@ class _DialogState extends State<DialogScreen> {
     // ignore: unused_local_variable
 
     setState(() {
-      _imageFile = selected;
+      _imageFile = File(pickedFile.path);
       String fileName = 'images/${DateTime.now()}.png';
       print("Counter" + photoAmt.toString());
       model.picName = fileName;
@@ -134,7 +138,11 @@ class _DialogState extends State<DialogScreen> {
   }
 
   Future<void> _pickImageSec(ImageSource source) async {
-    File selected2 = await ImagePicker.pickImage(source: source);
+    File selected;
+    final picker2 = ImagePicker();
+
+    final pickedFile2 =
+        await picker2.getImage(source: ImageSource.camera, imageQuality: 50);
     //Make sure network is connected!!!!
     //TODO Add pop up if there is no network
 
@@ -144,7 +152,7 @@ class _DialogState extends State<DialogScreen> {
     // ignore: unused_local_variable
 
     setState(() {
-      _imageFile2 = selected2;
+      _imageFile2 = File(pickedFile2.path);
       String fileName = 'images/${DateTime.now()}.png';
       model.picName = fileName;
       model.picCheck = true;

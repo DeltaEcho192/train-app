@@ -124,6 +124,8 @@ class _LocationState extends State<Location> {
                     return ListTile(
                       title: Text(data),
                       onTap: () {
+                        var baustelle = data;
+                        _writeBaustelle(baustelle);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -137,6 +139,7 @@ class _LocationState extends State<Location> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.yellow[700],
           onPressed: () {
             _logout();
             Navigator.pushReplacement(

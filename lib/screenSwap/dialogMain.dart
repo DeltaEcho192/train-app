@@ -228,9 +228,22 @@ class CheckboxWidgetState extends State {
 
   //
   //
+  Future<void> changeAlert(var docId) async {
+    await GlobalConfiguration().loadFromAsset("app_settings");
+    var host = GlobalConfiguration().getValue("host");
+    var port = GlobalConfiguration().getValue("port");
+    final response =
+        await http.get("http://" + host + ":" + port + '/change/' + docId);
+    if (response.statusCode == 200) {
+      print("Success");
+    } else {
+      print("Failure");
+    }
+  }
 
   Future<void> uploadData(Data dataFinal) async {
     final firestoreInstance = Firestore.instance;
+    var docId;
 
     firestoreInstance.collection("issues").add({
       "user": dataFinal.user,
@@ -242,7 +255,8 @@ class CheckboxWidgetState extends State {
       "images": dataFinal.images,
       "checklist": dataFinal.index,
     }).then((value) => {
-          print(value.documentID),
+          docId = value.documentID,
+          changeAlert(docId),
           Toast.show("All Data is uploaded", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
           Navigator.pushReplacement(
@@ -263,6 +277,7 @@ class CheckboxWidgetState extends State {
       "checklist": dataFinal.index,
       "images": dataFinal.images,
     }).then((value) => {
+          changeAlert(reportID),
           print("Successfully updated data"),
           Toast.show("All Data is updated", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
