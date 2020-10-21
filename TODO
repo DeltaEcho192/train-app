@@ -74,18 +74,18 @@ Reload all widgets clean after a user uploads data
 
 20/10/2020 Things to do:
 
-1. Email Formating. []
+1. Email Formating. [Y]
 2. Change listener. []
 3. Ordering Data to people. [Y]
-4. Getting website running on server too. []
+4. Getting website running on server too. [M]
 5. Compile for Iphone. []
-6. Iterable errror. Main.js line 81. []
+6. Iterable errror. Main.js line 81. [N]
 
 App Changes:
 
 - Onkey change boolean value (When click to enter text flag automatically becomes error). [Y]
 - Image Dynamic Screen size sizing. [Y]
-- Icon White space to make smaller icon and bigger photo. [M]
+- Icon White space to make smaller icon and bigger photo. []
 - Return button to save Icon at same location. [Y]
 
 - Change Save Icon. (Colour red). [Y]
@@ -100,3 +100,17 @@ App Changes:
 - Login Icon instead of plus. [Y]
 - Login button next to input field. [Y]
 
+21/10/2020 Things to do:
+
+1. Get node and apache working on docker. []
+2. Make App changes discussed yesterday. []
+3. Firebase collection listen flag detection. []
+
+App Changes:
+
+- Add subtiles back under Title. [Y]
+- Capitilization of search list and input to search no matter the Capitilization. []
+- Remove edit pen Icon. [Y]
+- Compress image before uploading. []
+- Add checkItem to list from application. []
+- Optional. If new item added does it merge with old report. []

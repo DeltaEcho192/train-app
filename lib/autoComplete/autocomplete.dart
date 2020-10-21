@@ -1,140 +1,84 @@
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Auto Complete TextField Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new MyHomePage(),
-    );
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(title: Text('Flutter Apply Search on ListView')),
+            body: Center(child: ListSearch())));
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _MyHomePageState();
+class ListSearch extends StatefulWidget {
+  ListSearchState createState() => ListSearchState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Widget> pages = [new FirstPage()];
-  int selectedIndex = 0;
+class ListSearchState extends State<ListSearch> {
+  TextEditingController _textController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      bottomNavigationBar: new BottomNavigationBar(
-        items: [
-          new BottomNavigationBarItem(
-              icon: new Center(child: new Text("1")),
-              title: new Text("Simple Use")),
-          new BottomNavigationBarItem(
-              icon: new Center(child: new Text("2")),
-              title: new Text("Complex Use")),
-        ],
-        onTap: (index) => setState(() {
-          selectedIndex = index;
-        }),
-        currentIndex: selectedIndex,
-      ),
-      body: pages[selectedIndex],
-    );
-  }
-}
-
-class FirstPage extends StatefulWidget {
-  @override
-  _FirstPageState createState() => new _FirstPageState();
-}
-
-class _FirstPageState extends State<FirstPage> {
-  List<String> added = [];
-  String currentText = "";
-  GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
-
-  _FirstPageState() {
-    textField = SimpleAutoCompleteTextField(
-      key: key,
-      decoration: new InputDecoration(errorText: "Beans"),
-      controller: TextEditingController(text: "Starting Text"),
-      suggestions: suggestions,
-      textChanged: (text) => currentText = text,
-      clearOnSubmit: true,
-      textSubmitted: (text) => setState(() {
-        if (text != "") {
-          added.add(text);
-        }
-      }),
-    );
-  }
-
-  List<String> suggestions = [
+  static List<String> mainDataList = [
     "Apple",
-    "Armidillo",
-    "Actual",
-    "Actuary",
-    "America",
-    "Argentina",
-    "Australia",
-    "Antarctica",
-    "Blueberry",
-    "Cheese",
-    "Danish",
-    "Eclair",
-    "Fudge",
-    "Granola",
-    "Hazelnut",
-    "Ice Cream",
-    "Jely",
-    "Kiwi Fruit",
-    "Lamb",
-    "Macadamia",
-    "Nachos",
-    "Oatmeal",
-    "Palm Oil",
-    "Quail",
-    "Rabbit",
-    "Salad",
-    "T-Bone Steak",
-    "Urid Dal",
-    "Vanilla",
-    "Waffles",
-    "Yam",
-    "Zest"
+    "Apricot",
+    "Banana",
+    "Blackberry",
+    "Coconut",
+    "Date",
+    "Fig",
+    "Gooseberry",
+    "Grapes",
+    "Lemon",
+    "Litchi",
+    "Mango",
+    "Orange",
+    "Papaya",
+    "Peach",
+    "Pineapple",
+    "Pomegranate",
+    "Starfruit"
   ];
 
-  SimpleAutoCompleteTextField textField;
-  bool showWhichErrorText = false;
+  // Copy Main List into New List.
+  List<String> newDataList = List.from(mainDataList);
+
+  onItemChanged(String value) {
+    setState(() {
+      newDataList = mainDataList
+          .where((string) => string.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    Column body = new Column(children: [
-      new ListTile(
-          title: textField,
-          trailing: new IconButton(
-              icon: new Icon(Icons.add),
-              onPressed: () {
-                textField.triggerSubmitted();
-                showWhichErrorText = !showWhichErrorText;
-                textField.updateDecoration(
-                    decoration: new InputDecoration(
-                        errorText: showWhichErrorText ? "Beans" : "Tomatoes"));
-              })),
-    ]);
-
-    body.children.addAll(added.map((item) {
-      return new ListTile(title: new Text(item));
-    }));
-
-    return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar:
-            new AppBar(title: new Text('AutoComplete TextField Demo Simple')),
-        body: body);
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _textController,
+              decoration: InputDecoration(
+                hintText: 'Search Here...',
+              ),
+              onChanged: onItemChanged,
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(12.0),
+              children: newDataList.map((data) {
+                return ListTile(
+                  title: Text(data),
+                  onTap: () => print(data),
+                );
+              }).toList(),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

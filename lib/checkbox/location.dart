@@ -31,8 +31,9 @@ class Location extends StatefulWidget {
 
 class _LocationState extends State<Location> {
   TextEditingController editingController = TextEditingController();
-  var items = List<String>();
-  var duplicateItems = List<String>();
+  List<String> mainDataList = [];
+  List<String> newDataList = [];
+
   List<String> bauSugg = ["Default"];
   Future<void> getBaustelle() async {
     await GlobalConfiguration().loadFromAsset("app_settings");
@@ -40,14 +41,14 @@ class _LocationState extends State<Location> {
     var port = GlobalConfiguration().getValue("port");
     final response = await http.get("http://" + host + ":" + port + '/all/');
 
-    items.clear();
-    duplicateItems.clear();
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
       bauSugg = await bauApi != null ? List.from(bauApi) : null;
+      mainDataList.clear();
+      newDataList.clear();
       setState(() {
-        items.addAll(bauSugg);
-        duplicateItems.addAll(bauSugg);
+        mainDataList.addAll(bauSugg);
+        newDataList.addAll(bauSugg);
       });
 
       print(bauApi[0]);
@@ -69,27 +70,12 @@ class _LocationState extends State<Location> {
     super.initState();
   }
 
-  void filterSearchResults(String query) {
-    List<String> dummySearchList = List<String>();
-    dummySearchList.addAll(duplicateItems);
-    if (query.isNotEmpty) {
-      List<String> dummyListData = List<String>();
-      dummySearchList.forEach((item) {
-        if (item.contains(query)) {
-          dummyListData.add(item);
-        }
-      });
-      setState(() {
-        items.clear();
-        items.addAll(dummyListData);
-      });
-      return;
-    } else {
-      setState(() {
-        items.clear();
-        items.addAll(duplicateItems);
-      });
-    }
+  onItemChanged(String value) {
+    setState(() {
+      newDataList = mainDataList
+          .where((string) => string.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+    });
   }
 
   _logout() async {
@@ -120,9 +106,7 @@ class _LocationState extends State<Location> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                  onChanged: (value) {
-                    filterSearchResults(value);
-                  },
+                  onChanged: onItemChanged,
                   controller: editingController,
                   decoration: InputDecoration(
                       labelText: "Search",
@@ -134,23 +118,19 @@ class _LocationState extends State<Location> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
+                child: ListView(
+                  padding: EdgeInsets.all(12.0),
+                  children: newDataList.map((data) {
                     return ListTile(
-                      title: Text('${items[index]}'),
+                      title: Text(data),
                       onTap: () {
-                        print("${items[index]}");
-                        var baustelle = items[index];
-                        _writeBaustelle(baustelle);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => (CheckboxWidget())));
                       },
                     );
-                  },
+                  }).toList(),
                 ),
               ),
             ],

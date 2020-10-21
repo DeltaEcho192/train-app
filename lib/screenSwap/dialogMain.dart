@@ -309,6 +309,15 @@ class CheckboxWidgetState extends State {
                   numbers = Map<String, bool>.from(checklist);
                   comments = Map<String, String>.from(commentsLoc);
                   errors = Map<String, String>.from(errorsLoc);
+                  subtitles = {...errors, ...comments};
+                  numbers.forEach((key, value) {
+                    if (subtitles.containsKey(key)) {
+                      print("In array");
+                    } else {
+                      subtitles[key] = " ";
+                    }
+                  });
+                  print("Subtitiles $subtitles");
                   names = Map<String, String>.from(imagesLoc);
                   (context as Element).reassemble();
                 });
@@ -600,9 +609,9 @@ class CheckboxWidgetState extends State {
               children: numbers.keys.map((String key) {
                 return new CheckboxListTile(
                   title: new Text(key),
-                  //subtitle: new Text(subtitles[key]),
+                  subtitle: new Text(subtitles[key]),
                   value: numbers[key],
-                  activeColor: Colors.pink,
+                  activeColor: Colors.red[800],
                   checkColor: Colors.white,
                   onChanged: (bool value) {
                     setState(() {
@@ -624,7 +633,6 @@ class CheckboxWidgetState extends State {
                       _navigateAndDisplaySelection(context, key);
                     });
                   },
-                  secondary: new Icon(Icons.edit),
                 );
               }).toList(),
             ),
