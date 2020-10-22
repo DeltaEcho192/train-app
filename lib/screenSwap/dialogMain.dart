@@ -170,7 +170,7 @@ class CheckboxWidgetState extends State {
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
     final response = await http
-        .get("http://" + host + ":" + port + '/test/' + baustelle.toString());
+        .get("https://" + host + ":" + port + '/test/' + baustelle.toString());
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -212,7 +212,7 @@ class CheckboxWidgetState extends State {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("http://" + host + ":" + port + '/all/');
+    final response = await http.get("https://" + host + ":" + port + '/all/');
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
@@ -233,7 +233,7 @@ class CheckboxWidgetState extends State {
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
     final response =
-        await http.get("http://" + host + ":" + port + '/change/' + docId);
+        await http.get("https://" + host + ":" + port + '/change/' + docId);
     if (response.statusCode == 200) {
       print("Success");
     } else {

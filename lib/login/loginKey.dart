@@ -30,7 +30,7 @@ Future<Map<String, dynamic>> fetchUser(var userid, String udid) async {
   var host = GlobalConfiguration().getValue("host");
   var port = GlobalConfiguration().getValue("port");
   print("Function UDID " + udid);
-  final response = await http.get("http://" +
+  final response = await http.get("https://" +
       host +
       ":" +
       port +

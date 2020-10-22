@@ -85,7 +85,7 @@ App Changes:
 
 - Onkey change boolean value (When click to enter text flag automatically becomes error). [Y]
 - Image Dynamic Screen size sizing. [Y]
-- Icon White space to make smaller icon and bigger photo. []
+- Icon White space to make smaller icon and bigger photo. [Y]
 - Return button to save Icon at same location. [Y]
 
 - Change Save Icon. (Colour red). [Y]
@@ -114,3 +114,10 @@ App Changes:
 - Compress image before uploading. [Y]
 - Add checkItem to list from application. [N]
 - Optional. If new item added does it merge with old report. []
+
+22/10/2020 Things to do:
+
+1. Clean up project. []
+2. Try Compile APK. []
+3. Compile on Iphone. []
+

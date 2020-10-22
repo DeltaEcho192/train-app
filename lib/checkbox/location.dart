@@ -39,7 +39,7 @@ class _LocationState extends State<Location> {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("http://" + host + ":" + port + '/all/');
+    final response = await http.get("https://" + host + ":" + port + '/all/');
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
