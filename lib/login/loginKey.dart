@@ -137,7 +137,7 @@ class _LoginKeyState extends State<LoginKey> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Login"),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Color.fromRGBO(232, 195, 30, 1),
       ),
       body: Center(
         child: Column(

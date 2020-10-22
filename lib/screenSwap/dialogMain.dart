@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,6 +69,7 @@ class CheckboxWidgetState extends State {
   int iteration = 0;
   Image cameraIcon = Image.asset("assets/cameraIcon.png");
   Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
+  Image logo = Image.asset("assets/Vanoli-logo.png");
   StorageUploadTask _uploadTask;
   StorageUploadTask _uploadTask2;
   StorageUploadTask _deleteTask;
@@ -479,7 +479,7 @@ class CheckboxWidgetState extends State {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Color.fromRGBO(232, 195, 30, 1),
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -488,7 +488,7 @@ class CheckboxWidgetState extends State {
                 MaterialPageRoute(builder: (context) => (Location())),
               );
             }),
-        title: Text("Report App"),
+        title: logo,
         actions: [
           FlatButton(
             padding: EdgeInsets.only(right: 75),

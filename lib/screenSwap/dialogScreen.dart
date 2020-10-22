@@ -206,7 +206,7 @@ class _DialogState extends State<DialogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Color.fromRGBO(232, 195, 30, 1),
         title: Text(widget.dialogdata.name),
         actions: [
           new IconButton(
@@ -242,6 +242,7 @@ class _DialogState extends State<DialogScreen> {
                   },
                   decoration: const InputDecoration(
                     hintText: "Enter Problem",
+                    contentPadding: const EdgeInsets.only(left: 10, right: 10),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       borderSide: BorderSide(color: Colors.grey),

@@ -91,7 +91,7 @@ class _LocationState extends State<Location> {
     return new Scaffold(
         appBar: new AppBar(
           title: new Text("Baustelle Select"),
-          backgroundColor: Colors.yellow[700],
+          backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           actions: [
             IconButton(
                 icon: Icon(Icons.refresh),
@@ -139,7 +139,7 @@ class _LocationState extends State<Location> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.yellow[700],
+          backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           onPressed: () {
             _logout();
             Navigator.pushReplacement(

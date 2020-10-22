@@ -117,7 +117,12 @@ App Changes:
 
 22/10/2020 Things to do:
 
-1. Clean up project. []
-2. Try Compile APK. []
-3. Compile on Iphone. []
+1. Clean up project. [Y]
+2. Add Icons. [Y]
+3. Try Compile APK. [Y]
+4. Compile on Iphone. []
+5. Add padding for text field. []
+6. Mobile version of website. []
+7. csv read in and load user data script. []
+8. Break points for where to change language. []
 
