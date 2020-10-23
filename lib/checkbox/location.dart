@@ -90,7 +90,7 @@ class _LocationState extends State<Location> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text("Baustelle Select"),
+          title: new Text("Bitte Baustelle auswählen"),
           backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           actions: [
             IconButton(
@@ -109,8 +109,8 @@ class _LocationState extends State<Location> {
                   onChanged: onItemChanged,
                   controller: editingController,
                   decoration: InputDecoration(
-                      labelText: "Search",
-                      hintText: "Search",
+                      labelText: "Baustellensuche",
+                      hintText: "Baustellensuche",
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(
                           borderRadius:

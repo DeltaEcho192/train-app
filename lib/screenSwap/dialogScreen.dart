@@ -133,7 +133,7 @@ class _DialogState extends State<DialogScreen> {
     });
     await _uploadTask.onComplete;
     print("Upload done");
-    Toast.show("Upload Complete", context,
+    Toast.show("Bild ist auf Server gespeichert", context,
         duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
 
@@ -162,7 +162,7 @@ class _DialogState extends State<DialogScreen> {
     });
     await _uploadTask2.onComplete;
     print("Upload done on second");
-    Toast.show("Upload Complete", context,
+    Toast.show("Bild ist auf Server gespeichert", context,
         duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
   }
 
@@ -241,7 +241,7 @@ class _DialogState extends State<DialogScreen> {
                     });
                   },
                   decoration: const InputDecoration(
-                    hintText: "Enter Problem",
+                    hintText: "Problem Beschreibung",
                     contentPadding: const EdgeInsets.only(left: 10, right: 10),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),

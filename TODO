@@ -121,8 +121,16 @@ App Changes:
 2. Add Icons. [Y]
 3. Try Compile APK. [Y]
 4. Compile on Iphone. []
-5. Add padding for text field. []
-6. Mobile version of website. []
-7. csv read in and load user data script. []
-8. Break points for where to change language. []
+5. Add padding for text field. [Y]
+6. Mobile version of website. [N]
+7. csv read in and load user data script. [N]
+8. Break points for where to change language. [Y]
+9. Log in null error. [N]
 
+23/10/2020 Things to do:
+
+1. csv read script. [Y]
+2. Login null coockie check. [Y]
+3. Change color and logos for website. [Y]
+4. Refine design for website. [Y]
+5. Outside not getting server error. []

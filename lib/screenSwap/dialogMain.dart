@@ -160,9 +160,9 @@ class CheckboxWidgetState extends State {
   //
 
   Map<String, bool> numbers = {
-    'Loading': true,
+    'Lade Daten...': true,
   };
-  Map<String, String> subtitles = {'Loading': 'Busy Loading'};
+  Map<String, String> subtitles = {'Lade Daten...': ' '};
 
   //Dynamically gets Checklist from NODE JS based on which Baustelle is selected.
   Future<void> fetchChecklist(var baustelle) async {
@@ -257,8 +257,8 @@ class CheckboxWidgetState extends State {
     }).then((value) => {
           docId = value.documentID,
           changeAlert(docId),
-          Toast.show("All Data is uploaded", context,
-              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
+          Toast.show("Report ist auf Server gespeichert", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => (Location())),
@@ -279,8 +279,8 @@ class CheckboxWidgetState extends State {
     }).then((value) => {
           changeAlert(reportID),
           print("Successfully updated data"),
-          Toast.show("All Data is updated", context,
-              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER),
+          Toast.show("Die Reportänderungen sind gespeichert", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => (Location())),
@@ -535,8 +535,8 @@ class CheckboxWidgetState extends State {
                 if (data.user == null ||
                     data.udid == null ||
                     data.schicht == null) {
-                  Toast.show("Form is not Complete", context,
-                      duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+                  Toast.show("Es sind nicht alle Eingaben korrekt", context,
+                      duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
                 } else {
                   if (data.errors.isEmpty) {
                     //Possible error double upload
@@ -544,12 +544,12 @@ class CheckboxWidgetState extends State {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: new Text("Confirm"),
+                            title: new Text("Bitte bestätigen"),
                             content: SingleChildScrollView(
                               child: ListBody(
                                 children: <Widget>[
-                                  Text('Everything has been marked okay'),
-                                  Text('Is that correct?'),
+                                  Text('Es wurden keine Änderungen gemacht!'),
+                                  Text('Ist das wirklich korrekt?'),
                                 ],
                               ),
                             ),
@@ -565,13 +565,13 @@ class CheckboxWidgetState extends State {
                                   toDelete.clear();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Yes"),
+                                child: Text("Ja"),
                               ),
                               FlatButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("No"),
+                                child: Text("Nein"),
                               )
                             ],
                           );

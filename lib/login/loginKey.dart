@@ -5,7 +5,6 @@ import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import '../checkbox/location.dart';
-import '../checkbox/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -136,22 +135,20 @@ class _LoginKeyState extends State<LoginKey> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: Text("Anmeldung"),
         backgroundColor: Color.fromRGBO(232, 195, 30, 1),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'Please Enter your user key.',
-            ),
             new Row(
               children: <Widget>[
                 Expanded(
                   child: TextField(
                     controller: myController,
                     decoration: InputDecoration(
+                      hintText: 'Bitte Benutzer ID eingeben',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         borderSide: BorderSide(color: Colors.grey),
@@ -182,9 +179,10 @@ class _LoginKeyState extends State<LoginKey> {
                             else
                               {
                                 print("Login failed"),
-                                Toast.show("Login Unsuccessful", context,
+                                Toast.show(
+                                    "Anmeldung nicht erfolgreich", context,
                                     duration: Toast.LENGTH_LONG,
-                                    gravity: Toast.CENTER),
+                                    gravity: Toast.BOTTOM),
                                 _setLogState(false)
                               }
                           });
