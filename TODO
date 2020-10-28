@@ -90,7 +90,7 @@ App Changes:
 
 - Change Save Icon. (Colour red). [Y]
 - Banner colour change. [Y]
-- Change to German Text.  []
+- Change to German Text.  [Y]
 - back arrow on app bar. [Y]
 - Vanoli icon instead of report app text. []
 - unkey return original text on baustelle. [Y]
@@ -102,7 +102,7 @@ App Changes:
 
 21/10/2020 Things to do:
 
-1. Get node and apache working on docker. [M]
+1. Get node and apache working on docker. [Y]
 2. Make App changes discussed yesterday. [Y]
 3. Firebase collection listen flag detection. [Y]
 
@@ -123,7 +123,7 @@ App Changes:
 4. Compile on Iphone. []
 5. Add padding for text field. [Y]
 6. Mobile version of website. [N]
-7. csv read in and load user data script. [N]
+7. csv read in and load user data script. [Y]
 8. Break points for where to change language. [Y]
 9. Log in null error. [N]
 
@@ -133,4 +133,20 @@ App Changes:
 2. Login null coockie check. [Y]
 3. Change color and logos for website. [Y]
 4. Refine design for website. [Y]
-5. Outside not getting server error. []
+5. Outside not getting server error. [Y]
+
+26/10/2020 Things to do:
+
+1. Compile for Iphone. [N]
+2. What is the best way to show report. []
+3. Email report clean up and desgin. [M]
+4. Change fonts and Text size to be equal. [Y]
+5. Comments colomn for firebase. [Y]
+6. Comments display undefinded error. [Y]
+7. Make download site. [Y]
+
+27/10/2020 Things to do:
+
+1. Compile for Iphone. [Y]
+2. Alphabetically sort checklist when recived for continuity. []
+3. Compile SDK for IOS/ Also recompile Android version. []

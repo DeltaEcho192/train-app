@@ -46,6 +46,7 @@ class _LocationState extends State<Location> {
       bauSugg = await bauApi != null ? List.from(bauApi) : null;
       mainDataList.clear();
       newDataList.clear();
+      bauSugg.remove("Default");
       setState(() {
         mainDataList.addAll(bauSugg);
         newDataList.addAll(bauSugg);
