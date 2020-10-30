@@ -33,13 +33,15 @@ class _LocationState extends State<Location> {
   TextEditingController editingController = TextEditingController();
   List<String> mainDataList = [];
   List<String> newDataList = [];
+  var usr = "";
 
   List<String> bauSugg = ["Default"];
   Future<void> getBaustelle() async {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("https://" + host + ":" + port + '/all/');
+    final response =
+        await http.get("https://" + host + ":" + port + '/all/' + usr);
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
@@ -58,6 +60,16 @@ class _LocationState extends State<Location> {
     }
   }
 
+  _loadUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("Loading User");
+    print(prefs.getString('user') ?? "empty");
+    setState(() {
+      usr = (prefs.getString('user') ?? "empty");
+      getBaustelle();
+    });
+  }
+
   _writeBaustelle(String baustelle) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -67,7 +79,8 @@ class _LocationState extends State<Location> {
 
   @override
   void initState() {
-    getBaustelle();
+    _loadUser();
+
     super.initState();
   }
 

@@ -110,8 +110,7 @@ class _DialogState extends State<DialogScreen> {
     File selected;
     final picker = ImagePicker();
 
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+    final pickedFile = await picker.getImage(source: source, imageQuality: 50);
     //Make sure network is connected!!!!
     //TODO Add pop up if there is no network
 
@@ -129,6 +128,7 @@ class _DialogState extends State<DialogScreen> {
       widget.dialogdata.image1 = fileName;
       cameraIcon = new Image.file(_imageFile);
       _uploadTask = _storage.ref().child(model.picName).putFile(_imageFile);
+
       //Adds all current photo names to an array
     });
     await _uploadTask.onComplete;
@@ -142,7 +142,7 @@ class _DialogState extends State<DialogScreen> {
     final picker2 = ImagePicker();
 
     final pickedFile2 =
-        await picker2.getImage(source: ImageSource.camera, imageQuality: 50);
+        await picker2.getImage(source: source, imageQuality: 50);
     //Make sure network is connected!!!!
     //TODO Add pop up if there is no network
 
@@ -261,17 +261,74 @@ class _DialogState extends State<DialogScreen> {
                 child: IconButton(
                   padding: new EdgeInsets.all(5.0),
                   icon: cameraIcon,
-                  onPressed: () => (_pickImage(ImageSource.camera)),
+                  onPressed: () => (showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Selection"),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              Text('Select image from Image or Gallery'),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          new FlatButton(
+                              onPressed: () {
+                                _pickImage(ImageSource.camera);
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(Icons.camera_alt)),
+                          new FlatButton(
+                              onPressed: () {
+                                _pickImage(ImageSource.gallery);
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(Icons.collections))
+                        ],
+                      );
+                    },
+                  )),
                 ),
               ),
               new SizedBox(
                 width: displayWidth(context) * 0.5,
                 height: 300,
                 child: IconButton(
-                    padding: new EdgeInsets.all(5.0),
-                    icon: cameraIcon2,
-                    onPressed: () => (_pickImageSec(ImageSource.camera))),
-              ),
+                  padding: new EdgeInsets.all(5.0),
+                  icon: cameraIcon2,
+                  onPressed: () => (showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Selection"),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              Text('Select image from Image or Gallery'),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          new FlatButton(
+                              onPressed: () {
+                                _pickImageSec(ImageSource.camera);
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(Icons.camera_alt)),
+                          new FlatButton(
+                              onPressed: () {
+                                _pickImageSec(ImageSource.gallery);
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(Icons.collections))
+                        ],
+                      );
+                    },
+                  )),
+                ),
+              )
             ],
           ),
           new Row(

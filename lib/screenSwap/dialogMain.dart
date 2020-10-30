@@ -321,6 +321,7 @@ class CheckboxWidgetState extends State {
                 print("Checklist $checklist");
                 print("image test $imagesLoc");
                 setState(() {
+                  subtitles.clear();
                   numbers = Map<String, bool>.from(checklist);
                   comments = Map<String, String>.from(commentsLoc);
                   errors = Map<String, String>.from(errorsLoc);
@@ -483,10 +484,45 @@ class CheckboxWidgetState extends State {
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => (Location())),
-              );
+              if (errors.isEmpty == false || comments.isEmpty == false) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("Warnung"),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                                'Wollen Sie Ihre Änderungen wirklich verwerfen?'),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        new FlatButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => (Location())),
+                              );
+                            },
+                            child: Text("Ja")),
+                        new FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Nein"))
+                      ],
+                    );
+                  },
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => (Location())),
+                );
+              }
             }),
         title: logo,
         actions: [
@@ -513,6 +549,10 @@ class CheckboxWidgetState extends State {
                       date.add(new Duration(days: 1)).toLocal().toString();
                   print(working);
                   dateFinal = working;
+                  errors.clear();
+                  comments.clear();
+                  names.clear();
+                  numbers.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
               }, currentTime: DateTime.now(), locale: LocaleType.de);

@@ -148,5 +148,38 @@ App Changes:
 27/10/2020 Things to do:
 
 1. Compile for Iphone. [Y]
-2. Alphabetically sort checklist when recived for continuity. []
+2. Alphabetically sort checklist when recived for continuity. [N]
 3. Compile SDK for IOS/ Also recompile Android version. []
+
+28/10/2020 Things to do:
+
+1. Compile SDK's for both. [Y]
+2. Finish login system rebuild. [Y]
+3. Create page to reset password if it isnt Default. [N]
+
+30/10/2020 Things to do:
+
+1. Back button ask on app. [Y]
+2. Remove subtitle when loading new report. [Y]
+3. Date return bug. [Y]
+4. Port 80 forward to 443 from outside. []
+5. Event listener enter key for login. [Y]
+6. Logout button and Icon change. [Y]
+7. DBL click to edit. [Y]
+8. Edit function for checklists. [Y]
+9. Multi row delete. []
+10. Title of which baustelle is being edited. [Y]
+11. When item selected apear delete button. [N]
+12. Multi Line select with control. []
+13. Rapporte. (Spelling error) [Y]
+14. Logged in name at the top. [Y]
+15. Report site total redesign. []
+16. Remove confermation message. [Y]
+17. Voice message functionality. []
+18. Select from Gallery. [Y] 
+19. User rights to baustelle functionality. [Y]
+20. Querys to search baustelle based on user for mobile. [Y]
+21. Adding users to baustelle in web using tabulator. []
+22. Querys to see the allowed baustelle for users. []
+23. If only technical allowance then only show report. []
+24. Emails sent to those asigned to baustelle. []
