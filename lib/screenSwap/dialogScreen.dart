@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:io' as io;
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -68,6 +69,10 @@ class _DialogState extends State<DialogScreen> {
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
   String audioFilePath = "";
+  Icon playBtn = Icon(
+    Icons.play_circle_filled,
+    color: Colors.black,
+  );
 
   //
   //
@@ -106,6 +111,18 @@ class _DialogState extends State<DialogScreen> {
             }))
         .catchError((e) => setState(() {
               errorMsg = e.error;
+            }));
+  }
+
+  Future<void> audioLoad(String fileName) async {
+    storage
+        .ref()
+        .child(fileName)
+        .getData(10000000)
+        .then((value) => setState(() {
+              var audioBytes = value;
+              AudioPlayer audioPlayer = AudioPlayer();
+              audioPlayer.playBytes(audioBytes);
             }));
   }
 
@@ -196,6 +213,17 @@ class _DialogState extends State<DialogScreen> {
       setState() {
         checkboxIcon = Icon(Icons.check_box);
       }
+    }
+  }
+
+  void audioCheck() {
+    if (widget.dialogdata.audio == null) {
+      setState(() {
+        playBtn = Icon(
+          Icons.play_circle_fill,
+          color: Colors.grey,
+        );
+      });
     }
   }
 
@@ -347,6 +375,7 @@ class _DialogState extends State<DialogScreen> {
     txt.text = widget.dialogdata.text;
     print(widget.dialogdata.image2);
     _iconCheck();
+    audioCheck();
     _imageCheck();
     _init();
   }
@@ -508,6 +537,10 @@ class _DialogState extends State<DialogScreen> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
+                  child: Text("Voice Message"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: new IconButton(
                     onPressed: () {
                       switch (_currentStatus) {
@@ -535,6 +568,16 @@ class _DialogState extends State<DialogScreen> {
                     icon: _buildText(_currentStatus),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new IconButton(
+                      icon: playBtn,
+                      onPressed: () {
+                        if (widget.dialogdata.audio != null) {
+                          audioLoad(widget.dialogdata.audio);
+                        }
+                      }),
+                )
               ]),
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,

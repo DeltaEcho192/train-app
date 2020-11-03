@@ -322,6 +322,7 @@ class CheckboxWidgetState extends State {
                 var commentsLoc = pullReport["comments"];
                 var checklist = pullReport["checklist"];
                 var imagesLoc = pullReport["images"];
+                var audioLoc = pullReport["audio"];
                 print("Checklist $checklist");
                 print("image test $imagesLoc");
                 setState(() {
@@ -329,6 +330,7 @@ class CheckboxWidgetState extends State {
                   numbers = Map<String, bool>.from(checklist);
                   comments = Map<String, String>.from(commentsLoc);
                   errors = Map<String, String>.from(errorsLoc);
+                  audio = Map<String, String>.from(audioLoc);
                   subtitles = {...errors, ...comments};
                   numbers.forEach((key, value) {
                     if (subtitles.containsKey(key)) {
@@ -691,6 +693,7 @@ class CheckboxWidgetState extends State {
                       dialogData.check = numbers[key];
                       dialogData.image1 = names[key];
                       dialogData.image2 = names[(key + "Sec")];
+                      dialogData.audio = audio[key];
                       _navigateAndDisplaySelection(context, key);
                     });
                   },
