@@ -180,6 +180,27 @@ App Changes:
 19. User rights to baustelle functionality. [Y]
 20. Querys to search baustelle based on user for mobile. [Y]
 21. Adding users to baustelle in web using tabulator. []
-22. Querys to see the allowed baustelle for users. []
+22. Querys to see the allowed baustelle for users. [Y]
 23. If only technical allowance then only show report. []
 24. Emails sent to those asigned to baustelle. []
+
+02/11/2020 Things to do:
+
+1. Firebase script to delete unwanted photos or clean up needs to be done. []
+2. Hiding information on the screen based on user rights. [Y]
+3. Validating write changes on server side everytime to stop hacking. [M]
+4. Add voice message compatibility. []
+5. Tabulator adding users. [Y]
+6. When adding baustelle add default root user. [Y]
+7. Limit amount of selects. [Y]
+8. Enviromental varables for code. [M]
+9. Change Adding UI to reflect checklist UI. [Y]
+10. Delete button under the table. [Y]
+11. Add Access level editing coloumn to table. [Y]
+12. Make logout href a button. [Y]
+
+03/11/2020 Things to do:
+
+1. Integrate Audio into application. []
+2. Redesign report page. []
+3. Check baustelle site. []

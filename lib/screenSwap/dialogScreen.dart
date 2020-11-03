@@ -1,10 +1,12 @@
 import 'dart:typed_data';
-
+import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:path_provider/path_provider.dart';
 import '../model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,6 +48,7 @@ class _DialogState extends State<DialogScreen> {
   Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
   StorageUploadTask _uploadTask;
   StorageUploadTask _uploadTask2;
+  StorageUploadTask _uploadTaskAudio;
   StorageUploadTask _deleteTask;
   var txt = TextEditingController();
   String baustelle;
@@ -61,6 +64,11 @@ class _DialogState extends State<DialogScreen> {
   Uint8List imageBytes;
   Uint8List imageBytes2;
   String errorMsg;
+  FlutterAudioRecorder _recorder;
+  Recording _current;
+  RecordingStatus _currentStatus = RecordingStatus.Unset;
+  String audioFilePath = "";
+
   //
   //
 
@@ -193,6 +201,146 @@ class _DialogState extends State<DialogScreen> {
 
   //
   //
+
+  _init() async {
+    try {
+      if (await FlutterAudioRecorder.hasPermissions) {
+        String customPath = '/audio';
+        io.Directory appDocDirectory;
+//        io.Directory appDocDirectory = await getApplicationDocumentsDirectory();
+        if (io.Platform.isIOS) {
+          appDocDirectory = await getApplicationDocumentsDirectory();
+        } else {
+          appDocDirectory = await getExternalStorageDirectory();
+        }
+
+        var time = DateTime.now().millisecondsSinceEpoch.toString();
+        audioFilePath = customPath + "/" + time;
+        // can add extension like ".mp4" ".wav" ".m4a" ".aac"
+        customPath = appDocDirectory.path + customPath + time;
+
+        // .wav <---> AudioFormat.WAV
+        // .mp4 .m4a .aac <---> AudioFormat.AAC
+        // AudioFormat is optional, if given value, will overwrite path extension when there is conflicts.
+        _recorder =
+            FlutterAudioRecorder(customPath, audioFormat: AudioFormat.WAV);
+
+        await _recorder.initialized;
+        // after initialization
+        var current = await _recorder.current(channel: 0);
+        print(current);
+        // should be "Initialized", if all working fine
+        setState(() {
+          _current = current;
+          _currentStatus = current.status;
+          print(_currentStatus);
+        });
+      } else {
+        Scaffold.of(context).showSnackBar(
+            new SnackBar(content: new Text("You must accept permissions")));
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _start() async {
+    try {
+      await _recorder.start();
+      var recording = await _recorder.current(channel: 0);
+      setState(() {
+        _current = recording;
+      });
+
+      const tick = const Duration(milliseconds: 50);
+      new Timer.periodic(tick, (Timer t) async {
+        if (_currentStatus == RecordingStatus.Stopped) {
+          t.cancel();
+        }
+
+        var current = await _recorder.current(channel: 0);
+        // print(current.status);
+        setState(() {
+          _current = current;
+          _currentStatus = _current.status;
+        });
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _resume() async {
+    await _recorder.resume();
+    setState(() {});
+  }
+
+  _pause() async {
+    await _recorder.pause();
+    setState(() {});
+  }
+
+  _stop() async {
+    var result = await _recorder.stop();
+    print("Stop recording: ${result.path}");
+    print("Stop recording: ${result.duration}");
+
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://train-app-287911.appspot.com');
+    setState(() {
+      File file = File(result.path);
+      widget.dialogdata.audio = audioFilePath;
+      _uploadTaskAudio = _storage.ref().child(audioFilePath).putFile(file);
+      _current = result;
+      _currentStatus = _current.status;
+    });
+    await _uploadTaskAudio.onComplete;
+    print("Audio is uploaded to firebase");
+    Toast.show("Audio ist auf Server gespeichert", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+  }
+
+  Widget _buildText(RecordingStatus status) {
+    Icon icon;
+    switch (_currentStatus) {
+      case RecordingStatus.Initialized:
+        {
+          icon = Icon(
+            Icons.mic,
+            color: Colors.green,
+          );
+          break;
+        }
+      case RecordingStatus.Recording:
+        {
+          icon = Icon(
+            Icons.mic,
+            color: Colors.red,
+          );
+          break;
+        }
+      case RecordingStatus.Stopped:
+        {
+          icon = Icon(
+            Icons.mic,
+            color: Colors.green,
+          );
+          _init();
+          break;
+        }
+      default:
+        icon = Icon(
+          Icons.mic,
+          color: Colors.green,
+        );
+        break;
+    }
+    return icon;
+  }
+
+  //
+  //
+
   @override
   void initState() {
     super.initState();
@@ -200,6 +348,7 @@ class _DialogState extends State<DialogScreen> {
     print(widget.dialogdata.image2);
     _iconCheck();
     _imageCheck();
+    _init();
   }
 
   @override
@@ -354,6 +503,43 @@ class _DialogState extends State<DialogScreen> {
                   }),
             ],
           ),
+          new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new IconButton(
+                    onPressed: () {
+                      switch (_currentStatus) {
+                        case RecordingStatus.Initialized:
+                          {
+                            _start();
+                            break;
+                          }
+                        case RecordingStatus.Recording:
+                          {
+                            _currentStatus != RecordingStatus.Unset
+                                ? _stop()
+                                : null;
+                            break;
+                          }
+                        case RecordingStatus.Stopped:
+                          {
+                            _init();
+                            break;
+                          }
+                        default:
+                          break;
+                      }
+                    },
+                    icon: _buildText(_currentStatus),
+                  ),
+                ),
+              ]),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [new Text("Duration : ${_current?.duration.toString()}")],
+          )
         ],
       ),
     );

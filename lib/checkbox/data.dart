@@ -6,6 +6,7 @@ class Data {
   Map<String, String> errors;
   Map<String, String> comments;
   Map<String, String> images;
+  Map<String, String> audio;
   Map<String, bool> index;
   Data({
     this.user,

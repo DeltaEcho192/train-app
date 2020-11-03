@@ -62,6 +62,7 @@ class CheckboxWidgetState extends State {
   Map<String, String> names = {};
   Map<String, String> errors = {};
   Map<String, String> comments = {};
+  Map<String, String> audio = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -121,6 +122,7 @@ class CheckboxWidgetState extends State {
       numbers[keyVar] = result.check;
       names[keyVar] = result.image1;
       names[(keyVar + "Sec")] = result.image2;
+      audio[keyVar] = result.audio;
     });
   }
   //
@@ -253,6 +255,7 @@ class CheckboxWidgetState extends State {
       "errors": dataFinal.errors,
       "comments": dataFinal.comments,
       "images": dataFinal.images,
+      "audio": dataFinal.audio,
       "checklist": dataFinal.index,
     }).then((value) => {
           docId = value.documentID,
@@ -276,6 +279,7 @@ class CheckboxWidgetState extends State {
       "comments": dataFinal.comments,
       "checklist": dataFinal.index,
       "images": dataFinal.images,
+      "audio": dataFinal.audio,
     }).then((value) => {
           changeAlert(reportID),
           print("Successfully updated data"),
@@ -552,6 +556,7 @@ class CheckboxWidgetState extends State {
                   errors.clear();
                   comments.clear();
                   names.clear();
+                  audio.clear();
                   numbers.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
@@ -571,6 +576,7 @@ class CheckboxWidgetState extends State {
                 data.errors = Map<String, String>.from(errors);
                 data.comments = Map<String, String>.from(comments);
                 data.images = Map<String, String>.from(names);
+                data.audio = Map<String, String>.from(audio);
                 data.index = Map<String, bool>.from(numbers);
                 if (data.user == null ||
                     data.udid == null ||
