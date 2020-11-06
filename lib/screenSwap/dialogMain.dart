@@ -108,13 +108,16 @@ class CheckboxWidgetState extends State {
     setState(() {
       if (result.check == true) {
         comments[keyVar] = result.text;
-        subtitles[keyVar] = result.text;
+        subtitles[keyVar] =
+            result.text.replaceRange(10, result.text.length, "...");
+
         if (errors.containsKey(keyVar)) {
           errors.remove(keyVar);
         }
       } else {
         errors[keyVar] = result.text;
-        subtitles[keyVar] = result.text;
+        subtitles[keyVar] =
+            result.text.replaceRange(10, result.text.length, "...");
         if (comments.containsKey(keyVar)) {
           comments.remove(keyVar);
         }
@@ -290,6 +293,21 @@ class CheckboxWidgetState extends State {
             MaterialPageRoute(builder: (context) => (Location())),
           ),
         });
+  }
+
+  subtitleCut(key) {
+    var subtitleWorking;
+    if (subtitles[key].length != 0) {
+      setState(() {
+        subtitleWorking =
+            subtitles[key].replaceRange(10, subtitles[key].length, "...");
+      });
+    } else {
+      setState(() {
+        subtitleWorking = " ";
+      });
+    }
+    return subtitleWorking;
   }
 
   //
@@ -672,7 +690,10 @@ class CheckboxWidgetState extends State {
               children: numbers.keys.map((String key) {
                 return new CheckboxListTile(
                   title: new Text(key),
-                  subtitle: new Text(subtitles[key]),
+                  subtitle: new Text(
+                    subtitles[key],
+                    maxLines: 1,
+                  ),
                   value: numbers[key],
                   activeColor: Colors.red[800],
                   checkColor: Colors.white,

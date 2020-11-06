@@ -579,10 +579,6 @@ class _DialogState extends State<DialogScreen> {
                       }),
                 )
               ]),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [new Text("Duration : ${_current?.duration.toString()}")],
-          )
         ],
       ),
     );

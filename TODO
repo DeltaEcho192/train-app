@@ -202,5 +202,50 @@ App Changes:
 03/11/2020 Things to do:
 
 1. Integrate Audio into application. [Y]
-2. Redesign report page. []
+2. Redesign report page. [Y]
 3. Check baustelle site. []
+
+04/11/2020 Things to do:
+
+1. Finish Report page. [Y]
+2. Remove duration text. [Y]
+3. Baustelle test. [Y]
+4. Add voice player in table. [Y]
+5. Add Comment table. [Y]
+6. Add baustelle add user and root. [Y]
+7. Hide search when table not loaded yet. [Y]
+
+05/11/2020 Things to do:
+
+1. Finsh testing. [Y]
+2. Build Android APK. [N]
+3. Get check over. [Y]
+4. Make Delete Icon smaller and under table. [Y]
+5. Clear checklist input after added item. [Y]
+6. Try remove control elements. [N]
+7. Make columns smaller. [Y]
+8. Add titles to the tables. [Y]
+9. Text popup to read all the text. [Y]
+10. Mobile device show download. []
+11. Remove root user from list. [Y]
+12. Auto refresh when adding baustelle. [Y]
+13. Edit baustelle. [Y]
+14. If Text = '' then dont add. [Y]
+15. Make delete icon a trash can and red. [Y]
+16. Change the pop up text. [Y]
+17. Change default action for delete btn confirm. [N]
+
+
+06/11/2020 Things to do:
+
+1. Add how many checklist items there are to collumn on main page. [Y]
+2. Delete bug where last selected is deleted.(How to detect when the user clicks off the table) []
+3. Add a "Save" button to checklist to return back. [Y]
+4. Make baustelle list narrower on start page. [Y]
+5. Remove default on Report page. [Y]
+6. Subtitle cut off. [Y]
+7. Bug when baustelle added the asyd user call stops working/ wont organise list. []
+8. Change user script to remove users when they are no longer in list. [Y]
+9. Build password change site. [Y]
+10. Mobile device show download. []
+11. Priority errors. []
