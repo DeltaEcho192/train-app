@@ -63,6 +63,7 @@ class CheckboxWidgetState extends State {
   Map<String, String> errors = {};
   Map<String, String> comments = {};
   Map<String, String> audio = {};
+  Map<String, int> priority = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -108,16 +109,24 @@ class CheckboxWidgetState extends State {
     setState(() {
       if (result.check == true) {
         comments[keyVar] = result.text;
-        subtitles[keyVar] =
-            result.text.replaceRange(10, result.text.length, "...");
+        if (result.text.length > 10) {
+          subtitles[keyVar] =
+              result.text.replaceRange(10, result.text.length, "...");
+        } else {
+          subtitles[keyVar] = result.text;
+        }
 
         if (errors.containsKey(keyVar)) {
           errors.remove(keyVar);
         }
       } else {
         errors[keyVar] = result.text;
-        subtitles[keyVar] =
-            result.text.replaceRange(10, result.text.length, "...");
+        if (result.text.length > 10) {
+          subtitles[keyVar] =
+              result.text.replaceRange(10, result.text.length, "...");
+        } else {
+          subtitles[keyVar] = result.text;
+        }
         if (comments.containsKey(keyVar)) {
           comments.remove(keyVar);
         }
@@ -126,6 +135,7 @@ class CheckboxWidgetState extends State {
       names[keyVar] = result.image1;
       names[(keyVar + "Sec")] = result.image2;
       audio[keyVar] = result.audio;
+      priority[keyVar] = result.priority;
     });
   }
   //
@@ -259,6 +269,7 @@ class CheckboxWidgetState extends State {
       "comments": dataFinal.comments,
       "images": dataFinal.images,
       "audio": dataFinal.audio,
+      "priority": dataFinal.priority,
       "checklist": dataFinal.index,
     }).then((value) => {
           docId = value.documentID,
@@ -283,6 +294,7 @@ class CheckboxWidgetState extends State {
       "checklist": dataFinal.index,
       "images": dataFinal.images,
       "audio": dataFinal.audio,
+      "priority": dataFinal.priority,
     }).then((value) => {
           changeAlert(reportID),
           print("Successfully updated data"),
@@ -341,6 +353,7 @@ class CheckboxWidgetState extends State {
                 var checklist = pullReport["checklist"];
                 var imagesLoc = pullReport["images"];
                 var audioLoc = pullReport["audio"];
+                var priorityLoc = pullReport["priority"];
                 print("Checklist $checklist");
                 print("image test $imagesLoc");
                 setState(() {
@@ -349,6 +362,7 @@ class CheckboxWidgetState extends State {
                   comments = Map<String, String>.from(commentsLoc);
                   errors = Map<String, String>.from(errorsLoc);
                   audio = Map<String, String>.from(audioLoc);
+                  priority = Map<String, int>.from(priorityLoc);
                   subtitles = {...errors, ...comments};
                   numbers.forEach((key, value) {
                     if (subtitles.containsKey(key)) {
@@ -578,6 +592,7 @@ class CheckboxWidgetState extends State {
                   names.clear();
                   audio.clear();
                   numbers.clear();
+                  priority.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
               }, currentTime: DateTime.now(), locale: LocaleType.de);
@@ -598,6 +613,7 @@ class CheckboxWidgetState extends State {
                 data.images = Map<String, String>.from(names);
                 data.audio = Map<String, String>.from(audio);
                 data.index = Map<String, bool>.from(numbers);
+                data.priority = Map<String, int>.from(priority);
                 if (data.user == null ||
                     data.udid == null ||
                     data.schicht == null) {
@@ -715,6 +731,7 @@ class CheckboxWidgetState extends State {
                       dialogData.image1 = names[key];
                       dialogData.image2 = names[(key + "Sec")];
                       dialogData.audio = audio[key];
+                      dialogData.priority = priority[key];
                       _navigateAndDisplaySelection(context, key);
                     });
                   },

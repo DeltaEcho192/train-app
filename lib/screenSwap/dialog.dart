@@ -3,6 +3,7 @@ class DialogData {
   String image1;
   String image2;
   String audio;
+  int priority;
   bool check;
   String name;
 
@@ -11,6 +12,7 @@ class DialogData {
     this.image1,
     this.image2,
     this.audio,
+    this.priority,
     this.check,
     this.name,
   });

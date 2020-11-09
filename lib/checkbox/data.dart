@@ -7,6 +7,7 @@ class Data {
   Map<String, String> comments;
   Map<String, String> images;
   Map<String, String> audio;
+  Map<String, int> priority;
   Map<String, bool> index;
   Data({
     this.user,
@@ -16,6 +17,8 @@ class Data {
     this.errors,
     this.comments,
     this.images,
+    this.audio,
+    this.priority,
     this.index,
   });
 }

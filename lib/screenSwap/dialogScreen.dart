@@ -73,6 +73,7 @@ class _DialogState extends State<DialogScreen> {
     Icons.play_circle_filled,
     color: Colors.black,
   );
+  String dropdownValue = "Normal Priority";
 
   //
   //
@@ -227,6 +228,36 @@ class _DialogState extends State<DialogScreen> {
     }
   }
 
+  void priorityCheck() {
+    if (widget.dialogdata.priority != null) {
+      switch (widget.dialogdata.priority) {
+        case 1:
+          {
+            setState(() {
+              dropdownValue = "Hoch";
+            });
+          }
+          break;
+        case 2:
+          {
+            setState(() {
+              dropdownValue = "Normal";
+            });
+          }
+          break;
+        case 3:
+          {
+            setState(() {
+              dropdownValue = "Tief";
+            });
+          }
+      }
+    } else {
+      dropdownValue = "Normal";
+      widget.dialogdata.priority = 2;
+    }
+  }
+
   //
   //
 
@@ -378,6 +409,7 @@ class _DialogState extends State<DialogScreen> {
     audioCheck();
     _imageCheck();
     _init();
+    priorityCheck();
   }
 
   @override
@@ -530,6 +562,46 @@ class _DialogState extends State<DialogScreen> {
                       });
                     }
                   }),
+              new DropdownButton<String>(
+                value: dropdownValue,
+                icon: Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                style: TextStyle(color: Colors.deepPurple),
+                underline: Container(
+                  height: 2,
+                  color: Colors.deepPurpleAccent,
+                ),
+                onChanged: (String newValue) {
+                  setState(() {
+                    dropdownValue = newValue;
+                    switch (newValue) {
+                      case "Hoch":
+                        {
+                          widget.dialogdata.priority = 1;
+                        }
+                        break;
+                      case "Normal":
+                        {
+                          widget.dialogdata.priority = 2;
+                        }
+                        break;
+                      case "Tief":
+                        {
+                          widget.dialogdata.priority = 3;
+                        }
+                        break;
+                    }
+                  });
+                },
+                items: <String>['Tief', 'Normal', 'Hoch']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              )
             ],
           ),
           new Row(
