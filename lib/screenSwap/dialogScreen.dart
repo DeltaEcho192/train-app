@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:train_app/screenSwap/dialogMain.dart';
 import '../model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -416,8 +417,51 @@ class _DialogState extends State<DialogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         backgroundColor: Color.fromRGBO(232, 195, 30, 1),
         title: Text(widget.dialogdata.name),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              if (txt.text == null ||
+                  widget.dialogdata.image2 == null ||
+                  widget.dialogdata.image1 == null) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("Warnung"),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                                'Wollen Sie Ihre Änderungen wirklich verwerfen?'),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        new FlatButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => (CheckboxWidget())),
+                              );
+                            },
+                            child: Text("Ja")),
+                        new FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Nein"))
+                      ],
+                    );
+                  },
+                );
+              } else {
+                Navigator.pop(context);
+              }
+            }),
         actions: [
           new IconButton(
             icon: new Icon(
@@ -594,7 +638,7 @@ class _DialogState extends State<DialogScreen> {
                     }
                   });
                 },
-                items: <String>['Tief', 'Normal', 'Hoch']
+                items: <String>['Hoch', 'Normal', 'Tief']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

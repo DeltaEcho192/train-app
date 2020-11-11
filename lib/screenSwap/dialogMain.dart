@@ -71,7 +71,10 @@ class CheckboxWidgetState extends State {
   int iteration = 0;
   Image cameraIcon = Image.asset("assets/cameraIcon.png");
   Image cameraIcon2 = Image.asset("assets/cameraIcon.png");
-  Image logo = Image.asset("assets/Vanoli-logo.png");
+  Image logo = Image.asset(
+    "assets/Vanoli-logo.png",
+    width: 75,
+  );
   StorageUploadTask _uploadTask;
   StorageUploadTask _uploadTask2;
   StorageUploadTask _deleteTask;
@@ -109,9 +112,9 @@ class CheckboxWidgetState extends State {
     setState(() {
       if (result.check == true) {
         comments[keyVar] = result.text;
-        if (result.text.length > 10) {
+        if (result.text.length > 30) {
           subtitles[keyVar] =
-              result.text.replaceRange(10, result.text.length, "...");
+              result.text.replaceRange(30, result.text.length, "...");
         } else {
           subtitles[keyVar] = result.text;
         }
@@ -121,9 +124,9 @@ class CheckboxWidgetState extends State {
         }
       } else {
         errors[keyVar] = result.text;
-        if (result.text.length > 10) {
+        if (result.text.length > 30) {
           subtitles[keyVar] =
-              result.text.replaceRange(10, result.text.length, "...");
+              result.text.replaceRange(30, result.text.length, "...");
         } else {
           subtitles[keyVar] = result.text;
         }
@@ -367,6 +370,11 @@ class CheckboxWidgetState extends State {
                   numbers.forEach((key, value) {
                     if (subtitles.containsKey(key)) {
                       print("In array");
+                      var subWork = subtitles[key];
+                      if (subWork.length > 30) {
+                        subtitles[key] =
+                            subWork.replaceRange(30, subWork.length, "...");
+                      }
                     } else {
                       subtitles[key] = " ";
                     }
@@ -539,10 +547,11 @@ class CheckboxWidgetState extends State {
                       actions: [
                         new FlatButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => (Location())),
+                                ModalRoute.withName("/"),
                               );
                             },
                             child: Text("Ja")),
@@ -576,15 +585,36 @@ class CheckboxWidgetState extends State {
                 print('confirm $date');
                 data.schicht = date.add(new Duration(hours: 12));
                 print(data.schicht);
+                var hour = 0;
+                var min = 0;
+                var seconds = 0;
+                var milli = 0;
                 setState(() {
                   String dayW = date.day.toString();
                   String monthW = date.month.toString();
                   String yearW = date.year.toString();
                   String working = dayW + '/' + monthW + '/' + yearW;
-                  String reportStart = date.toLocal().toString();
+                  var reportWorking = date.toLocal();
+                  String reportStart = DateTime(
+                          reportWorking.year,
+                          reportWorking.month,
+                          reportWorking.day,
+                          hour,
+                          min,
+                          seconds,
+                          milli)
+                      .toString();
                   print(reportStart);
-                  String reportEnd =
-                      date.add(new Duration(days: 1)).toLocal().toString();
+                  String reportEnd = DateTime(
+                          reportWorking.year,
+                          reportWorking.month,
+                          reportWorking.day + 1,
+                          hour,
+                          min,
+                          seconds,
+                          milli)
+                      .toString();
+                  print(reportEnd);
                   print(working);
                   dateFinal = working;
                   errors.clear();
