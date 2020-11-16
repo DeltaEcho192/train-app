@@ -93,6 +93,7 @@ class CheckboxWidgetState extends State {
   String reportID;
   Uint8List imageBytes;
   String errorMsg;
+  String finalDocID;
 
   DialogData dialogData = DialogData();
 
@@ -139,6 +140,19 @@ class CheckboxWidgetState extends State {
       names[(keyVar + "Sec")] = result.image2;
       audio[keyVar] = result.audio;
       priority[keyVar] = result.priority;
+
+      data.errors = Map<String, String>.from(errors);
+      data.comments = Map<String, String>.from(comments);
+      data.images = Map<String, String>.from(names);
+      data.audio = Map<String, String>.from(audio);
+      data.index = Map<String, bool>.from(numbers);
+      data.priority = Map<String, int>.from(priority);
+
+      if (reportExist == true) {
+        updateData(data);
+      } else {
+        uploadData(data);
+      }
     });
   }
   //
@@ -276,13 +290,9 @@ class CheckboxWidgetState extends State {
       "checklist": dataFinal.index,
     }).then((value) => {
           docId = value.documentID,
-          changeAlert(docId),
+          finalDocID = docId,
           Toast.show("Report ist auf Server gespeichert", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => (Location())),
-          ),
         });
   }
 
@@ -299,14 +309,9 @@ class CheckboxWidgetState extends State {
       "audio": dataFinal.audio,
       "priority": dataFinal.priority,
     }).then((value) => {
-          changeAlert(reportID),
           print("Successfully updated data"),
           Toast.show("Die Reportänderungen sind gespeichert", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => (Location())),
-          ),
         });
   }
 
@@ -634,16 +639,10 @@ class CheckboxWidgetState extends State {
           ),
           new IconButton(
               icon: new Icon(
-                Icons.save,
+                Icons.email,
                 color: Colors.red[800],
               ),
               onPressed: () {
-                data.errors = Map<String, String>.from(errors);
-                data.comments = Map<String, String>.from(comments);
-                data.images = Map<String, String>.from(names);
-                data.audio = Map<String, String>.from(audio);
-                data.index = Map<String, bool>.from(numbers);
-                data.priority = Map<String, int>.from(priority);
                 if (data.user == null ||
                     data.udid == null ||
                     data.schicht == null) {
@@ -669,13 +668,18 @@ class CheckboxWidgetState extends State {
                               FlatButton(
                                 onPressed: () {
                                   if (reportExist == true) {
-                                    updateData(data);
+                                    changeAlert(reportID);
                                   } else {
-                                    uploadData(data);
+                                    changeAlert(finalDocID);
                                   }
                                   deleteCanceledFiles(toDelete);
                                   toDelete.clear();
                                   Navigator.of(context).pop();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => (Location())),
+                                  );
                                 },
                                 child: Text("Ja"),
                               ),
@@ -690,9 +694,17 @@ class CheckboxWidgetState extends State {
                         });
                   } else {
                     if (reportExist == true) {
-                      updateData(data);
+                      changeAlert(reportID);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => (Location())),
+                      );
                     } else {
-                      uploadData(data);
+                      changeAlert(finalDocID);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => (Location())),
+                      );
                     }
 
                     deleteCanceledFiles(toDelete);

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import '../checkbox/location.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info/package_info.dart';
 import 'dart:convert';
 
 void main() => runApp(MyApp());
@@ -62,6 +63,7 @@ class LoginKey extends StatefulWidget {
 class _LoginKeyState extends State<LoginKey> {
   String _user = "";
   String _udid = "";
+  String titleVar = "Anmeldung: ()";
   final myController = TextEditingController();
   Image loginIcon = Image.asset("assets/2x/engIcon.png");
 
@@ -85,10 +87,19 @@ class _LoginKeyState extends State<LoginKey> {
   @override
   void initState() {
     super.initState();
+    getVersion();
     getUDID();
     _loadUser();
     checkLogin();
   }
+
+  void getVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+      titleVar = "Anmeldung: ("+version+")";
+    
+  }
+
 
   void checkLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -135,7 +146,7 @@ class _LoginKeyState extends State<LoginKey> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Anmeldung"),
+        title: Text(titleVar),
         backgroundColor: Color.fromRGBO(232, 195, 30, 1),
       ),
       body: Center(
