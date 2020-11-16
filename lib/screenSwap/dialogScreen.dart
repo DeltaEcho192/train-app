@@ -442,11 +442,8 @@ class _DialogState extends State<DialogScreen> {
                       actions: [
                         new FlatButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => (CheckboxWidget())),
-                              );
+                              Navigator.pop(context);
+                              Navigator.pop(context, widget.dialogdata);
                             },
                             child: Text("Ja")),
                         new FlatButton(
