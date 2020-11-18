@@ -170,7 +170,7 @@ class _LoginKeyState extends State<LoginKey> {
                 IconButton(
                     icon: loginIcon,
                     onPressed: () {
-                      String newUser = myController.text;
+                      String newUser = myController.text.toLowerCase();
                       print("User Input " + newUser);
                       print("UDID" + _udid);
                       getUDID();

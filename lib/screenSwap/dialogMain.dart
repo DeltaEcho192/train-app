@@ -535,46 +535,10 @@ class CheckboxWidgetState extends State {
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              if (errors.isEmpty == false || comments.isEmpty == false) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("Warnung"),
-                      content: SingleChildScrollView(
-                        child: ListBody(
-                          children: <Widget>[
-                            Text(
-                                'Wollen Sie Ihre Änderungen wirklich verwerfen?'),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => (Location())),
-                                ModalRoute.withName("/"),
-                              );
-                            },
-                            child: Text("Ja")),
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text("Nein"))
-                      ],
-                    );
-                  },
-                );
-              } else {
-                Navigator.pushReplacement(
+                  Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => (Location())),
                 );
-              }
             }),
         title: logo,
         actions: [
