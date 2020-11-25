@@ -613,6 +613,7 @@ class CheckboxWidgetState extends State {
                   Toast.show("Es sind nicht alle Eingaben korrekt", context,
                       duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
                 } else {
+                  data.errors = Map<String, String>.from(errors);
                   if (data.errors.isEmpty) {
                     //Possible error double upload
                     showDialog(
