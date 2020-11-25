@@ -96,10 +96,8 @@ class _LoginKeyState extends State<LoginKey> {
   void getVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String version = packageInfo.version;
-      titleVar = "Anmeldung: ("+version+")";
-    
+    titleVar = "Anmeldung: (" + version + ")";
   }
-
 
   void checkLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

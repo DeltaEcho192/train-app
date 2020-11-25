@@ -535,10 +535,10 @@ class CheckboxWidgetState extends State {
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-                  Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => (Location())),
-                );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => (Location())),
+              );
             }),
         title: logo,
         actions: [
@@ -717,7 +717,7 @@ class CheckboxWidgetState extends State {
                     maxLines: 1,
                   ),
                   value: numbers[key],
-                  activeColor: Colors.red[800],
+                  activeColor: Colors.green,
                   checkColor: Colors.white,
                   onChanged: (bool value) {
                     setState(() {

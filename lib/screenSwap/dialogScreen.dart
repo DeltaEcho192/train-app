@@ -603,15 +603,19 @@ class _DialogState extends State<DialogScreen> {
                       });
                     }
                   }),
+              new Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                child: Text("Priorität:"),
+              ),
               new DropdownButton<String>(
                 value: dropdownValue,
                 icon: Icon(Icons.arrow_downward),
                 iconSize: 24,
                 elevation: 16,
-                style: TextStyle(color: Colors.deepPurple),
+                style: TextStyle(color: Colors.black),
                 underline: Container(
                   height: 2,
-                  color: Colors.deepPurpleAccent,
+                  color: Colors.red,
                 ),
                 onChanged: (String newValue) {
                   setState(() {
