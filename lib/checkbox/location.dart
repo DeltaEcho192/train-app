@@ -36,6 +36,7 @@ class _LocationState extends State<Location> {
   var usr = "";
 
   List<String> bauSugg = ["Default"];
+  var bauIDS = {};
   Future<void> getBaustelle() async {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
@@ -45,16 +46,16 @@ class _LocationState extends State<Location> {
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
-      bauSugg = await bauApi != null ? List.from(bauApi) : null;
+      bauSugg = await bauApi != null ? List.from(bauApi.names) : null;
+      bauIDS = bauApi.id;
       mainDataList.clear();
       newDataList.clear();
-      bauSugg.remove("Default");
       setState(() {
         mainDataList.addAll(bauSugg);
         newDataList.addAll(bauSugg);
       });
 
-      print(bauApi[0]);
+      print(bauApi.names[0]);
     } else {
       throw Exception("Failed to get Baustelle");
     }
@@ -74,6 +75,7 @@ class _LocationState extends State<Location> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('baustellePref', baustelle);
+      prefs.setString('bauID', bauIDS[baustelle]);
     });
   }
 
