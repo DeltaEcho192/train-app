@@ -45,9 +45,11 @@ class _LocationState extends State<Location> {
         await http.get("https://" + host + ":" + port + '/all/' + usr);
 
     if (response.statusCode == 200) {
-      var bauApi = jsonDecode(response.body);
-      bauSugg = await bauApi != null ? List.from(bauApi.names) : null;
-      bauIDS = bauApi.id;
+      Map<String, dynamic> bauApi = jsonDecode(response.body);
+      print(bauApi['names']);
+      var bauApiList = bauApi['names'];
+      bauSugg = await bauApi != null ? List.from(bauApi['names']) : null;
+      bauIDS = bauApi['id'];
       mainDataList.clear();
       newDataList.clear();
       setState(() {
@@ -55,7 +57,7 @@ class _LocationState extends State<Location> {
         newDataList.addAll(bauSugg);
       });
 
-      print(bauApi.names[0]);
+      print(bauApi['names'][0]);
     } else {
       throw Exception("Failed to get Baustelle");
     }

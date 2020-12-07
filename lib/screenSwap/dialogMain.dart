@@ -197,12 +197,18 @@ class CheckboxWidgetState extends State {
   Map<String, String> subtitles = {'Lade Daten...': ' '};
 
   //Dynamically gets Checklist from NODE JS based on which Baustelle is selected.
-  Future<void> fetchChecklist(var baustelle) async {
+  Future<void> fetchChecklist(var baustelle, var bauID) async {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http
-        .get("https://" + host + ":" + port + '/test/' + baustelle.toString());
+    final response = await http.get("https://" +
+        host +
+        ":" +
+        port +
+        '/test/' +
+        baustelle.toString() +
+        "/" +
+        bauID.toString());
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -233,7 +239,7 @@ class CheckboxWidgetState extends State {
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load Checklist');
     }
   }
 
@@ -280,6 +286,7 @@ class CheckboxWidgetState extends State {
     firestoreInstance.collection("issues").add({
       "user": dataFinal.user,
       "baustelle": dataFinal.baustelle,
+      "bauID": dataFinal.bauID,
       "schicht": dataFinal.schicht,
       "udid": dataFinal.udid,
       "errors": dataFinal.errors,
@@ -424,7 +431,9 @@ class CheckboxWidgetState extends State {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var baustelle = prefs.getString("baustellePref");
+    var bauID = prefs.getString("bauID");
     data.baustelle = baustelle;
+    data.bauID = bauID;
     bauController.text = baustelle;
     var userid = prefs.getString('user');
     data.user = userid;
@@ -440,7 +449,7 @@ class CheckboxWidgetState extends State {
               if (value.documents.length > 0)
                 {reportExist = true, getReport(baustelle, dateStart, dateEnd)}
               else
-                {reportExist = false, fetchChecklist(baustelle)}
+                {reportExist = false, fetchChecklist(baustelle, bauID)}
             });
   }
 
@@ -519,7 +528,7 @@ class CheckboxWidgetState extends State {
         bauController.text = data.baustelle;
       }
     });
-    getBaustelle();
+    //getBaustelle();
     //Parse Info from WIP baustelle screen
     _loadUser();
     reportCheck(false, null, null);
@@ -703,7 +712,7 @@ class CheckboxWidgetState extends State {
                               if (text != "") {
                                 baustelle = text;
                                 data.baustelle = text;
-                                fetchChecklist(baustelle);
+                                //fetchChecklist(baustelle, bauID);
                               }
                             }))),
               ]),

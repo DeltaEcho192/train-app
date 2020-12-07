@@ -3,6 +3,7 @@ class Data {
   String baustelle;
   DateTime schicht;
   String udid;
+  String bauID;
   Map<String, String> errors;
   Map<String, String> comments;
   Map<String, String> images;
@@ -14,6 +15,7 @@ class Data {
     this.baustelle,
     this.schicht,
     this.udid,
+    this.bauID,
     this.errors,
     this.comments,
     this.images,
