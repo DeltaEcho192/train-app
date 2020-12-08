@@ -298,6 +298,7 @@ class CheckboxWidgetState extends State {
     }).then((value) => {
           docId = value.documentID,
           finalDocID = docId,
+          reportExist = true,
           Toast.show("Report ist auf Server gespeichert", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
         });
@@ -350,7 +351,7 @@ class CheckboxWidgetState extends State {
         DateTime.parse(end.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: baustelle)
+        .where("bauID", isEqualTo: baustelle)
         .where("user", isEqualTo: data.user)
         .where("schicht", isGreaterThanOrEqualTo: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
@@ -440,14 +441,14 @@ class CheckboxWidgetState extends State {
 
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: baustelle)
+        .where("bauID", isEqualTo: bauID)
         .where("user", isEqualTo: userid)
         .where("schicht", isGreaterThan: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .getDocuments()
         .then((value) => {
               if (value.documents.length > 0)
-                {reportExist = true, getReport(baustelle, dateStart, dateEnd)}
+                {reportExist = true, getReport(bauID, dateStart, dateEnd)}
               else
                 {reportExist = false, fetchChecklist(baustelle, bauID)}
             });
