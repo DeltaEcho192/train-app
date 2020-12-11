@@ -201,14 +201,8 @@ class CheckboxWidgetState extends State {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("https://" +
-        host +
-        ":" +
-        port +
-        '/test/' +
-        baustelle.toString() +
-        "/" +
-        bauID.toString());
+    final response = await http.get(
+        "https://" + host + ":" + port + '/getChecklist/' + bauID.toString());
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -298,6 +292,7 @@ class CheckboxWidgetState extends State {
     }).then((value) => {
           docId = value.documentID,
           finalDocID = docId,
+          reportID = docId,
           reportExist = true,
           Toast.show("Report ist auf Server gespeichert", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
