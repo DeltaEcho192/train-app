@@ -10,6 +10,8 @@ class Data {
   Map<String, String> audio;
   Map<String, int> priority;
   Map<String, bool> index;
+  Map<String, Map> workCom;
+  Map<String, int> status;
   Data({
     this.user,
     this.baustelle,
@@ -22,5 +24,7 @@ class Data {
     this.audio,
     this.priority,
     this.index,
+    this.workCom,
+    this.status,
   });
 }

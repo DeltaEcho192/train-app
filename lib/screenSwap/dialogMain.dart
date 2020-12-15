@@ -66,6 +66,8 @@ class CheckboxWidgetState extends State {
   Map<String, int> priority = {};
   Map<String, int> status = {};
   Map<String, Map> statusText = {};
+  Map<String, int> emptyStatus = {};
+  Map<String, Map> workComEmpty = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -303,6 +305,34 @@ class CheckboxWidgetState extends State {
         });
   }
 
+  Future<void> uploadEmptyData(Data dataFinal) async {
+    final firestoreInstance = Firestore.instance;
+    var docId;
+
+    firestoreInstance.collection("issues").add({
+      "user": dataFinal.user,
+      "baustelle": dataFinal.baustelle,
+      "bauID": dataFinal.bauID,
+      "schicht": dataFinal.schicht,
+      "udid": dataFinal.udid,
+      "errors": dataFinal.errors,
+      "comments": dataFinal.comments,
+      "images": dataFinal.images,
+      "audio": dataFinal.audio,
+      "priority": dataFinal.priority,
+      "checklist": dataFinal.index,
+      "status": dataFinal.status,
+      "workCom": dataFinal.workCom,
+    }).then((value) => {
+          docId = value.documentID,
+          finalDocID = docId,
+          reportID = docId,
+          changeAlert(reportID),
+          reportExist = true,
+          Toast.show("Report ist auf Server gespeichert", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
+        });
+  }
   //
   //
 
@@ -614,6 +644,8 @@ class CheckboxWidgetState extends State {
                   audio.clear();
                   numbers.clear();
                   priority.clear();
+                  statusText.clear();
+                  status.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
               }, currentTime: DateTime.now(), locale: LocaleType.de);
@@ -654,11 +686,20 @@ class CheckboxWidgetState extends State {
                             actions: [
                               FlatButton(
                                 onPressed: () {
-                                  if (reportExist == true) {
-                                    changeAlert(reportID);
-                                  } else {
-                                    changeAlert(finalDocID);
-                                  }
+                                  data.errors =
+                                      Map<String, String>.from(errors);
+                                  data.comments =
+                                      Map<String, String>.from(comments);
+                                  data.images = Map<String, String>.from(names);
+                                  data.audio = Map<String, String>.from(audio);
+                                  data.index = Map<String, bool>.from(numbers);
+                                  data.status =
+                                      Map<String, int>.from(emptyStatus);
+                                  data.workCom =
+                                      Map<String, Map>.from(workComEmpty);
+                                  data.priority =
+                                      Map<String, int>.from(priority);
+                                  uploadEmptyData(data);
                                   deleteCanceledFiles(toDelete);
                                   toDelete.clear();
                                   Navigator.of(context).pop();
@@ -734,8 +775,12 @@ class CheckboxWidgetState extends State {
             child: ListView(
               children: numbers.keys.map((String key) {
                 var statusColor = Colors.black;
+                var statusIcon;
                 if (status[key] == 1) {
                   statusColor = Colors.green;
+                  statusIcon = statusLeading;
+                } else {
+                  statusIcon = Text("");
                 }
                 return new CheckboxListTile(
                   title: new Text(
@@ -748,6 +793,7 @@ class CheckboxWidgetState extends State {
                     subtitles[key],
                     maxLines: 1,
                   ),
+                  secondary: statusIcon,
                   value: numbers[key],
                   activeColor: Colors.green,
                   checkColor: Colors.white,
@@ -769,12 +815,18 @@ class CheckboxWidgetState extends State {
                       dialogData.image2 = names[(key + "Sec")];
                       dialogData.audio = audio[key];
                       dialogData.priority = priority[key];
-                      var check = statusText[key]['text'];
-                      var statusInv = statusText[key]['text'];
-                      if (check.length == 0) {
-                        statusInv = " ";
+                      if (statusText.isNotEmpty) {
+                        var check = statusText[key]['text'];
+                        var statusInv = statusText[key]['text'];
+                        if (check.length == 0) {
+                          statusInv = " ";
+                        }
+                        dialogData.statusText = statusInv;
+                      } else {
+                        var statusInv = " ";
+                        dialogData.statusText = statusInv;
                       }
-                      dialogData.statusText = statusInv;
+
                       _navigateAndDisplaySelection(context, key);
                     });
                   },
