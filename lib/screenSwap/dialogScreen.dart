@@ -696,6 +696,14 @@ class _DialogState extends State<DialogScreen> {
                       }),
                 )
               ]),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Text(widget.dialogdata.statusText))
+            ],
+          ),
         ],
       ),
     );

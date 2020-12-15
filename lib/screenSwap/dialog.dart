@@ -6,6 +6,7 @@ class DialogData {
   int priority;
   bool check;
   String name;
+  String statusText;
 
   DialogData({
     this.text,
@@ -15,5 +16,6 @@ class DialogData {
     this.priority,
     this.check,
     this.name,
+    this.statusText,
   });
 }

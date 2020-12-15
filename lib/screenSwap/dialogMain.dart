@@ -64,6 +64,8 @@ class CheckboxWidgetState extends State {
   Map<String, String> comments = {};
   Map<String, String> audio = {};
   Map<String, int> priority = {};
+  Map<String, int> status = {};
+  Map<String, Map> statusText = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -94,6 +96,8 @@ class CheckboxWidgetState extends State {
   Uint8List imageBytes;
   String errorMsg;
   String finalDocID;
+  Icon statusLeading = Icon(Icons.check);
+  Icon statusEmpty = Icon(Icons.airline_seat_flat);
 
   DialogData dialogData = DialogData();
 
@@ -365,6 +369,8 @@ class CheckboxWidgetState extends State {
                 var imagesLoc = pullReport["images"];
                 var audioLoc = pullReport["audio"];
                 var priorityLoc = pullReport["priority"];
+                var statusLoc = pullReport["status"];
+                var statusTextLoc = pullReport["workCom"];
                 print("Checklist $checklist");
                 print("image test $imagesLoc");
                 setState(() {
@@ -374,14 +380,25 @@ class CheckboxWidgetState extends State {
                   errors = Map<String, String>.from(errorsLoc);
                   audio = Map<String, String>.from(audioLoc);
                   priority = Map<String, int>.from(priorityLoc);
+                  status = Map<String, int>.from(statusLoc);
+                  statusText = Map<String, Map>.from(statusTextLoc);
                   subtitles = {...errors, ...comments};
+                  print(subtitles);
                   numbers.forEach((key, value) {
                     if (subtitles.containsKey(key)) {
                       print("In array");
+                      print(subtitles[key]);
                       var subWork = subtitles[key];
-                      if (subWork.length > 30) {
-                        subtitles[key] =
-                            subWork.replaceRange(30, subWork.length, "...");
+                      print(subWork);
+                      if (subWork == null) {
+                        subtitles[key] = " ";
+                      } else {
+                        if (subWork.length > 30) {
+                          subtitles[key] =
+                              subWork.replaceRange(30, subWork.length, "...");
+                        } else {
+                          subtitles[key] = subWork;
+                        }
                       }
                     } else {
                       subtitles[key] = " ";
@@ -716,8 +733,17 @@ class CheckboxWidgetState extends State {
             //Creates the checklist dynamically based on API
             child: ListView(
               children: numbers.keys.map((String key) {
+                var statusColor = Colors.black;
+                if (status[key] == 1) {
+                  statusColor = Colors.green;
+                }
                 return new CheckboxListTile(
-                  title: new Text(key),
+                  title: new Text(
+                    key,
+                    style: TextStyle(
+                      color: statusColor,
+                    ),
+                  ),
                   subtitle: new Text(
                     subtitles[key],
                     maxLines: 1,
@@ -735,7 +761,6 @@ class CheckboxWidgetState extends State {
                       } else {
                         dialogData.text = errors[key];
                       }
-
                       exec = true;
                       print(numbers[key]);
                       dialogData.name = key;
@@ -744,6 +769,12 @@ class CheckboxWidgetState extends State {
                       dialogData.image2 = names[(key + "Sec")];
                       dialogData.audio = audio[key];
                       dialogData.priority = priority[key];
+                      var check = statusText[key]['text'];
+                      var statusInv = statusText[key]['text'];
+                      if (check.length == 0) {
+                        statusInv = " ";
+                      }
+                      dialogData.statusText = statusInv;
                       _navigateAndDisplaySelection(context, key);
                     });
                   },
