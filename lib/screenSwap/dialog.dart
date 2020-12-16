@@ -7,15 +7,18 @@ class DialogData {
   bool check;
   String name;
   String statusText;
+  String statusUser;
+  DateTime statusTime;
 
-  DialogData({
-    this.text,
-    this.image1,
-    this.image2,
-    this.audio,
-    this.priority,
-    this.check,
-    this.name,
-    this.statusText,
-  });
+  DialogData(
+      {this.text,
+      this.image1,
+      this.image2,
+      this.audio,
+      this.priority,
+      this.check,
+      this.name,
+      this.statusText,
+      this.statusTime,
+      this.statusUser});
 }

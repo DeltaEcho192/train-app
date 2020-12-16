@@ -153,6 +153,8 @@ class CheckboxWidgetState extends State {
       data.audio = Map<String, String>.from(audio);
       data.index = Map<String, bool>.from(numbers);
       data.priority = Map<String, int>.from(priority);
+      data.status = Map<String, int>.from(emptyStatus);
+      data.workCom = Map<String, Map>.from(workComEmpty);
 
       if (reportExist == true) {
         updateData(data);
@@ -295,6 +297,8 @@ class CheckboxWidgetState extends State {
       "audio": dataFinal.audio,
       "priority": dataFinal.priority,
       "checklist": dataFinal.index,
+      "status": dataFinal.status,
+      "workCom": dataFinal.workCom,
     }).then((value) => {
           docId = value.documentID,
           finalDocID = docId,
@@ -775,12 +779,12 @@ class CheckboxWidgetState extends State {
             child: ListView(
               children: numbers.keys.map((String key) {
                 var statusColor = Colors.black;
-                var statusIcon;
+                //var statusIcon;
                 if (status[key] == 1) {
                   statusColor = Colors.green;
-                  statusIcon = statusLeading;
+                  //statusIcon = statusLeading;
                 } else {
-                  statusIcon = Text("");
+                  //statusIcon = Text("");
                 }
                 return new CheckboxListTile(
                   title: new Text(
@@ -791,9 +795,12 @@ class CheckboxWidgetState extends State {
                   ),
                   subtitle: new Text(
                     subtitles[key],
+                    style: TextStyle(
+                      color: statusColor,
+                    ),
                     maxLines: 1,
                   ),
-                  secondary: statusIcon,
+                  //secondary: statusIcon,
                   value: numbers[key],
                   activeColor: Colors.green,
                   checkColor: Colors.white,
@@ -816,14 +823,26 @@ class CheckboxWidgetState extends State {
                       dialogData.audio = audio[key];
                       dialogData.priority = priority[key];
                       if (statusText.isNotEmpty) {
-                        var check = statusText[key]['text'];
-                        var statusInv = statusText[key]['text'];
-                        if (check.length == 0) {
-                          statusInv = " ";
+                        if (statusText[key] != null) {
+                          var check = statusText[key]['text'];
+                          var statusInv = statusText[key]['text'];
+                          var statusUser = statusText[key]['user'];
+                          var statusTime = statusText[key]['time'];
+                          if (check.length == 0) {
+                            statusInv = " ";
+                          }
+                          dialogData.statusText = statusInv;
+                          dialogData.statusUser = statusUser;
+                          dialogData.statusTime =
+                              DateTime.fromMillisecondsSinceEpoch(statusTime);
+                        } else {
+                          dialogData.statusText = "";
+                          dialogData.statusUser = "";
+                          dialogData.statusTime =
+                              DateTime.fromMillisecondsSinceEpoch(1608120399);
                         }
-                        dialogData.statusText = statusInv;
                       } else {
-                        var statusInv = " ";
+                        var statusInv = "";
                         dialogData.statusText = statusInv;
                       }
 

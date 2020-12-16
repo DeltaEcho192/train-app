@@ -53,6 +53,7 @@ class _DialogState extends State<DialogScreen> {
   StorageUploadTask _uploadTaskAudio;
   StorageUploadTask _deleteTask;
   var txt = TextEditingController();
+  var statusRes = TextEditingController();
   String baustelle;
   final bauController = TextEditingController(text: "Baustelle");
   var subtController = TextEditingController();
@@ -401,10 +402,25 @@ class _DialogState extends State<DialogScreen> {
   //
   //
 
+  _loadStatusMessage() {
+    if (widget.dialogdata.statusText != "") {
+      var genString = "Erledigt Von " +
+          widget.dialogdata.statusUser +
+          " am (" +
+          widget.dialogdata.statusTime.toString().substring(
+              0, (widget.dialogdata.statusTime.toString().length - 7)) +
+          ")\n";
+      statusRes.text = genString + widget.dialogdata.statusText;
+    } else {
+      statusRes.text = "";
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     txt.text = widget.dialogdata.text;
+    _loadStatusMessage();
     print(widget.dialogdata.image2);
     _iconCheck();
     audioCheck();
@@ -482,8 +498,8 @@ class _DialogState extends State<DialogScreen> {
               new Flexible(
                 child: new TextField(
                   controller: txt,
-                  minLines: 5,
-                  maxLines: 7,
+                  minLines: 4,
+                  maxLines: 4,
                   onChanged: (String value) {
                     setState(() {
                       checkboxIcon = Icon(Icons.check_box_outline_blank);
@@ -698,10 +714,19 @@ class _DialogState extends State<DialogScreen> {
               ]),
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(widget.dialogdata.statusText))
+            children: <Widget>[
+              new Flexible(
+                  child: new TextField(
+                controller: statusRes,
+                minLines: 3,
+                maxLines: 3,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                ),
+              )),
             ],
           ),
         ],
