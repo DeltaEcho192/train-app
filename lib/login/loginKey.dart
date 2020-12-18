@@ -158,6 +158,11 @@ class _LoginKeyState extends State<LoginKey> {
             new Row(
               children: <Widget>[
                 Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 25,
+                    right: 73,
+                  ),
                   child: TextField(
                     controller: myController,
                     decoration: InputDecoration(
@@ -168,19 +173,27 @@ class _LoginKeyState extends State<LoginKey> {
                       ),
                     ),
                   ),
-                ),
+                )),
               ],
             ),
             new Row(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
-                    controller: pswdController,
-                    decoration: InputDecoration(
-                      hintText: 'Bitte passwort eingeben',
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        borderSide: BorderSide(color: Colors.grey),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 25,
+                      top: 5,
+                      right: 25,
+                    ),
+                    child: TextField(
+                      controller: pswdController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Bitte Passwort eingeben',
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
