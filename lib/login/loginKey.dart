@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<Map<String, dynamic>> fetchUser(var userid, String udid) async {
+Future<Map<String, dynamic>> fetchUser(
+    var userid, var pswd, String udid) async {
   await GlobalConfiguration().loadFromAsset("app_settings");
   var host = GlobalConfiguration().getValue("host");
   var port = GlobalConfiguration().getValue("port");
@@ -36,6 +37,8 @@ Future<Map<String, dynamic>> fetchUser(var userid, String udid) async {
       port +
       '/check/' +
       userid.toString() +
+      "/" +
+      pswd +
       "/" +
       udid);
 
@@ -65,6 +68,7 @@ class _LoginKeyState extends State<LoginKey> {
   String _udid = "";
   String titleVar = "Anmeldung: ()";
   final myController = TextEditingController();
+  final pswdController = TextEditingController();
   Image loginIcon = Image.asset("assets/2x/engIcon.png");
 
   Future<void> getUDID() async {
@@ -165,14 +169,32 @@ class _LoginKeyState extends State<LoginKey> {
                     ),
                   ),
                 ),
+              ],
+            ),
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: pswdController,
+                    decoration: InputDecoration(
+                      hintText: 'Bitte passwort eingeben',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
                 IconButton(
                     icon: loginIcon,
                     onPressed: () {
                       String newUser = myController.text.toLowerCase();
+                      String pswd = pswdController.text;
                       print("User Input " + newUser);
+                      print("Password is" + pswd);
                       print("UDID" + _udid);
                       getUDID();
-                      fetchUser(newUser, _udid).then((value) => {
+                      fetchUser(newUser, pswd, _udid).then((value) => {
                             print("Server User" + value['userid']),
                             print("Server Check" + value['status'].toString()),
                             if (value['status'] == true)
