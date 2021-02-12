@@ -426,305 +426,315 @@ class _DialogState extends State<DialogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        backgroundColor: Color.fromRGBO(232, 195, 30, 1),
-        title: Text(widget.dialogdata.name),
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              if (txt.text == null ||
-                  widget.dialogdata.image2 == null ||
-                  widget.dialogdata.image1 == null) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("Warnung"),
-                      content: SingleChildScrollView(
-                        child: ListBody(
-                          children: <Widget>[
-                            Text(
-                                'Wollen Sie Ihre Änderungen wirklich verwerfen?'),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context, widget.dialogdata);
-                            },
-                            child: Text("Ja")),
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text("Nein"))
-                      ],
-                    );
-                  },
-                );
-              } else {
-                Navigator.pop(context);
-              }
-            }),
-        actions: [
-          new IconButton(
-            icon: new Icon(
-              Icons.save,
-              color: Colors.red[800],
-            ),
-            onPressed: () {
-              widget.dialogdata.text = txt.text;
-              Navigator.pop(context, widget.dialogdata);
-            },
-          )
-        ],
-      ),
-      body: new Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              new Flexible(
-                child: new TextField(
-                  controller: txt,
-                  minLines: 4,
-                  maxLines: 4,
-                  onChanged: (String value) {
-                    setState(() {
-                      checkboxIcon = Icon(Icons.check_box_outline_blank);
-                      secondCheck = false;
-                      widget.dialogdata.check = false;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Problem Beschreibung",
-                    contentPadding: const EdgeInsets.only(left: 10, right: 10),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              new SizedBox(
-                height: 300,
-                width: displayWidth(context) * 0.5,
-                child: IconButton(
-                  padding: new EdgeInsets.all(5.0),
-                  icon: cameraIcon,
-                  onPressed: () => (showDialog(
+    return GestureDetector(
+      onTap: () {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          backgroundColor: Color.fromRGBO(232, 195, 30, 1),
+          title: Text(widget.dialogdata.name),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                if (txt.text == null ||
+                    widget.dialogdata.image2 == null ||
+                    widget.dialogdata.image1 == null) {
+                  showDialog(
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text("Selection"),
+                        title: Text("Warnung"),
                         content: SingleChildScrollView(
                           child: ListBody(
                             children: <Widget>[
-                              Text('Select image from Image or Gallery'),
+                              Text(
+                                  'Wollen Sie Ihre Änderungen wirklich verwerfen?'),
                             ],
                           ),
                         ),
                         actions: [
                           new FlatButton(
                               onPressed: () {
-                                _pickImage(ImageSource.camera);
-                                Navigator.of(context).pop();
+                                Navigator.pop(context);
+                                Navigator.pop(context, widget.dialogdata);
                               },
-                              child: Icon(Icons.camera_alt)),
+                              child: Text("Ja")),
                           new FlatButton(
                               onPressed: () {
-                                _pickImage(ImageSource.gallery);
                                 Navigator.of(context).pop();
                               },
-                              child: Icon(Icons.collections))
+                              child: Text("Nein"))
                         ],
                       );
                     },
-                  )),
-                ),
+                  );
+                } else {
+                  Navigator.pop(context);
+                }
+              }),
+          actions: [
+            new IconButton(
+              icon: new Icon(
+                Icons.save,
+                color: Colors.red[800],
               ),
-              new SizedBox(
-                width: displayWidth(context) * 0.5,
-                height: 300,
-                child: IconButton(
-                  padding: new EdgeInsets.all(5.0),
-                  icon: cameraIcon2,
-                  onPressed: () => (showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Selection"),
-                        content: SingleChildScrollView(
-                          child: ListBody(
-                            children: <Widget>[
-                              Text('Select image from Image or Gallery'),
-                            ],
-                          ),
-                        ),
-                        actions: [
-                          new FlatButton(
-                              onPressed: () {
-                                _pickImageSec(ImageSource.camera);
-                                Navigator.of(context).pop();
-                              },
-                              child: Icon(Icons.camera_alt)),
-                          new FlatButton(
-                              onPressed: () {
-                                _pickImageSec(ImageSource.gallery);
-                                Navigator.of(context).pop();
-                              },
-                              child: Icon(Icons.collections))
-                        ],
-                      );
-                    },
-                  )),
-                ),
-              )
-            ],
-          ),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Text("Keine Probleme"),
-              new IconButton(
-                  icon: checkboxIcon,
-                  onPressed: () {
-                    if (widget.dialogdata.check == false) {
-                      setState(() {
-                        checkboxIcon = Icon(Icons.check_box);
-                        secondCheck = true;
-                        widget.dialogdata.check = true;
-                      });
-                    } else {
+              onPressed: () {
+                widget.dialogdata.text = txt.text;
+                Navigator.pop(context, widget.dialogdata);
+              },
+            )
+          ],
+        ),
+        body: new Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                new Flexible(
+                  child: new TextField(
+                    controller: txt,
+                    minLines: 4,
+                    maxLines: 4,
+                    onChanged: (String value) {
                       setState(() {
                         checkboxIcon = Icon(Icons.check_box_outline_blank);
                         secondCheck = false;
                         widget.dialogdata.check = false;
                       });
-                    }
-                  }),
-              new Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
-                child: Text("Priorität:"),
-              ),
-              new DropdownButton<String>(
-                value: dropdownValue,
-                icon: Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: Colors.black),
-                underline: Container(
-                  height: 2,
-                  color: Colors.red,
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Problem Beschreibung",
+                      contentPadding:
+                          const EdgeInsets.only(left: 10, right: 10),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                    ),
+                  ),
                 ),
-                onChanged: (String newValue) {
-                  setState(() {
-                    dropdownValue = newValue;
-                    switch (newValue) {
-                      case "Hoch":
-                        {
-                          widget.dialogdata.priority = 1;
-                        }
-                        break;
-                      case "Normal":
-                        {
-                          widget.dialogdata.priority = 2;
-                        }
-                        break;
-                      case "Tief":
-                        {
-                          widget.dialogdata.priority = 3;
-                        }
-                        break;
-                    }
-                  });
-                },
-                items: <String>['Hoch', 'Normal', 'Tief']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              )
-            ],
-          ),
-          new Row(
+              ],
+            ),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                new SizedBox(
+                  height: 300,
+                  width: displayWidth(context) * 0.5,
+                  child: IconButton(
+                    padding: new EdgeInsets.all(5.0),
+                    icon: cameraIcon,
+                    onPressed: () => (showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Selection"),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Text('Select image from Image or Gallery'),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            new FlatButton(
+                                onPressed: () {
+                                  _pickImage(ImageSource.camera);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Icon(Icons.camera_alt)),
+                            new FlatButton(
+                                onPressed: () {
+                                  _pickImage(ImageSource.gallery);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Icon(Icons.collections))
+                          ],
+                        );
+                      },
+                    )),
+                  ),
+                ),
+                new SizedBox(
+                  width: displayWidth(context) * 0.5,
+                  height: 300,
+                  child: IconButton(
+                    padding: new EdgeInsets.all(5.0),
+                    icon: cameraIcon2,
+                    onPressed: () => (showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Selection"),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Text('Select image from Image or Gallery'),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            new FlatButton(
+                                onPressed: () {
+                                  _pickImageSec(ImageSource.camera);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Icon(Icons.camera_alt)),
+                            new FlatButton(
+                                onPressed: () {
+                                  _pickImageSec(ImageSource.gallery);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Icon(Icons.collections))
+                          ],
+                        );
+                      },
+                    )),
+                  ),
+                )
+              ],
+            ),
+            new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("Voice Message"),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: new IconButton(
+                new Text("Keine Probleme"),
+                new IconButton(
+                    icon: checkboxIcon,
                     onPressed: () {
-                      switch (_currentStatus) {
-                        case RecordingStatus.Initialized:
+                      if (widget.dialogdata.check == false) {
+                        setState(() {
+                          checkboxIcon = Icon(Icons.check_box);
+                          secondCheck = true;
+                          widget.dialogdata.check = true;
+                        });
+                      } else {
+                        setState(() {
+                          checkboxIcon = Icon(Icons.check_box_outline_blank);
+                          secondCheck = false;
+                          widget.dialogdata.check = false;
+                        });
+                      }
+                    }),
+                new Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                  child: Text("Priorität:"),
+                ),
+                new DropdownButton<String>(
+                  value: dropdownValue,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.red,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      dropdownValue = newValue;
+                      switch (newValue) {
+                        case "Hoch":
                           {
-                            _start();
-                            break;
+                            widget.dialogdata.priority = 1;
                           }
-                        case RecordingStatus.Recording:
+                          break;
+                        case "Normal":
                           {
-                            _currentStatus != RecordingStatus.Unset
-                                ? _stop()
-                                : null;
-                            break;
+                            widget.dialogdata.priority = 2;
                           }
-                        case RecordingStatus.Stopped:
+                          break;
+                        case "Tief":
                           {
-                            _init();
-                            break;
+                            widget.dialogdata.priority = 3;
                           }
-                        default:
                           break;
                       }
-                    },
-                    icon: _buildText(_currentStatus),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: new IconButton(
-                      icon: playBtn,
-                      onPressed: () {
-                        if (widget.dialogdata.audio != null) {
-                          audioLoad(widget.dialogdata.audio);
-                        }
-                      }),
+                    });
+                  },
+                  items: <String>['Hoch', 'Normal', 'Tief']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 )
-              ]),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Flexible(
-                  child: new TextField(
-                controller: statusRes,
-                minLines: 3,
-                maxLines: 3,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+              ],
+            ),
+            new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("Voice Message"),
                   ),
-                ),
-              )),
-            ],
-          ),
-        ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new IconButton(
+                      onPressed: () {
+                        switch (_currentStatus) {
+                          case RecordingStatus.Initialized:
+                            {
+                              _start();
+                              break;
+                            }
+                          case RecordingStatus.Recording:
+                            {
+                              _currentStatus != RecordingStatus.Unset
+                                  ? _stop()
+                                  : null;
+                              break;
+                            }
+                          case RecordingStatus.Stopped:
+                            {
+                              _init();
+                              break;
+                            }
+                          default:
+                            break;
+                        }
+                      },
+                      icon: _buildText(_currentStatus),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new IconButton(
+                        icon: playBtn,
+                        onPressed: () {
+                          if (widget.dialogdata.audio != null) {
+                            audioLoad(widget.dialogdata.audio);
+                          }
+                        }),
+                  )
+                ]),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Flexible(
+                    child: new TextField(
+                  controller: statusRes,
+                  minLines: 3,
+                  maxLines: 3,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
+                )),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
