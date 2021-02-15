@@ -59,7 +59,7 @@ class _LocationState extends State<Location> {
 
       print(bauApi['names'][0]);
     } else {
-      throw Exception("Failed to get Baustelle");
+      throw Exception("0003 - Failed to get Baustelle");
     }
   }
 

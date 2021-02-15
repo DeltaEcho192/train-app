@@ -241,7 +241,7 @@ class CheckboxWidgetState extends State {
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load Checklist');
+      throw Exception('0004 - Failed to load Checklist');
     }
   }
 
@@ -277,7 +277,7 @@ class CheckboxWidgetState extends State {
     if (response.statusCode == 200) {
       print("Success");
     } else {
-      print("Failure");
+      print("0005 - Failure");
     }
   }
 

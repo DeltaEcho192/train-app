@@ -52,7 +52,7 @@ Future<Map<String, dynamic>> fetchUser(
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load user');
+    throw Exception('0001 - Failed to load user');
   }
 }
 
@@ -222,7 +222,7 @@ class _LoginKeyState extends State<LoginKey> {
                               }
                             else
                               {
-                                print("Login failed"),
+                                print("0002 - Login failed"),
                                 Toast.show(
                                     "Anmeldung nicht erfolgreich", context,
                                     duration: Toast.LENGTH_LONG,
