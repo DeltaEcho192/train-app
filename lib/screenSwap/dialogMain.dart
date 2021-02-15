@@ -661,7 +661,7 @@ class CheckboxWidgetState extends State {
           ),
           new IconButton(
               icon: new Icon(
-                Icons.email,
+                Icons.notifications_active,
                 color: Colors.red[800],
               ),
               onPressed: () {

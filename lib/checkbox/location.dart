@@ -108,7 +108,10 @@ class _LocationState extends State<Location> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text("Bitte Baustelle auswählen"),
+          titleSpacing: 0.0,
+          title: new Text(
+            "Bitte Baustelle auswählen:",
+          ),
           backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           actions: [
             IconButton(
