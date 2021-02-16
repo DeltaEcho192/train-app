@@ -100,7 +100,7 @@ class CheckboxWidgetState extends State {
   String finalDocID;
   Icon statusLeading = Icon(Icons.check);
   Icon statusEmpty = Icon(Icons.airline_seat_flat);
-
+  var sortedKeys = ['Lade Daten...'];
   DialogData dialogData = DialogData();
 
   //
@@ -237,6 +237,7 @@ class CheckboxWidgetState extends State {
       setState(() {
         numbers = testing;
         subtitles = subWorking;
+        _sortList();
       });
     } else {
       // If the server did not return a 200 OK response,
@@ -440,6 +441,7 @@ class CheckboxWidgetState extends State {
                   });
                   print("Subtitiles $subtitles");
                   names = Map<String, String>.from(imagesLoc);
+                  _sortList();
                   (context as Element).reassemble();
                 });
               })
@@ -563,6 +565,16 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  _sortList() async {
+    setState(() {
+      sortedKeys = numbers.keys.toList();
+      sortedKeys.sort((a, b) => (a).compareTo(b));
+    });
+  }
+
+  //
+  //
+
   @override
   void initState() {
     super.initState();
@@ -581,6 +593,7 @@ class CheckboxWidgetState extends State {
     reportCheck(false, null, null);
     getUDID();
     _intialDate();
+    _sortList();
   }
 
   @override
@@ -777,7 +790,7 @@ class CheckboxWidgetState extends State {
           Expanded(
             //Creates the checklist dynamically based on API
             child: ListView(
-              children: numbers.keys.map((String key) {
+              children: sortedKeys.map((String key) {
                 var statusColor = Colors.black;
                 //var statusIcon;
                 if (status[key] == 1) {
