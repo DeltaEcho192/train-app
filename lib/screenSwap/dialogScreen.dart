@@ -548,12 +548,16 @@ class _DialogState extends State<DialogScreen> {
                             new FlatButton(
                                 onPressed: () {
                                   _pickImage(ImageSource.camera);
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.camera_alt)),
                             new FlatButton(
                                 onPressed: () {
                                   _pickImage(ImageSource.gallery);
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.collections))
@@ -585,12 +589,16 @@ class _DialogState extends State<DialogScreen> {
                             new FlatButton(
                                 onPressed: () {
                                   _pickImageSec(ImageSource.camera);
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.camera_alt)),
                             new FlatButton(
                                 onPressed: () {
                                   _pickImageSec(ImageSource.gallery);
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.collections))
