@@ -163,7 +163,7 @@ class _DialogState extends State<DialogScreen> {
   Future<void> _pickImageSec(ImageSource source) async {
     File selected;
     final picker2 = ImagePicker();
-
+    FocusScope.of(context).unfocus();
     final pickedFile2 =
         await picker2.getImage(source: source, imageQuality: 50);
     //Make sure network is connected!!!!
@@ -424,15 +424,18 @@ class _DialogState extends State<DialogScreen> {
     priorityCheck();
   }
 
+  void hideKeyboard(BuildContext context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+      FocusManager.instance.primaryFocus.unfocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
+        if (Platform.isIOS) hideKeyboard(context);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -547,17 +550,17 @@ class _DialogState extends State<DialogScreen> {
                           actions: [
                             new FlatButton(
                                 onPressed: () {
+                                  FocusScope.of(context).unfocus();
                                   _pickImage(ImageSource.camera);
-                                  FocusScope.of(context)
-                                      .requestFocus(new FocusNode());
+
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.camera_alt)),
                             new FlatButton(
                                 onPressed: () {
+                                  FocusScope.of(context).unfocus();
                                   _pickImage(ImageSource.gallery);
-                                  FocusScope.of(context)
-                                      .requestFocus(new FocusNode());
+
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.collections))
@@ -588,17 +591,17 @@ class _DialogState extends State<DialogScreen> {
                           actions: [
                             new FlatButton(
                                 onPressed: () {
+                                  FocusScope.of(context).unfocus();
                                   _pickImageSec(ImageSource.camera);
-                                  FocusScope.of(context)
-                                      .requestFocus(new FocusNode());
+
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.camera_alt)),
                             new FlatButton(
                                 onPressed: () {
+                                  FocusScope.of(context).unfocus();
                                   _pickImageSec(ImageSource.gallery);
-                                  FocusScope.of(context)
-                                      .requestFocus(new FocusNode());
+
                                   Navigator.of(context).pop();
                                 },
                                 child: Icon(Icons.collections))
