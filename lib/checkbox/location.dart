@@ -5,6 +5,7 @@ import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:train_app/login/loginKey.dart';
 import '../screenSwap/dialogMain.dart';
+import '../PushNotificationManager.dart';
 
 void main() => runApp(new MyApp());
 
@@ -30,6 +31,7 @@ class Location extends StatefulWidget {
 }
 
 class _LocationState extends State<Location> {
+  PushNotificationsManager notificationInit = new PushNotificationsManager();
   TextEditingController editingController = TextEditingController();
   List<String> mainDataList = [];
   List<String> newDataList = [];
@@ -84,7 +86,7 @@ class _LocationState extends State<Location> {
   @override
   void initState() {
     _loadUser();
-
+    _tokenInit();
     super.initState();
   }
 
@@ -104,13 +106,77 @@ class _LocationState extends State<Location> {
     });
   }
 
+  Future<void> _tokenInit() async {
+    var token = await notificationInit.init();
+    if (token != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("token", token);
+      print(token);
+    } else {
+      print("There has been a issue gettting notification token");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      token = prefs.getString("token");
+      print(token);
+    }
+    await GlobalConfiguration().loadFromAsset("app_settings");
+    var host = GlobalConfiguration().getValue("host");
+    var port = GlobalConfiguration().getValue("port");
+    var urlLocal = "https://" + host + ":" + port + '/updateToken/';
+    print(urlLocal);
+    print(jsonEncode({"userid": usr, "token": token}));
+    if (token == "null") {
+      print("Token can not be null");
+    } else {
+      final check = await http.post(urlLocal,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({"userid": usr, "token": token}));
+
+      if (check.statusCode == 201) {
+        print("User token updated");
+      } else {
+        throw Exception('Failed to update user token');
+      }
+    }
+  }
+
+  Future<void> _tokenLogout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = (prefs.getString("token") ?? "null");
+    if (token != "null") {
+      print(token);
+      await GlobalConfiguration().loadFromAsset("app_settings");
+      var host = GlobalConfiguration().getValue("host");
+      var port = GlobalConfiguration().getValue("port");
+      var urlLocal = "https://" + host + ":" + port + '/tokenLogout/';
+      print(urlLocal);
+      print(jsonEncode({"userid": usr, "token": token}));
+      if (token == null) {
+        print("Token can not be null");
+      } else {
+        final check = await http.post(urlLocal,
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({"userid": usr, "token": token}));
+
+        if (check.statusCode == 201) {
+          print("User token Logged out");
+        } else {
+          throw Exception('Failed to logout user token');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
           titleSpacing: 0.0,
           title: new Text(
-            "Bitte Baustelle auswählen:",
+            "Baustelle auswählen:",
           ),
           backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           actions: [
@@ -162,6 +228,7 @@ class _LocationState extends State<Location> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Color.fromRGBO(232, 195, 30, 1),
           onPressed: () {
+            _tokenLogout();
             _logout();
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => (LoginKey())));
