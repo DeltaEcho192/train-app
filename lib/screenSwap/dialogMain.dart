@@ -28,31 +28,16 @@ import '../login/loginKey.dart';
 import '../checkbox/location.dart';
 import 'dialogScreen.dart';
 import '../screenSwap/dialog.dart';
-
-void main() async {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          body: SafeArea(
-              child: Center(
-        child: CheckboxWidget(),
-      ))),
-    );
-  }
-}
+import '../bauData.dart';
 
 class CheckboxWidget extends StatefulWidget {
-  CheckboxWidget({Key key}) : super(key: key);
+  final BauData baudata;
+  CheckboxWidget({Key key, @required this.baudata}) : super(key: key);
   @override
   CheckboxWidgetState createState() => new CheckboxWidgetState();
 }
 
-class CheckboxWidgetState extends State {
+class CheckboxWidgetState extends State<CheckboxWidget> {
   bool exec = false;
   File _imageFile;
   File _imageFile2;
@@ -479,8 +464,8 @@ class CheckboxWidgetState extends State {
           DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var baustelle = prefs.getString("baustellePref");
-    var bauID = prefs.getString("bauID");
+    var baustelle = widget.baudata.bauName;
+    var bauID = widget.baudata.bauID;
     data.baustelle = baustelle;
     data.bauID = bauID;
     bauController.text = baustelle;
@@ -590,7 +575,8 @@ class CheckboxWidgetState extends State {
     //getBaustelle();
     //Parse Info from WIP baustelle screen
     _loadUser();
-    reportCheck(false, null, null);
+    reportCheck(
+        widget.baudata.check, widget.baudata.beginDate, widget.baudata.endDate);
     getUDID();
     _intialDate();
     _sortList();

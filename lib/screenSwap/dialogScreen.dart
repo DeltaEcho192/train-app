@@ -399,7 +399,7 @@ class _DialogState extends State<DialogScreen> {
 
   _loadStatusMessage() {
     if (widget.dialogdata.statusText != "") {
-      var genString = "Erledigt Von " +
+      var genString = "Erledigt von " +
           widget.dialogdata.statusUser +
           " am (" +
           widget.dialogdata.statusTime.toString().substring(

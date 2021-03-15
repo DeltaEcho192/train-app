@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
@@ -6,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:train_app/login/loginKey.dart';
 import '../screenSwap/dialogMain.dart';
 import '../PushNotificationManager.dart';
+import '../bauData.dart';
 
 void main() => runApp(new MyApp());
 
@@ -35,6 +37,7 @@ class _LocationState extends State<Location> {
   TextEditingController editingController = TextEditingController();
   List<String> mainDataList = [];
   List<String> newDataList = [];
+  BauData bauData = BauData();
   var usr = "";
 
   List<String> bauSugg = ["Default"];
@@ -213,10 +216,17 @@ class _LocationState extends State<Location> {
                       onTap: () {
                         var baustelle = data;
                         _writeBaustelle(baustelle);
+                        bauData.bauName = baustelle;
+                        bauData.bauID = bauIDS[baustelle];
+                        bauData.check = false;
+                        bauData.beginDate = null;
+                        bauData.endDate = null;
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => (CheckboxWidget())));
+                                builder: (context) => (CheckboxWidget(
+                                      baudata: bauData,
+                                    ))));
                       },
                     );
                   }).toList(),
