@@ -87,6 +87,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
   Icon statusEmpty = Icon(Icons.airline_seat_flat);
   var sortedKeys = ['Lade Daten...'];
   DialogData dialogData = DialogData();
+  var referenceDate = DateTime.now();
 
   //
 
@@ -444,6 +445,12 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
     DateTime dateEnd;
     DateTime dateStart;
 
+    numbers = {
+      'Lade Daten...': true,
+    };
+    sortedKeys = ['Lade Daten...'];
+    subtitles = {'Lade Daten...': ' '};
+
     DateTime now = new DateTime.now();
 
     if (dateCheck == true) {
@@ -453,8 +460,19 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
           DateTime.parse(newEnd).millisecondsSinceEpoch);
 
       dateStart = DateTime.parse(newStart);
+      setState(() {
+        referenceDate = dateStart;
+        String dayW = referenceDate.day.toString();
+        String monthW = referenceDate.month.toString();
+        String yearW = referenceDate.year.toString();
+        String working = dayW + '/' + monthW + '/' + yearW;
+        print(working);
+        dateFinal = working;
+      });
+
       dateEnd = DateTime.parse(newEnd);
     } else {
+      _intialDate();
       dateStart = new DateTime(now.year, now.month, now.day);
       dateEnd = new DateTime(now.year, now.month, now.day + 1);
 
@@ -578,7 +596,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
     reportCheck(
         widget.baudata.check, widget.baudata.beginDate, widget.baudata.endDate);
     getUDID();
-    _intialDate();
+
     _sortList();
   }
 
@@ -651,7 +669,7 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
                   status.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
-              }, currentTime: DateTime.now(), locale: LocaleType.de);
+              }, currentTime: referenceDate, locale: LocaleType.de);
             },
             child: Text(
               dateFinal,

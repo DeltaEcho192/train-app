@@ -8,15 +8,18 @@ import '../checkbox/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info/package_info.dart';
 import 'dart:convert';
+import '../navKey.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  final navigatorKey = SfcKeys.navKey;
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Login',
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

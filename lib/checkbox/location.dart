@@ -8,6 +8,7 @@ import 'package:train_app/login/loginKey.dart';
 import '../screenSwap/dialogMain.dart';
 import '../PushNotificationManager.dart';
 import '../bauData.dart';
+import '../navKey.dart';
 
 void main() => runApp(new MyApp());
 

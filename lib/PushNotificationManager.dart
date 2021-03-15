@@ -47,8 +47,8 @@ class PushNotificationsManager {
             baudataL.bauID = notiData["bauID"];
             baudataL.bauName = notiData["bauName"];
             baudataL.check = true;
-            baudataL.beginDate = startFinal;
-            baudataL.endDate = endFinal;
+            baudataL.beginDate = startFinal.toString();
+            baudataL.endDate = endFinal.toString();
 
             navigatorKey.currentState.push(MaterialPageRoute(
                 builder: (context) => (CheckboxWidget(
