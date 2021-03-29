@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:train_app/login/loginKey.dart';
+import '../authToken.dart';
 import '../screenSwap/dialogMain.dart';
 import '../PushNotificationManager.dart';
 import '../bauData.dart';
@@ -47,8 +48,16 @@ class _LocationState extends State<Location> {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response =
-        await http.get("https://" + host + ":" + port + '/all/' + usr);
+    var tokenAuth = await AuthToken().getAccessToken();
+    var checkAuth = AuthToken().expiryCheck(tokenAuth);
+    if (checkAuth == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get(
+        "https://" + host + ":" + port + '/all/' + usr,
+        headers: {"Authorization": "Bearer " + tokenAuth});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> bauApi = jsonDecode(response.body);
@@ -126,6 +135,13 @@ class _LocationState extends State<Location> {
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
     var urlLocal = "https://" + host + ":" + port + '/updateToken/';
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
     print(urlLocal);
     print(jsonEncode({"userid": usr, "token": token}));
     if (token == "null") {
@@ -134,6 +150,7 @@ class _LocationState extends State<Location> {
       final check = await http.post(urlLocal,
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
+            "Authorization": "Bearer " + tokenAuth
           },
           body: jsonEncode({"userid": usr, "token": token}));
 
@@ -154,6 +171,14 @@ class _LocationState extends State<Location> {
       var host = GlobalConfiguration().getValue("host");
       var port = GlobalConfiguration().getValue("port");
       var urlLocal = "https://" + host + ":" + port + '/tokenLogout/';
+
+      var tokenAuth = await AuthToken().getAccessToken();
+      var check = AuthToken().expiryCheck(tokenAuth);
+      if (check == true) {
+        await AuthToken().refreshToken();
+        tokenAuth = await AuthToken().getAccessToken();
+      }
+      print(tokenAuth);
       print(urlLocal);
       print(jsonEncode({"userid": usr, "token": token}));
       if (token == null) {
@@ -162,6 +187,7 @@ class _LocationState extends State<Location> {
         final check = await http.post(urlLocal,
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
+              "Authorization": "Bearer " + tokenAuth
             },
             body: jsonEncode({"userid": usr, "token": token}));
 

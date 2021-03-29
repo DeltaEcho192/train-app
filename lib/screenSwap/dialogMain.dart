@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
+import '../authToken.dart';
 import '../model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -195,8 +196,16 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
     final response = await http.get(
-        "https://" + host + ":" + port + '/getChecklist/' + bauID.toString());
+        "https://" + host + ":" + port + '/getChecklist/' + bauID.toString(),
+        headers: {"Authorization": "Bearer " + tokenAuth});
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -239,7 +248,15 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("https://" + host + ":" + port + '/all/');
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get("https://" + host + ":" + port + '/all/',
+        headers: {"Authorization": "Bearer " + tokenAuth});
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
@@ -259,8 +276,16 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response =
-        await http.get("https://" + host + ":" + port + '/change/' + docId);
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get(
+        "https://" + host + ":" + port + '/change/' + docId,
+        headers: {"Authorization": "Bearer " + tokenAuth});
     if (response.statusCode == 200) {
       print("Success");
     } else {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:global_configuration/global_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,30 +33,27 @@ Future<Map<String, dynamic>> fetchUser(
     var userid, var pswd, String udid) async {
   await GlobalConfiguration().loadFromAsset("app_settings");
   var host = GlobalConfiguration().getValue("host");
-  var port = GlobalConfiguration().getValue("port");
+  var port = GlobalConfiguration().getValue("authPort");
   print("Function UDID " + udid);
-  final response = await http.get("https://" +
-      host +
-      ":" +
-      port +
-      '/check/' +
-      userid.toString() +
-      "/" +
-      pswd +
-      "/" +
-      udid);
+  var urlLocal = "https://" + host + ":" + port + '/login/';
+  print(urlLocal);
+  final response = await http.post(urlLocal,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({"userId": userid, "pswd": pswd}));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     //print(json.decode(response.body));
-
+    print("Succesful request");
     Map<String, dynamic> logIn = jsonDecode(response.body);
     return logIn;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('0001 - Failed to load user');
+    throw Exception('Failed to load user');
   }
 }
 
@@ -147,6 +145,19 @@ class _LoginKeyState extends State<LoginKey> {
     });
   }
 
+  _writeAccessToken(String accessToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      prefs.setString('accessToken', accessToken);
+    });
+  }
+
+  _writeRefreshToken(String refreshToken) async {
+    final storage = new FlutterSecureStorage();
+    await storage.write(key: "refreshToken", value: refreshToken);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,6 +226,8 @@ class _LoginKeyState extends State<LoginKey> {
                             print("Server Check" + value['status'].toString()),
                             if (value['status'] == true)
                               {
+                                _writeAccessToken(value["accessToken"]),
+                                _writeRefreshToken(value["refreshToken"]),
                                 _setLogState(true),
                                 _writeUser(value['userid']),
                                 Navigator.pushReplacement(
