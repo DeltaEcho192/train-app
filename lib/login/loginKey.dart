@@ -41,7 +41,7 @@ Future<Map<String, dynamic>> fetchUser(
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({"userId": userid, "pswd": pswd}));
+      body: jsonEncode({"userId": userid, "pswd": pswd, "web": false}));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
