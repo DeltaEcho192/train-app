@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:validators/validators.dart' as validator;
 import 'package:firebase_storage/firebase_storage.dart';
+import '../authToken.dart';
 import '../model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -28,31 +29,16 @@ import '../login/loginKey.dart';
 import '../checkbox/location.dart';
 import 'dialogScreen.dart';
 import '../screenSwap/dialog.dart';
-
-void main() async {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          body: SafeArea(
-              child: Center(
-        child: CheckboxWidget(),
-      ))),
-    );
-  }
-}
+import '../bauData.dart';
 
 class CheckboxWidget extends StatefulWidget {
-  CheckboxWidget({Key key}) : super(key: key);
+  final BauData baudata;
+  CheckboxWidget({Key key, @required this.baudata}) : super(key: key);
   @override
   CheckboxWidgetState createState() => new CheckboxWidgetState();
 }
 
-class CheckboxWidgetState extends State {
+class CheckboxWidgetState extends State<CheckboxWidget> {
   bool exec = false;
   File _imageFile;
   File _imageFile2;
@@ -64,6 +50,10 @@ class CheckboxWidgetState extends State {
   Map<String, String> comments = {};
   Map<String, String> audio = {};
   Map<String, int> priority = {};
+  Map<String, int> status = {};
+  Map<String, Map> statusText = {};
+  Map<String, int> emptyStatus = {};
+  Map<String, Map> workComEmpty = {};
   List<String> toDelete = [];
   String dateFinal = "Schicht:";
   String _udid = 'Unknown';
@@ -94,8 +84,11 @@ class CheckboxWidgetState extends State {
   Uint8List imageBytes;
   String errorMsg;
   String finalDocID;
-
+  Icon statusLeading = Icon(Icons.check);
+  Icon statusEmpty = Icon(Icons.airline_seat_flat);
+  var sortedKeys = ['Lade Daten...'];
   DialogData dialogData = DialogData();
+  var referenceDate = DateTime.now();
 
   //
 
@@ -147,6 +140,8 @@ class CheckboxWidgetState extends State {
       data.audio = Map<String, String>.from(audio);
       data.index = Map<String, bool>.from(numbers);
       data.priority = Map<String, int>.from(priority);
+      data.status = Map<String, int>.from(emptyStatus);
+      data.workCom = Map<String, Map>.from(workComEmpty);
 
       if (reportExist == true) {
         updateData(data);
@@ -197,12 +192,20 @@ class CheckboxWidgetState extends State {
   Map<String, String> subtitles = {'Lade Daten...': ' '};
 
   //Dynamically gets Checklist from NODE JS based on which Baustelle is selected.
-  Future<void> fetchChecklist(var baustelle) async {
+  Future<void> fetchChecklist(var baustelle, var bauID) async {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http
-        .get("https://" + host + ":" + port + '/test/' + baustelle.toString());
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get(
+        "https://" + host + ":" + port + '/getChecklist/' + bauID.toString(),
+        headers: {"Authorization": "Bearer " + tokenAuth});
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -229,11 +232,12 @@ class CheckboxWidgetState extends State {
       setState(() {
         numbers = testing;
         subtitles = subWorking;
+        _sortList();
       });
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed to load album');
+      throw Exception('0004 - Failed to load Checklist');
     }
   }
 
@@ -244,7 +248,15 @@ class CheckboxWidgetState extends State {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response = await http.get("https://" + host + ":" + port + '/all/');
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get("https://" + host + ":" + port + '/all/',
+        headers: {"Authorization": "Bearer " + tokenAuth});
 
     if (response.statusCode == 200) {
       var bauApi = jsonDecode(response.body);
@@ -264,12 +276,20 @@ class CheckboxWidgetState extends State {
     await GlobalConfiguration().loadFromAsset("app_settings");
     var host = GlobalConfiguration().getValue("host");
     var port = GlobalConfiguration().getValue("port");
-    final response =
-        await http.get("https://" + host + ":" + port + '/change/' + docId);
+    var tokenAuth = await AuthToken().getAccessToken();
+    var check = AuthToken().expiryCheck(tokenAuth);
+    if (check == true) {
+      await AuthToken().refreshToken();
+      tokenAuth = await AuthToken().getAccessToken();
+    }
+    print(tokenAuth);
+    final response = await http.get(
+        "https://" + host + ":" + port + '/change/' + docId,
+        headers: {"Authorization": "Bearer " + tokenAuth});
     if (response.statusCode == 200) {
       print("Success");
     } else {
-      print("Failure");
+      print("0005 - Failure");
     }
   }
 
@@ -280,6 +300,7 @@ class CheckboxWidgetState extends State {
     firestoreInstance.collection("issues").add({
       "user": dataFinal.user,
       "baustelle": dataFinal.baustelle,
+      "bauID": dataFinal.bauID,
       "schicht": dataFinal.schicht,
       "udid": dataFinal.udid,
       "errors": dataFinal.errors,
@@ -288,14 +309,46 @@ class CheckboxWidgetState extends State {
       "audio": dataFinal.audio,
       "priority": dataFinal.priority,
       "checklist": dataFinal.index,
+      "status": dataFinal.status,
+      "workCom": dataFinal.workCom,
     }).then((value) => {
           docId = value.documentID,
           finalDocID = docId,
+          reportID = docId,
+          reportExist = true,
           Toast.show("Report ist auf Server gespeichert", context,
               duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
         });
   }
 
+  Future<void> uploadEmptyData(Data dataFinal) async {
+    final firestoreInstance = Firestore.instance;
+    var docId;
+
+    firestoreInstance.collection("issues").add({
+      "user": dataFinal.user,
+      "baustelle": dataFinal.baustelle,
+      "bauID": dataFinal.bauID,
+      "schicht": dataFinal.schicht,
+      "udid": dataFinal.udid,
+      "errors": dataFinal.errors,
+      "comments": dataFinal.comments,
+      "images": dataFinal.images,
+      "audio": dataFinal.audio,
+      "priority": dataFinal.priority,
+      "checklist": dataFinal.index,
+      "status": dataFinal.status,
+      "workCom": dataFinal.workCom,
+    }).then((value) => {
+          docId = value.documentID,
+          finalDocID = docId,
+          reportID = docId,
+          changeAlert(reportID),
+          reportExist = true,
+          Toast.show("Report ist auf Server gespeichert", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM),
+        });
+  }
   //
   //
 
@@ -343,7 +396,7 @@ class CheckboxWidgetState extends State {
         DateTime.parse(end.toString()).millisecondsSinceEpoch);
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: baustelle)
+        .where("bauID", isEqualTo: baustelle)
         .where("user", isEqualTo: data.user)
         .where("schicht", isGreaterThanOrEqualTo: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
@@ -362,6 +415,8 @@ class CheckboxWidgetState extends State {
                 var imagesLoc = pullReport["images"];
                 var audioLoc = pullReport["audio"];
                 var priorityLoc = pullReport["priority"];
+                var statusLoc = pullReport["status"];
+                var statusTextLoc = pullReport["workCom"];
                 print("Checklist $checklist");
                 print("image test $imagesLoc");
                 setState(() {
@@ -371,14 +426,25 @@ class CheckboxWidgetState extends State {
                   errors = Map<String, String>.from(errorsLoc);
                   audio = Map<String, String>.from(audioLoc);
                   priority = Map<String, int>.from(priorityLoc);
+                  status = Map<String, int>.from(statusLoc);
+                  statusText = Map<String, Map>.from(statusTextLoc);
                   subtitles = {...errors, ...comments};
+                  print(subtitles);
                   numbers.forEach((key, value) {
                     if (subtitles.containsKey(key)) {
                       print("In array");
+                      print(subtitles[key]);
                       var subWork = subtitles[key];
-                      if (subWork.length > 30) {
-                        subtitles[key] =
-                            subWork.replaceRange(30, subWork.length, "...");
+                      print(subWork);
+                      if (subWork == null) {
+                        subtitles[key] = " ";
+                      } else {
+                        if (subWork.length > 30) {
+                          subtitles[key] =
+                              subWork.replaceRange(30, subWork.length, "...");
+                        } else {
+                          subtitles[key] = subWork;
+                        }
                       }
                     } else {
                       subtitles[key] = " ";
@@ -386,6 +452,7 @@ class CheckboxWidgetState extends State {
                   });
                   print("Subtitiles $subtitles");
                   names = Map<String, String>.from(imagesLoc);
+                  _sortList();
                   (context as Element).reassemble();
                 });
               })
@@ -403,6 +470,12 @@ class CheckboxWidgetState extends State {
     DateTime dateEnd;
     DateTime dateStart;
 
+    numbers = {
+      'Lade Daten...': true,
+    };
+    sortedKeys = ['Lade Daten...'];
+    subtitles = {'Lade Daten...': ' '};
+
     DateTime now = new DateTime.now();
 
     if (dateCheck == true) {
@@ -412,8 +485,19 @@ class CheckboxWidgetState extends State {
           DateTime.parse(newEnd).millisecondsSinceEpoch);
 
       dateStart = DateTime.parse(newStart);
+      setState(() {
+        referenceDate = dateStart;
+        String dayW = referenceDate.day.toString();
+        String monthW = referenceDate.month.toString();
+        String yearW = referenceDate.year.toString();
+        String working = dayW + '/' + monthW + '/' + yearW;
+        print(working);
+        dateFinal = working;
+      });
+
       dateEnd = DateTime.parse(newEnd);
     } else {
+      _intialDate();
       dateStart = new DateTime(now.year, now.month, now.day);
       dateEnd = new DateTime(now.year, now.month, now.day + 1);
 
@@ -423,24 +507,26 @@ class CheckboxWidgetState extends State {
           DateTime.parse(dateEnd.toString()).millisecondsSinceEpoch);
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var baustelle = prefs.getString("baustellePref");
+    var baustelle = widget.baudata.bauName;
+    var bauID = widget.baudata.bauID;
     data.baustelle = baustelle;
+    data.bauID = bauID;
     bauController.text = baustelle;
     var userid = prefs.getString('user');
     data.user = userid;
 
     firestoreInstance
         .collection("issues")
-        .where("baustelle", isEqualTo: baustelle)
+        .where("bauID", isEqualTo: bauID)
         .where("user", isEqualTo: userid)
         .where("schicht", isGreaterThan: startAtTimestamp)
         .where("schicht", isLessThan: endAtTimeStamp)
         .getDocuments()
         .then((value) => {
               if (value.documents.length > 0)
-                {reportExist = true, getReport(baustelle, dateStart, dateEnd)}
+                {reportExist = true, getReport(bauID, dateStart, dateEnd)}
               else
-                {reportExist = false, fetchChecklist(baustelle)}
+                {reportExist = false, fetchChecklist(baustelle, bauID)}
             });
   }
 
@@ -507,6 +593,16 @@ class CheckboxWidgetState extends State {
   //
   //
 
+  _sortList() async {
+    setState(() {
+      sortedKeys = numbers.keys.toList();
+      sortedKeys.sort((a, b) => (a).compareTo(b));
+    });
+  }
+
+  //
+  //
+
   @override
   void initState() {
     super.initState();
@@ -519,12 +615,14 @@ class CheckboxWidgetState extends State {
         bauController.text = data.baustelle;
       }
     });
-    getBaustelle();
+    //getBaustelle();
     //Parse Info from WIP baustelle screen
     _loadUser();
-    reportCheck(false, null, null);
+    reportCheck(
+        widget.baudata.check, widget.baudata.beginDate, widget.baudata.endDate);
     getUDID();
-    _intialDate();
+
+    _sortList();
   }
 
   @override
@@ -592,9 +690,11 @@ class CheckboxWidgetState extends State {
                   audio.clear();
                   numbers.clear();
                   priority.clear();
+                  statusText.clear();
+                  status.clear();
                   reportCheck(true, reportStart, reportEnd);
                 });
-              }, currentTime: DateTime.now(), locale: LocaleType.de);
+              }, currentTime: referenceDate, locale: LocaleType.de);
             },
             child: Text(
               dateFinal,
@@ -603,7 +703,7 @@ class CheckboxWidgetState extends State {
           ),
           new IconButton(
               icon: new Icon(
-                Icons.email,
+                Icons.notifications_active,
                 color: Colors.red[800],
               ),
               onPressed: () {
@@ -632,11 +732,20 @@ class CheckboxWidgetState extends State {
                             actions: [
                               FlatButton(
                                 onPressed: () {
-                                  if (reportExist == true) {
-                                    changeAlert(reportID);
-                                  } else {
-                                    changeAlert(finalDocID);
-                                  }
+                                  data.errors =
+                                      Map<String, String>.from(errors);
+                                  data.comments =
+                                      Map<String, String>.from(comments);
+                                  data.images = Map<String, String>.from(names);
+                                  data.audio = Map<String, String>.from(audio);
+                                  data.index = Map<String, bool>.from(numbers);
+                                  data.status =
+                                      Map<String, int>.from(emptyStatus);
+                                  data.workCom =
+                                      Map<String, Map>.from(workComEmpty);
+                                  data.priority =
+                                      Map<String, int>.from(priority);
+                                  uploadEmptyData(data);
                                   deleteCanceledFiles(toDelete);
                                   toDelete.clear();
                                   Navigator.of(context).pop();
@@ -703,20 +812,37 @@ class CheckboxWidgetState extends State {
                               if (text != "") {
                                 baustelle = text;
                                 data.baustelle = text;
-                                fetchChecklist(baustelle);
+                                //fetchChecklist(baustelle, bauID);
                               }
                             }))),
               ]),
           Expanded(
             //Creates the checklist dynamically based on API
             child: ListView(
-              children: numbers.keys.map((String key) {
+              children: sortedKeys.map((String key) {
+                var statusColor = Colors.black;
+                //var statusIcon;
+                if (status[key] == 1) {
+                  statusColor = Colors.green;
+                  //statusIcon = statusLeading;
+                } else {
+                  //statusIcon = Text("");
+                }
                 return new CheckboxListTile(
-                  title: new Text(key),
+                  title: new Text(
+                    key,
+                    style: TextStyle(
+                      color: statusColor,
+                    ),
+                  ),
                   subtitle: new Text(
                     subtitles[key],
+                    style: TextStyle(
+                      color: statusColor,
+                    ),
                     maxLines: 1,
                   ),
+                  //secondary: statusIcon,
                   value: numbers[key],
                   activeColor: Colors.green,
                   checkColor: Colors.white,
@@ -730,7 +856,6 @@ class CheckboxWidgetState extends State {
                       } else {
                         dialogData.text = errors[key];
                       }
-
                       exec = true;
                       print(numbers[key]);
                       dialogData.name = key;
@@ -739,6 +864,30 @@ class CheckboxWidgetState extends State {
                       dialogData.image2 = names[(key + "Sec")];
                       dialogData.audio = audio[key];
                       dialogData.priority = priority[key];
+                      if (statusText.isNotEmpty) {
+                        if (statusText[key] != null) {
+                          var check = statusText[key]['text'];
+                          var statusInv = statusText[key]['text'];
+                          var statusUser = statusText[key]['user'];
+                          var statusTime = statusText[key]['time'];
+                          if (check.length == 0) {
+                            statusInv = " ";
+                          }
+                          dialogData.statusText = statusInv;
+                          dialogData.statusUser = statusUser;
+                          dialogData.statusTime =
+                              DateTime.fromMillisecondsSinceEpoch(statusTime);
+                        } else {
+                          dialogData.statusText = "";
+                          dialogData.statusUser = "";
+                          dialogData.statusTime =
+                              DateTime.fromMillisecondsSinceEpoch(1608120399);
+                        }
+                      } else {
+                        var statusInv = "";
+                        dialogData.statusText = statusInv;
+                      }
+
                       _navigateAndDisplaySelection(context, key);
                     });
                   },

@@ -1,4 +1,5 @@
 {
     "host":"report.vanoli-ag.ch",
-    "port":"10201"
+    "port":"10201",
+    "authPort": "17000"
 }
